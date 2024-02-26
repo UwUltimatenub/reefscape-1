@@ -116,7 +116,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     var turnConfig = new TalonFXConfiguration();
     turnConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
     turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    // driveConfig.Feedback.SensorToMechanismRatio = DRIVE_GEAR_RATIO;
+    // turnConfig.Feedback.SensorToMechanismRatio = TURN_GEAR_RATIO;
     turnConfig.Slot0 = steerGains;
     turnTalon.getConfigurator().apply(turnConfig);
     setTurnBrakeMode(true);
