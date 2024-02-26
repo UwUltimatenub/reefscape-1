@@ -26,6 +26,7 @@ import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 
@@ -68,12 +69,8 @@ public class ModuleIOTalonFX implements ModuleIO {
   private static final Slot0Configs driveGains =
       new Slot0Configs().withKP(2.3).withKI(0).withKD(0).withKS(0).withKV(0.85).withKA(0);
 
-  public static final double kSpeedAt12VoltsMps = 4.73;
-
-  private int index;
 
   public ModuleIOTalonFX(int index) {
-    this.index = index;
     switch (index) {
       case 0:
         driveTalon = new TalonFX(14);
@@ -103,34 +100,35 @@ public class ModuleIOTalonFX implements ModuleIO {
         throw new RuntimeException("Invalid module index");
     }
 
-    var cancoderConfig = new CANcoderConfiguration();
-    cancoderConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
-    cancoderConfig.MagnetSensor.MagnetOffset = -absoluteEncoderOffset.getRotations();
-    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    ;
-
-    cancoder.getConfigurator().apply(cancoderConfig);
-
     var driveConfig = new TalonFXConfiguration();
     driveConfig.Slot0 = driveGains;
     driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    driveConfig.Feedback.SensorToMechanismRatio = DRIVE_GEAR_RATIO;
-    driveConfig.Slot0 = driveGains;
-    driveConfig.MotorOutput.Inverted =
-        (index == 1 || index == 3)
-            ? InvertedValue.Clockwise_Positive
-            : InvertedValue.CounterClockwise_Positive;
+    // driveConfig.Feedback.SensorToMechanismRatio = DRIVE_GEAR_RATIO;
+    // driveConfig.Slot0 = driveGains;
+    // driveConfig.MotorOutput.Inverted =
+    //     (index == 1 || index == 3)
+    //         ? InvertedValue.Clockwise_Positive
+    //         : InvertedValue.CounterClockwise_Positive;
     driveTalon.getConfigurator().apply(driveConfig);
     setDriveBrakeMode(true);
 
     var turnConfig = new TalonFXConfiguration();
     turnConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
     turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    driveConfig.Feedback.SensorToMechanismRatio = DRIVE_GEAR_RATIO;
+    // driveConfig.Feedback.SensorToMechanismRatio = DRIVE_GEAR_RATIO;
     turnConfig.Slot0 = steerGains;
     turnTalon.getConfigurator().apply(turnConfig);
     setTurnBrakeMode(true);
+
+    CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
+    cancoderConfig.MagnetSensor.AbsoluteSensorRange =
+    AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
+    cancoderConfig.MagnetSensor.MagnetOffset = -absoluteEncoderOffset.getRotations();
+    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+
+    cancoder.getConfigurator().apply(cancoderConfig);
+    // cancoder.getConfigurator().apply(new CANcoderConfiguration());
 
     drivePosition = driveTalon.getPosition();
     driveVelocity = driveTalon.getVelocity();
@@ -203,11 +201,11 @@ public class ModuleIOTalonFX implements ModuleIO {
   public void setDriveBrakeMode(boolean enable) {
     var config = new MotorOutputConfigs();
 
-    // config.Inverted = InvertedValue.CounterClockwise_Positive;
-    config.Inverted =
-        (index == 1 || index == 3)
-            ? InvertedValue.Clockwise_Positive
-            : InvertedValue.CounterClockwise_Positive;
+    config.Inverted = InvertedValue.CounterClockwise_Positive;
+    // config.Inverted =
+    //     (index == 1 || index == 3)
+    //         ? InvertedValue.Clockwise_Positive
+    //         : InvertedValue.CounterClockwise_Positive;
 
     config.NeutralMode = enable ? NeutralModeValue.Brake : NeutralModeValue.Coast;
     driveTalon.getConfigurator().apply(config);

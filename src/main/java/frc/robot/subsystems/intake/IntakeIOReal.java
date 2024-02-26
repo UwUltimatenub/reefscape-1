@@ -6,6 +6,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.util.Units;
 
 public class IntakeIOReal implements IntakeIO {
 
@@ -14,7 +15,7 @@ public class IntakeIOReal implements IntakeIO {
   private VoltageOut vout;
 
   public IntakeIOReal() {
-    motor = new TalonFX(1);
+    motor = new TalonFX(8);
 
     var config = new TalonFXConfiguration();
 
@@ -30,7 +31,12 @@ public class IntakeIOReal implements IntakeIO {
   }
 
   @Override
-  public void updateInputs(IntakeIOInputs inputs) {}
+  public void updateInputs(IntakeIOInputs inputs) {
+
+    inputs.velocityRadPerSec = Units.rotationsToRadians(motor.getVelocity().getValueAsDouble());
+    inputs.appliedVolts = motor.getMotorVoltage().getValueAsDouble();
+    inputs.currentAmps = motor.getStatorCurrent().getValueAsDouble();
+  }
 
   @Override
   public void setVoltage(double volts) {

@@ -7,7 +7,7 @@ public interface IntakeIO {
   public static class IntakeIOInputs {
     public double velocityRadPerSec = 0.0;
     public double appliedVolts = 0.0;
-    public double[] currentAmps = new double[] {};
+    public double currentAmps = 0.0;
   }
 
   public default void updateInputs(IntakeIOInputs inputs) {}

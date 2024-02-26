@@ -25,10 +25,12 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 
 public class FlywheelIOTalonFX implements FlywheelIO {
-  private static final double GEAR_RATIO = 1.5;
+  private static final double GEAR_RATIO = 1;
 
   private final TalonFX leader = new TalonFX(7);
   private final TalonFX follower = new TalonFX(6);
+  private final TalonFX follower2 = new TalonFX(5);
+  private final TalonFX follower3 = new TalonFX(2);
 
   private final StatusSignal<Double> leaderPosition = leader.getPosition();
   private final StatusSignal<Double> leaderVelocity = leader.getVelocity();
@@ -44,11 +46,17 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     leader.getConfigurator().apply(config);
     follower.getConfigurator().apply(config);
     follower.setControl(new Follower(leader.getDeviceID(), false));
+    follower2.getConfigurator().apply(config);
+    follower2.setControl(new Follower(leader.getDeviceID(), true));
+    follower3.getConfigurator().apply(config);
+    follower3.setControl(new Follower(leader.getDeviceID(), true));
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent, followerCurrent);
     leader.optimizeBusUtilization();
     follower.optimizeBusUtilization();
+    follower2.optimizeBusUtilization();
+    follower3.optimizeBusUtilization();
   }
 
   @Override
