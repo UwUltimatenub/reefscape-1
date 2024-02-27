@@ -34,6 +34,13 @@ import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.flywheel.FlywheelIO;
 import frc.robot.subsystems.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.flywheel.FlywheelIOTalonFX;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIOReal;
+import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.superstructure.Superstructure;
+import frc.robot.subsystems.superstructure.arm.Arm;
+import frc.robot.subsystems.superstructure.arm.ArmIOKrakenFOC;
+import frc.robot.subsystems.superstructure.arm.ArmIOSim;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
@@ -47,6 +54,9 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Flywheel flywheel;
+  private final Intake intake;
+  private final Arm arm;
+  private final Superstructure superstructure;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -70,6 +80,10 @@ public class RobotContainer {
                 new ModuleIOTalonFX(2),
                 new ModuleIOTalonFX(3));
         flywheel = new Flywheel(new FlywheelIOTalonFX());
+
+        intake = new Intake(new IntakeIOReal());
+        arm = new Arm(new ArmIOKrakenFOC());
+        superstructure = new Superstructure(arm);
         // drive = new Drive(
         // new GyroIOPigeon2(),
         // new ModuleIOTalonFX(0),
@@ -89,6 +103,10 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim());
         flywheel = new Flywheel(new FlywheelIOSim());
+        intake = new Intake(new IntakeIOSim());
+        arm = new Arm(new ArmIOSim());
+        superstructure = new Superstructure(arm);
+
         break;
 
       default:
@@ -101,6 +119,9 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
         flywheel = new Flywheel(new FlywheelIO() {});
+        intake = new Intake(new IntakeIOReal());
+        arm = new Arm(new ArmIOKrakenFOC());
+        superstructure = new Superstructure(arm);
         break;
     }
 
@@ -166,6 +187,13 @@ public class RobotContainer {
         .whileTrue(
             Commands.startEnd(
                 () -> flywheel.runVelocity(flywheelSpeedInput.get()), flywheel::stop, flywheel));
+    controller
+        .rightTrigger()
+        .whileTrue(Commands.startEnd(() -> intake.runVolts(12), intake::stop, intake));
+
+    controller.leftBumper().whileTrue(Commands.waitUntil(superstructure::atGoal));
+
+    controller.leftTrigger().whileTrue(Commands.waitUntil(superstructure::atGoal));
   }
 
   /**

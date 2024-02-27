@@ -33,7 +33,6 @@ public class Intake extends SubsystemBase {
     // Switch constants based on mode (the physics simulator is treated as a
     // separate robot with different tuning)
 
-
     // Configure SysId
     sysId =
         new SysIdRoutine(

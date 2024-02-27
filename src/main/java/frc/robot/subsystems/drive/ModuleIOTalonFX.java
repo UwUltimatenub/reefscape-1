@@ -26,7 +26,6 @@ import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 
@@ -69,32 +68,31 @@ public class ModuleIOTalonFX implements ModuleIO {
   private static final Slot0Configs driveGains =
       new Slot0Configs().withKP(2.3).withKI(0).withKD(0).withKS(0).withKV(0.85).withKA(0);
 
-
   public ModuleIOTalonFX(int index) {
     switch (index) {
       case 0:
         driveTalon = new TalonFX(14);
         turnTalon = new TalonFX(11);
         cancoder = new CANcoder(0);
-        absoluteEncoderOffset = new Rotation2d(1.451); // MUST BE CALIBRATED
+        absoluteEncoderOffset = new Rotation2d(1.420 + 3.146 / 2); // MUST BE CALIBRATED
         break;
       case 1:
         driveTalon = new TalonFX(13);
         turnTalon = new TalonFX(18);
         cancoder = new CANcoder(22);
-        absoluteEncoderOffset = new Rotation2d(2.340); // MUST BE CALIBRATED
+        absoluteEncoderOffset = new Rotation2d(0.748 + 3.146 / 2); // MUST BE CALIBRATED
         break;
       case 2:
         driveTalon = new TalonFX(15);
         turnTalon = new TalonFX(16);
         cancoder = new CANcoder(21);
-        absoluteEncoderOffset = new Rotation2d(0.600); // MUST BE CALIBRATED
+        absoluteEncoderOffset = new Rotation2d(0.587 + 3.146 / 2); // MUST BE CALIBRATED
         break;
       case 3:
         driveTalon = new TalonFX(17);
         turnTalon = new TalonFX(10);
         cancoder = new CANcoder(20);
-        absoluteEncoderOffset = new Rotation2d(1.269); // MUST BE CALIBRATED
+        absoluteEncoderOffset = new Rotation2d(2.8 + 3.146 / 2); // MUST BE CALIBRATED
         break;
       default:
         throw new RuntimeException("Invalid module index");
@@ -122,8 +120,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     setTurnBrakeMode(true);
 
     CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
-    cancoderConfig.MagnetSensor.AbsoluteSensorRange =
-    AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
+    cancoderConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
     cancoderConfig.MagnetSensor.MagnetOffset = -absoluteEncoderOffset.getRotations();
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
 
