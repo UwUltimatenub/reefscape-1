@@ -22,7 +22,7 @@ import java.util.List;
 
 public class ArmIOReal implements ArmIO {
 
-  private static final double PIVOT_POS_SWITCH_THRESHOLD = 0.01;  
+  private static final double PIVOT_POS_SWITCH_THRESHOLD = 0.01;
   // Hardware
   private final TalonFX leaderTalon;
   private final TalonFX followerTalon;
@@ -41,7 +41,6 @@ public class ArmIOReal implements ArmIO {
   PositionVoltage pPos = new PositionVoltage(0, 0, true, 0, 0, false, false, false);
   MotionMagicVoltage pMmPos = new MotionMagicVoltage(0, true, 0, 1, false, false, false);
 
-  
   public ArmIOReal() {
     leaderTalon = new TalonFX(leaderID);
     followerTalon = new TalonFX(followerID);
@@ -69,7 +68,7 @@ public class ArmIOReal implements ArmIO {
     leaderConfig.Feedback.RotorToSensorRatio = reduction;
 
     leaderConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
-     // posHold
+    // posHold
     leaderConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
     leaderConfig.Slot0.kG = 0.35;
     leaderConfig.Slot0.kP = 254;
@@ -87,8 +86,8 @@ public class ArmIOReal implements ArmIO {
     leaderConfig.Slot1.kD = 0;
     leaderConfig.Slot1.kS = 0;
     leaderConfig.Slot1.kV = 15;
-    leaderConfig.Slot1.kA = 0;   
-  
+    leaderConfig.Slot1.kA = 0;
+
     // Set up leaderConfig
     leaderTalon.getConfigurator().apply(leaderConfig);
 
@@ -169,7 +168,8 @@ public class ArmIOReal implements ArmIO {
   // }
 
   public void setPosition(double positionRads) {
-    if (Math.abs(positionRads - armEncoderPositionRotations.getValueAsDouble()) < PIVOT_POS_SWITCH_THRESHOLD) {
+    if (Math.abs(positionRads - armEncoderPositionRotations.getValueAsDouble())
+        < PIVOT_POS_SWITCH_THRESHOLD) {
       leaderTalon.setControl(pPos.withPosition(positionRads));
       followerTalon.setControl(pPos.withPosition(positionRads));
     } else {
@@ -183,7 +183,6 @@ public class ArmIOReal implements ArmIO {
     leaderTalon.setNeutralMode(enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast);
     followerTalon.setNeutralMode(enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast);
   }
-
 
   @Override
   public void stop() {

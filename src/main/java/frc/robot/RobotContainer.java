@@ -176,11 +176,11 @@ public class RobotContainer {
     controller.b().whileTrue(Commands.startEnd(() -> intake.runVolts(12), intake::stop, intake));
 
     // arm
-    // Right Trigger, Arm to AMP
-    controller.rightTrigger().whileTrue(arm.amp());
+    // // Right Trigger, Arm to AMP
+    // controller.rightTrigger().whileTrue(arm.amp());
 
-    // Right Bumper, Arm to Speaker
-    controller.rightBumper().whileTrue(superstructure.subwoofer());
+    // // Right Bumper, Arm to Speaker
+    // controller.rightBumper().whileTrue(superstructure.subwoofer());
   }
 
   /**

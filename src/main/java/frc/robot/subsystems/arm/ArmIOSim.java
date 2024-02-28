@@ -9,8 +9,6 @@ package frc.robot.subsystems.arm;
 
 import static frc.robot.subsystems.arm.ArmConstants.*;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -31,18 +29,16 @@ public class ArmIOSim implements ArmIO {
   private double appliedVoltage = 0.0;
   private double positionOffset = 0.0;
 
-
-
   private boolean wasNotAuto = true;
 
-  public ArmIOSim() { 
+  public ArmIOSim() {
     sim.setState(0.0, 0.0);
     setPosition(0.0);
   }
 
   @Override
   public void updateInputs(ArmIOInputs inputs) {
- 
+
     // Assume starting at ~80 degrees
     if (wasNotAuto && DriverStation.isAutonomousEnabled()) {
       sim.setState(Units.degreesToRadians(80.0), 0.0);
