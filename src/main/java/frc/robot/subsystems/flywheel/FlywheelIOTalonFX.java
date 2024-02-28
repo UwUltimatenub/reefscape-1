@@ -15,10 +15,8 @@ package frc.robot.subsystems.flywheel;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -48,7 +46,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-
     config.Slot0.kV = 10;
     config.Slot0.kP = 0;
 
@@ -76,17 +73,17 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         new double[] {leaderCurrent.getValueAsDouble(), followerCurrent.getValueAsDouble()};
   }
 
-  @Override
-  public void setVoltage(double volts) {
-    System.out.println("Volts : " + volts);
-    leader.setControl(new VoltageOut(volts));
-    follower.setControl(new VoltageOut(volts));
-    follower2.setControl(new VoltageOut(volts));
-    follower3.setControl(new VoltageOut(volts));
-  }
+  // @Override
+  // public void setVoltage(double volts) {
+  //   System.out.println("Volts : " + volts);
+  //   leader.setControl(new VoltageOut(volts));
+  //   follower.setControl(new VoltageOut(volts));
+  //   follower2.setControl(new VoltageOut(volts));
+  //   follower3.setControl(new VoltageOut(volts));
+  // }
 
   @Override
-  public void setVelocity(double velocityRadPerSec, double ffVolts) {
+  public void setVelocity(double velocityRadPerSec) {
     System.out.println("Vel : " + velocityRadPerSec);
     leader.setControl(velOut.withVelocity(velocityRadPerSec));
     follower.setControl(velOut.withVelocity(velocityRadPerSec));
@@ -101,17 +98,5 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     follower.stopMotor();
     follower2.stopMotor();
     follower3.stopMotor();
-  }
-
-  @Override
-  public void configurePID(double kP, double kI, double kD) {
-    var config = new Slot0Configs();
-    config.kP = kP;
-    config.kI = kI;
-    config.kD = kD;
-    // leader.getConfigurator().apply(config);
-    // follower.getConfigurator().apply(config);
-    // follower2.getConfigurator().apply(config);
-    // follower3.getConfigurator().apply(config);
   }
 }

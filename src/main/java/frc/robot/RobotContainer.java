@@ -22,6 +22,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.ArmIOReal;
+import frc.robot.subsystems.arm.ArmIOSim;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIONavx;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -34,10 +37,6 @@ import frc.robot.subsystems.flywheel.FlywheelIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOReal;
 import frc.robot.subsystems.intake.IntakeIOSim;
-import frc.robot.subsystems.superstructure.Superstructure;
-import frc.robot.subsystems.superstructure.arm.Arm;
-import frc.robot.subsystems.superstructure.arm.ArmIOKrakenFOC;
-import frc.robot.subsystems.superstructure.arm.ArmIOSim;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
@@ -53,7 +52,6 @@ public class RobotContainer {
   private final Flywheel flywheel;
   private final Intake intake;
   private final Arm arm;
-  private final Superstructure superstructure;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -79,8 +77,7 @@ public class RobotContainer {
         flywheel = new Flywheel(new FlywheelIOTalonFX());
 
         intake = new Intake(new IntakeIOReal());
-        arm = new Arm(new ArmIOKrakenFOC());
-        superstructure = new Superstructure(arm);
+        arm = new Arm(new ArmIOReal());
         // drive = new Drive(
         // new GyroIOPigeon2(),
         // new ModuleIOTalonFX(0),
@@ -102,7 +99,6 @@ public class RobotContainer {
         flywheel = new Flywheel(new FlywheelIOSim());
         intake = new Intake(new IntakeIOSim());
         arm = new Arm(new ArmIOSim());
-        superstructure = new Superstructure(arm);
 
         break;
 
@@ -117,8 +113,7 @@ public class RobotContainer {
                 new ModuleIO() {});
         flywheel = new Flywheel(new FlywheelIO() {});
         intake = new Intake(new IntakeIOReal());
-        arm = new Arm(new ArmIOKrakenFOC());
-        superstructure = new Superstructure(arm);
+        arm = new Arm(new ArmIOReal());
         break;
     }
 
@@ -141,16 +136,6 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Flywheel SysId (Quasistatic Forward)",
-        flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Flywheel SysId (Quasistatic Reverse)",
-        flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Flywheel SysId (Dynamic Forward)", flywheel.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Flywheel SysId (Dynamic Reverse)", flywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -192,7 +177,7 @@ public class RobotContainer {
 
     // arm
     // Right Trigger, Arm to AMP
-    controller.rightTrigger().whileTrue(superstructure.amp());
+    controller.rightTrigger().whileTrue(arm.amp());
 
     // Right Bumper, Arm to Speaker
     controller.rightBumper().whileTrue(superstructure.subwoofer());

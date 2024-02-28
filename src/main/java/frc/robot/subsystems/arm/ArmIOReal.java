@@ -7,22 +7,22 @@
 
 package frc.robot.subsystems.arm;
 
+import static frc.robot.subsystems.arm.ArmConstants.*;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.util.Units;
-
-import static frc.robot.subsystems.arm.ArmConstants.*;
-
 import java.util.List;
 
-public class ArmIOKrakenFOC implements ArmIO {
+public class ArmIOReal implements ArmIO {
+
+  private static final double PIVOT_POS_SWITCH_THRESHOLD = 0.01;  
   // Hardware
   private final TalonFX leaderTalon;
   private final TalonFX followerTalon;
@@ -38,15 +38,11 @@ public class ArmIOKrakenFOC implements ArmIO {
   private final List<StatusSignal<Double>> armTorqueCurrent;
   private final List<StatusSignal<Double>> armTempCelsius;
 
-  // Control
-  private final Slot0Configs controllerConfig;
-  private final VoltageOut voltageControl =
-      new VoltageOut(0.0).withEnableFOC(true).withUpdateFreqHz(0.0);
-  private final TorqueCurrentFOC currentControl = new TorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
-  private final PositionTorqueCurrentFOC positionControl =
-      new PositionTorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
+  PositionVoltage pPos = new PositionVoltage(0, 0, true, 0, 0, false, false, false);
+  MotionMagicVoltage pMmPos = new MotionMagicVoltage(0, true, 0, 1, false, false, false);
 
-  public ArmIOKrakenFOC() {
+  
+  public ArmIOReal() {
     leaderTalon = new TalonFX(leaderID);
     followerTalon = new TalonFX(followerID);
     followerTalon.setControl(new Follower(leaderID, true));
@@ -73,19 +69,32 @@ public class ArmIOKrakenFOC implements ArmIO {
     leaderConfig.Feedback.RotorToSensorRatio = reduction;
 
     leaderConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
-    leaderConfig.Slot0.kV = 10;
-    leaderConfig.Slot0.kP = 0;
+     // posHold
+    leaderConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+    leaderConfig.Slot0.kG = 0.35;
+    leaderConfig.Slot0.kP = 254;
+    leaderConfig.Slot0.kI = 0;
+    leaderConfig.Slot0.kD = 0;
+    leaderConfig.Slot0.kS = 0;
+    leaderConfig.Slot0.kV = 0;
+    leaderConfig.Slot0.kA = 0;
 
-    controllerConfig = new Slot0Configs().withKP(gains.kP()).withKI(gains.kI()).withKD(gains.kD());
-    leaderConfig.Slot0 = controllerConfig;
-
+    // mmPosMove
+    leaderConfig.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
+    leaderConfig.Slot1.kG = 0.35;
+    leaderConfig.Slot1.kP = 176;
+    leaderConfig.Slot1.kI = 0;
+    leaderConfig.Slot1.kD = 0;
+    leaderConfig.Slot1.kS = 0;
+    leaderConfig.Slot1.kV = 15;
+    leaderConfig.Slot1.kA = 0;   
+  
     // Set up leaderConfig
     leaderTalon.getConfigurator().apply(leaderConfig);
 
     // Follower configs
     leaderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     followerTalon.getConfigurator().apply(leaderConfig);
-
 
     // Status signals
     armInternalPositionRotations = leaderTalon.getPosition();
@@ -154,22 +163,19 @@ public class ArmIOKrakenFOC implements ArmIO {
         armTempCelsius.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
   }
 
-  @Override
-  public void runSetpoint(double setpointRads, double feedforward) {
-    leaderTalon.setControl(
-        positionControl
-            .withPosition(Units.radiansToRotations(setpointRads))
-            .withFeedForward(feedforward));
-  }
+  // @Override
+  // public void setPosition(double positionRads) {
+  //   leaderTalon.setPosition(Units.radiansToRotations(positionRads));
+  // }
 
-  @Override
-  public void runVolts(double volts) {
-    leaderTalon.setControl(voltageControl.withOutput(volts));
-  }
-
-  @Override
-  public void runCurrent(double amps) {
-    leaderTalon.setControl(currentControl.withOutput(amps));
+  public void setPosition(double positionRads) {
+    if (Math.abs(positionRads - armEncoderPositionRotations.getValueAsDouble()) < PIVOT_POS_SWITCH_THRESHOLD) {
+      leaderTalon.setControl(pPos.withPosition(positionRads));
+      followerTalon.setControl(pPos.withPosition(positionRads));
+    } else {
+      leaderTalon.setControl(pMmPos.withPosition(positionRads));
+      leaderTalon.setControl(pMmPos.withPosition(positionRads));
+    }
   }
 
   @Override
@@ -178,18 +184,6 @@ public class ArmIOKrakenFOC implements ArmIO {
     followerTalon.setNeutralMode(enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast);
   }
 
-  @Override
-  public void setPID(double p, double i, double d) {
-    controllerConfig.kP = p;
-    controllerConfig.kI = i;
-    controllerConfig.kD = d;
-    leaderTalon.getConfigurator().apply(controllerConfig);
-  }
-
-  @Override
-  public void setPosition(double positionRads) {
-    leaderTalon.setPosition(Units.radiansToRotations(positionRads));
-  }
 
   @Override
   public void stop() {
