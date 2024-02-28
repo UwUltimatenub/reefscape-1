@@ -17,8 +17,8 @@ public class ArmConstants {
   public static double reduction = (62.0 / 12.0) * (60.0 / 18.0) * (65.0 / 12.0);
   public static Rotation2d positionTolerance = Rotation2d.fromDegrees(3.0);
   public static Translation2d armOrigin = new Translation2d(-0.238, 0.298);
-  public static Rotation2d minAngle = Rotation2d.fromDegrees(10.0);
-  public static Rotation2d maxAngle = Rotation2d.fromDegrees(110.0);
+  public static Rotation2d minAngle = Rotation2d.fromDegrees(-30.0);
+  public static Rotation2d maxAngle = Rotation2d.fromDegrees(80.0);
 
   public static int leaderID = 12;
   public static int followerID = 9;
@@ -28,7 +28,7 @@ public class ArmConstants {
   public static boolean followerInverted = false;
 
   /** The offset of the arm encoder in rotations. */
-  public static double armEncoderOffsetRotations = Units.radiansToRotations(1.233 + Math.PI / 2.0);
+  public static double armEncoderOffsetRotations = Units.radiansToRotations(0.606 + Math.PI / 2.0);
 
   public static double armLength = Units.inchesToMeters(25.866);
 

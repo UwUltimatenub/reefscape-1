@@ -52,12 +52,11 @@ public class Arm {
 
   @RequiredArgsConstructor
   public enum Goal {
-    FLOOR_INTAKE(new LoggedTunableNumber("Arm/IntakeDegrees", 18.0)),
-    STATION_INTAKE(new LoggedTunableNumber("Arm/StationIntakeDegrees", 45.0)),
-    AIM(new LoggedTunableNumber("Arm/StationIntakeDegrees", 55.0)),
-    STOW(new LoggedTunableNumber("Arm/StowDegrees", 10.0)),
-    AMP(new LoggedTunableNumber("Arm/AmpDegrees", 100.0)),
-    SUBWOOFER(new LoggedTunableNumber("Arm/SubwooferDegrees", 55.0)),
+    STATION_INTAKE(new LoggedTunableNumber("Arm/StationIntakeDegrees", 35)),
+    AIM(new LoggedTunableNumber("Arm/StationIntakeDegrees", 30.0)),
+    STOW(new LoggedTunableNumber("Arm/StowDegrees", -30.0)),
+    AMP(new LoggedTunableNumber("Arm/AmpDegrees", 20.0)),
+    SUBWOOFER(new LoggedTunableNumber("Arm/SubwooferDegrees", 30.0)),
     CUSTOM(new LoggedTunableNumber("Arm/CustomSetpoint", 20.0));
 
     private final DoubleSupplier armSetpointSupplier;
@@ -138,7 +137,7 @@ public class Arm {
       // Run closed loop
       setpointState =
           motionProfile.calculate(
-              0.02,
+              2,
               setpointState,
               new TrapezoidProfile.State(
                   MathUtil.clamp(

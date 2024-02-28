@@ -46,10 +46,10 @@ public class ArmIOKrakenFOC implements ArmIO {
       new PositionTorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
 
   public ArmIOKrakenFOC() {
-    leaderTalon = new TalonFX(leaderID, "*");
-    followerTalon = new TalonFX(followerID, "*");
+    leaderTalon = new TalonFX(leaderID);
+    followerTalon = new TalonFX(followerID);
     followerTalon.setControl(new Follower(leaderID, true));
-    absoluteEncoder = new CANcoder(armEncoderID, "*");
+    absoluteEncoder = new CANcoder(armEncoderID);
 
     // Arm Encoder Configs
     CANcoderConfiguration armEncoderConfig = new CANcoderConfiguration();

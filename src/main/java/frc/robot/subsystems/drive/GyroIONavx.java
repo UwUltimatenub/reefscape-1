@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.SPI;
 public class GyroIONavx implements GyroIO {
   private AHRS ahrs;
   private double prevAngle;
+  private double initial_degree;
 
   public GyroIONavx() {
 
@@ -31,6 +32,8 @@ public class GyroIONavx implements GyroIO {
       /* Alternatively:  I2C.Port.kMXP, SerialPort.Port.kMXP or SerialPort.Port.kUSB     */
       /* See http://navx-mxp.kauailabs.com/guidance/selecting-an-interface/ for details. */
       ahrs = new AHRS(SPI.Port.kMXP);
+      initial_degree = -ahrs.getAngle();
+
     } catch (RuntimeException ex) {
       DriverStation.reportError("Error instantiating navX-MXP:  " + ex.getMessage(), true);
     }
@@ -39,8 +42,9 @@ public class GyroIONavx implements GyroIO {
   @Override
   public void updateInputs(GyroIOInputs inputs) {
     inputs.connected = true;
-    inputs.yawPosition = Rotation2d.fromDegrees(ahrs.getAngle());
-    inputs.yawVelocityRadPerSec = Units.degreesToRadians((ahrs.getAngle() - prevAngle) / 0.02);
-    prevAngle = ahrs.getAngle();
+    double current_angle = -ahrs.getAngle() - initial_degree;
+    inputs.yawPosition = Rotation2d.fromDegrees(current_angle);
+    inputs.yawVelocityRadPerSec = Units.degreesToRadians((current_angle - prevAngle) / 0.02);
+    prevAngle = current_angle;
   }
 }
