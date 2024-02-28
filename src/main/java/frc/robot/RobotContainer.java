@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavx;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
@@ -95,7 +94,7 @@ public class RobotContainer {
         // Sim robot, instantiate physics sim IO implementations
         drive =
             new Drive(
-                new GyroIO() {},
+                new GyroIONavx() {},
                 new ModuleIOSim(),
                 new ModuleIOSim(),
                 new ModuleIOSim(),
@@ -111,7 +110,7 @@ public class RobotContainer {
         // Replayed robot, disable IO implementations
         drive =
             new Drive(
-                new GyroIO() {},
+                new GyroIONavx() {},
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {},
@@ -172,6 +171,7 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> controller.getRightX()));
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    controller.y().onTrue(Commands.runOnce(drive::resetFieldOrientation, drive));
     // controller
     //     .b()
     //     .onTrue(

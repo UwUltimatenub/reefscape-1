@@ -47,4 +47,10 @@ public class GyroIONavx implements GyroIO {
     inputs.yawVelocityRadPerSec = Units.degreesToRadians((current_angle - prevAngle) / 0.02);
     prevAngle = current_angle;
   }
+
+  @Override
+  public void resetFO() {
+    initial_degree = -ahrs.getAngle();
+    System.out.println("resetting Field Orientation...");
+  }
 }
