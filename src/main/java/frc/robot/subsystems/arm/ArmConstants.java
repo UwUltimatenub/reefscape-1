@@ -5,7 +5,7 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package frc.robot.subsystems.superstructure.arm;
+package frc.robot.subsystems.arm;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -23,9 +23,6 @@ public class ArmConstants {
   public static int leaderID = 12;
   public static int followerID = 9;
   public static int armEncoderID = 19;
-
-  public static boolean leaderInverted = false;
-  public static boolean followerInverted = false;
 
   /** The offset of the arm encoder in rotations. */
   public static double armEncoderOffsetRotations = Units.radiansToRotations(0.606 + Math.PI / 2.0);

@@ -5,9 +5,7 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package frc.robot.subsystems.superstructure.arm;
-
-import static frc.robot.subsystems.superstructure.arm.ArmConstants.*;
+package frc.robot.subsystems.arm;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -19,6 +17,9 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.util.Units;
+
+import static frc.robot.subsystems.arm.ArmConstants.*;
+
 import java.util.List;
 
 public class ArmIOKrakenFOC implements ArmIO {
@@ -50,6 +51,7 @@ public class ArmIOKrakenFOC implements ArmIO {
     followerTalon = new TalonFX(followerID);
     followerTalon.setControl(new Follower(leaderID, true));
     absoluteEncoder = new CANcoder(armEncoderID);
+    //
 
     // Arm Encoder Configs
     CANcoderConfiguration armEncoderConfig = new CANcoderConfiguration();
@@ -63,21 +65,27 @@ public class ArmIOKrakenFOC implements ArmIO {
     TalonFXConfiguration leaderConfig = new TalonFXConfiguration();
     leaderConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
     leaderConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    leaderConfig.MotorOutput.Inverted =
-        leaderInverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+    leaderConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     leaderConfig.Feedback.FeedbackRemoteSensorID = armEncoderID;
     leaderConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
     leaderConfig.Feedback.SensorToMechanismRatio = 1.0;
     leaderConfig.Feedback.RotorToSensorRatio = reduction;
 
-    // Set up controller
+    leaderConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
+    leaderConfig.Slot0.kV = 10;
+    leaderConfig.Slot0.kP = 0;
+
     controllerConfig = new Slot0Configs().withKP(gains.kP()).withKI(gains.kI()).withKD(gains.kD());
     leaderConfig.Slot0 = controllerConfig;
 
+    // Set up leaderConfig
+    leaderTalon.getConfigurator().apply(leaderConfig);
+
     // Follower configs
-    TalonFXConfiguration followerConfig = new TalonFXConfiguration();
-    followerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    leaderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    followerTalon.getConfigurator().apply(leaderConfig);
+
 
     // Status signals
     armInternalPositionRotations = leaderTalon.getPosition();
