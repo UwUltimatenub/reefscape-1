@@ -103,13 +103,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     // driveConfig.Feedback.SensorToMechanismRatio = DRIVE_GEAR_RATIO;
-    // driveConfig.Slot0 = driveGains;
-    // driveConfig.MotorOutput.Inverted =
-    //     (index == 1 || index == 3)
-    //         ? InvertedValue.Clockwise_Positive
-    //         : InvertedValue.CounterClockwise_Positive;
     driveTalon.getConfigurator().apply(driveConfig);
-    setDriveBrakeMode(true);
+    setDriveBrakeMode(false);
 
     var turnConfig = new TalonFXConfiguration();
     turnConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
@@ -117,7 +112,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     // turnConfig.Feedback.SensorToMechanismRatio = TURN_GEAR_RATIO;
     turnConfig.Slot0 = steerGains;
     turnTalon.getConfigurator().apply(turnConfig);
-    setTurnBrakeMode(true);
+    setTurnBrakeMode(false);
 
     CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
     cancoderConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;

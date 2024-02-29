@@ -13,8 +13,6 @@
 
 package frc.robot.subsystems.flywheel;
 
-import static edu.wpi.first.units.Units.*;
-
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLogOutput;

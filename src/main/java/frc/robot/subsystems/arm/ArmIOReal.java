@@ -57,43 +57,43 @@ public class ArmIOReal implements ArmIO {
     absoluteEncoder.getConfigurator().apply(armEncoderConfig, 1);
 
     // Leader motor configs
-    TalonFXConfiguration leaderConfig = new TalonFXConfiguration();
-    leaderConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
-    leaderConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    leaderConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    leaderConfig.Feedback.FeedbackRemoteSensorID = armEncoderID;
-    leaderConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
-    leaderConfig.Feedback.SensorToMechanismRatio = 1.0;
-    leaderConfig.Feedback.RotorToSensorRatio = reduction;
+    TalonFXConfiguration armTalonConfig = new TalonFXConfiguration();
+    armTalonConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
+    armTalonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    armTalonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    armTalonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    armTalonConfig.Feedback.FeedbackRemoteSensorID = armEncoderID;
+    armTalonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
+    armTalonConfig.Feedback.SensorToMechanismRatio = 1.0;
+    armTalonConfig.Feedback.RotorToSensorRatio = reduction;
 
-    leaderConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
+    armTalonConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
     // posHold
-    leaderConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-    leaderConfig.Slot0.kG = 0.35;
-    leaderConfig.Slot0.kP = 254;
-    leaderConfig.Slot0.kI = 0;
-    leaderConfig.Slot0.kD = 0;
-    leaderConfig.Slot0.kS = 0;
-    leaderConfig.Slot0.kV = 0;
-    leaderConfig.Slot0.kA = 0;
+    armTalonConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+    armTalonConfig.Slot0.kG = 0.35;
+    armTalonConfig.Slot0.kP = 254;
+    armTalonConfig.Slot0.kI = 0;
+    armTalonConfig.Slot0.kD = 0;
+    armTalonConfig.Slot0.kS = 0;
+    armTalonConfig.Slot0.kV = 0;
+    armTalonConfig.Slot0.kA = 0;
 
     // mmPosMove
-    leaderConfig.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
-    leaderConfig.Slot1.kG = 0.35;
-    leaderConfig.Slot1.kP = 176;
-    leaderConfig.Slot1.kI = 0;
-    leaderConfig.Slot1.kD = 0;
-    leaderConfig.Slot1.kS = 0;
-    leaderConfig.Slot1.kV = 15;
-    leaderConfig.Slot1.kA = 0;
+    armTalonConfig.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
+    armTalonConfig.Slot1.kG = 0.35;
+    armTalonConfig.Slot1.kP = 176;
+    armTalonConfig.Slot1.kI = 0;
+    armTalonConfig.Slot1.kD = 0;
+    armTalonConfig.Slot1.kS = 0;
+    armTalonConfig.Slot1.kV = 15;
+    armTalonConfig.Slot1.kA = 0;
 
-    // Set up leaderConfig
-    leaderTalon.getConfigurator().apply(leaderConfig);
+    // Set up armTalonConfig
+    leaderTalon.getConfigurator().apply(armTalonConfig);
 
     // Follower configs
-    leaderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    followerTalon.getConfigurator().apply(leaderConfig);
+    armTalonConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    followerTalon.getConfigurator().apply(armTalonConfig);
 
     // Status signals
     armInternalPositionRotations = leaderTalon.getPosition();
@@ -174,7 +174,7 @@ public class ArmIOReal implements ArmIO {
       followerTalon.setControl(pPos.withPosition(positionRads));
     } else {
       leaderTalon.setControl(pMmPos.withPosition(positionRads));
-      leaderTalon.setControl(pMmPos.withPosition(positionRads));
+      followerTalon.setControl(pMmPos.withPosition(positionRads));
     }
   }
 
@@ -186,6 +186,7 @@ public class ArmIOReal implements ArmIO {
 
   @Override
   public void stop() {
+    leaderTalon.setControl(new NeutralOut());
     leaderTalon.setControl(new NeutralOut());
   }
 }

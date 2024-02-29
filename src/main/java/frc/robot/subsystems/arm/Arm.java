@@ -7,16 +7,31 @@
 
 package frc.robot.subsystems.arm;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.Alert;
 import org.littletonrobotics.junction.Logger;
 
-public class Arm {
+public class Arm extends SubsystemBase {
 
-  //     public enum ARM_LEVEL {
-  //        STATION_INTAKE(104),
-  //        AIM(203);
-  //     }
+  public enum ARM_LEVEL {
+    STOW(Units.degreesToRadians(-25)),
+    STATION_INTAKE(Units.degreesToRadians(30)),
+    AMP(Units.degreesToRadians(30)),
+    SPEAKER(Units.degreesToRadians(35)),
+    DIAGNOSE(Units.degreesToRadians(0));
+
+    private double numVal;
+
+    ARM_LEVEL(double numVal) {
+      this.numVal = numVal;
+    }
+
+    public double getDegrees() {
+      return numVal;
+    }
+  }
 
   //     STATION_INTAKE(  35),
   //     AIM(new LoggedTunableNumber("Arm/StationIntakeDegrees", 30.0)),
@@ -54,6 +69,11 @@ public class Arm {
     if (DriverStation.isDisabled()) {
       io.stop();
     }
+  }
+
+  public void setArmLevel(Arm.ARM_LEVEL level) {
+    double positionRads = Units.degreesToRadians(level.getDegrees());
+    io.setPosition(positionRads);
   }
 
   public void stop() {
