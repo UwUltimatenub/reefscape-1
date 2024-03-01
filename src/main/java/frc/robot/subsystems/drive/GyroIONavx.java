@@ -33,6 +33,7 @@ public class GyroIONavx implements GyroIO {
       /* See http://navx-mxp.kauailabs.com/guidance/selecting-an-interface/ for details. */
       ahrs = new AHRS(SPI.Port.kMXP);
       initial_degree = -ahrs.getAngle();
+      prevAngle = initial_degree;
 
     } catch (RuntimeException ex) {
       DriverStation.reportError("Error instantiating navX-MXP:  " + ex.getMessage(), true);

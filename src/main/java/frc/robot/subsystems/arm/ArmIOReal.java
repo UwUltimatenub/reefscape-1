@@ -38,8 +38,10 @@ public class ArmIOReal implements ArmIO {
   private final List<StatusSignal<Double>> armTorqueCurrent;
   private final List<StatusSignal<Double>> armTempCelsius;
 
-  PositionVoltage pPos = new PositionVoltage(0, 0, true, 0, 0, false, false, false);
-  MotionMagicVoltage pMmPos = new MotionMagicVoltage(0, true, 0, 1, false, false, false);
+  PositionVoltage pPos = new PositionVoltage(0, 0, false, 0, 0, false, false, false);
+  MotionMagicVoltage pMmPos = new MotionMagicVoltage(0, false, 0, 1, false, false, false);
+  /** The offset of the arm encoder in rotations. */
+  public static double armEncoderOffsetRotations = Units.radiansToRotations(-2.661 + 0.469);
 
   public ArmIOReal() {
     leaderTalon = new TalonFX(leaderID);
@@ -53,7 +55,7 @@ public class ArmIOReal implements ArmIO {
     armEncoderConfig.MagnetSensor.AbsoluteSensorRange =
         AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
     armEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-    armEncoderConfig.MagnetSensor.MagnetOffset = armEncoderOffsetRotations;
+    armEncoderConfig.MagnetSensor.MagnetOffset = -armEncoderOffsetRotations;
     absoluteEncoder.getConfigurator().apply(armEncoderConfig, 1);
 
     // Leader motor configs
@@ -61,7 +63,7 @@ public class ArmIOReal implements ArmIO {
     armTalonConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
     armTalonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     armTalonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    armTalonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    armTalonConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     armTalonConfig.Feedback.FeedbackRemoteSensorID = armEncoderID;
     armTalonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
     armTalonConfig.Feedback.SensorToMechanismRatio = 1.0;
@@ -70,8 +72,8 @@ public class ArmIOReal implements ArmIO {
     armTalonConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
     // posHold
     armTalonConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-    armTalonConfig.Slot0.kG = 0.35;
-    armTalonConfig.Slot0.kP = 254;
+    armTalonConfig.Slot0.kG = 0.35; // 0.35
+    armTalonConfig.Slot0.kP = 100; // 250
     armTalonConfig.Slot0.kI = 0;
     armTalonConfig.Slot0.kD = 0;
     armTalonConfig.Slot0.kS = 0;
@@ -80,13 +82,17 @@ public class ArmIOReal implements ArmIO {
 
     // mmPosMove
     armTalonConfig.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
-    armTalonConfig.Slot1.kG = 0.35;
-    armTalonConfig.Slot1.kP = 176;
+    armTalonConfig.Slot1.kG = 0.35; // 0.35
+    armTalonConfig.Slot1.kP = 100; // 170
     armTalonConfig.Slot1.kI = 0;
     armTalonConfig.Slot1.kD = 0;
     armTalonConfig.Slot1.kS = 0;
-    armTalonConfig.Slot1.kV = 15;
-    armTalonConfig.Slot1.kA = 0;
+    armTalonConfig.Slot1.kV = 8.3;
+    armTalonConfig.Slot1.kA = 0.2;
+
+    armTalonConfig.MotionMagic.MotionMagicCruiseVelocity = 0.5;
+    armTalonConfig.MotionMagic.MotionMagicAcceleration = 1.0;
+    armTalonConfig.MotionMagic.MotionMagicJerk = 10;
 
     // Set up armTalonConfig
     leaderTalon.getConfigurator().apply(armTalonConfig);
@@ -173,6 +179,7 @@ public class ArmIOReal implements ArmIO {
       leaderTalon.setControl(pPos.withPosition(positionRads));
       followerTalon.setControl(pPos.withPosition(positionRads));
     } else {
+      System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
       leaderTalon.setControl(pMmPos.withPosition(positionRads));
       followerTalon.setControl(pMmPos.withPosition(positionRads));
     }

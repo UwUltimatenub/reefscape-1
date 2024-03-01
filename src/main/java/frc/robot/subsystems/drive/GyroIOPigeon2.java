@@ -23,9 +23,11 @@ import edu.wpi.first.math.util.Units;
 
 /** IO implementation for Pigeon2 */
 public class GyroIOPigeon2 implements GyroIO {
-  private final Pigeon2 pigeon = new Pigeon2(20);
+  private final Pigeon2 pigeon = new Pigeon2(1);
   private final StatusSignal<Double> yaw = pigeon.getYaw();
   private final StatusSignal<Double> yawVelocity = pigeon.getAngularVelocityZWorld();
+  private double initial_degree;
+  private double prevAngle;
 
   public GyroIOPigeon2() {
     pigeon.getConfigurator().apply(new Pigeon2Configuration());
@@ -33,18 +35,25 @@ public class GyroIOPigeon2 implements GyroIO {
     yaw.setUpdateFrequency(100.0);
     yawVelocity.setUpdateFrequency(100.0);
     pigeon.optimizeBusUtilization();
+    initial_degree = pigeon.getAngle();
+    prevAngle = pigeon.getAngle();
   }
 
   @Override
   public void updateInputs(GyroIOInputs inputs) {
     inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
-    inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
-    inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
+    // inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
+    // inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
+
+    double current_angle = yaw.getValueAsDouble() - initial_degree;
+    inputs.yawPosition = Rotation2d.fromDegrees(current_angle);
+    inputs.yawVelocityRadPerSec = Units.degreesToRadians((current_angle - prevAngle) / 0.02);
+    prevAngle = current_angle;
   }
 
   @Override
   public void resetFO() {
-    // TODO Auto-generated method stub
-    // do nothing
+    initial_degree = yaw.getValueAsDouble();
+    System.out.println("resetting Field Orientation...");
   }
 }

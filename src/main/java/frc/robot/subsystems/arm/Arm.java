@@ -73,6 +73,7 @@ public class Arm extends SubsystemBase {
 
   public void setArmLevel(Arm.ARM_LEVEL level) {
     double positionRads = Units.degreesToRadians(level.getDegrees());
+    System.out.println("setting arm position degrees=" + level.getDegrees());
     io.setPosition(positionRads);
   }
 

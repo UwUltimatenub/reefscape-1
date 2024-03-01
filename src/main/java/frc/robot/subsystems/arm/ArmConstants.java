@@ -24,9 +24,6 @@ public class ArmConstants {
   public static int followerID = 9;
   public static int armEncoderID = 19;
 
-  /** The offset of the arm encoder in rotations. */
-  public static double armEncoderOffsetRotations = Units.radiansToRotations(0.606 + Math.PI / 2.0);
-
   public static double armLength = Units.inchesToMeters(25.866);
 
   public static Gains gains = new Gains(4000, 0.0, 120, 5.75, 0.0, 0.0, 15);
