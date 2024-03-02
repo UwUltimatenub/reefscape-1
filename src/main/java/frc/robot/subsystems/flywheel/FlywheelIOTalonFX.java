@@ -36,6 +36,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final StatusSignal<Double> leaderCurrent = leader.getSupplyCurrent();
   private final StatusSignal<Double> followerCurrent = follower.getSupplyCurrent();
 
+  // rotations per second.
   VelocityVoltage velOut =
       new VelocityVoltage(Units.radiansToRotations(0.0), 0.0, true, 0, 0, false, false, false);
 
@@ -85,7 +86,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   @Override
   public void setVelocity(double velocityRadPerSec) {
     System.out.println("Vel : " + velocityRadPerSec);
-    leader.setControl(velOut.withVelocity(velocityRadPerSec));
+    leader.setControl(velOut.withVelocity(velocityRadPerSec)); // rotations per second.
     follower.setControl(velOut.withVelocity(velocityRadPerSec));
     follower2.setControl(velOut.withVelocity(velocityRadPerSec));
     follower3.setControl(velOut.withVelocity(velocityRadPerSec));

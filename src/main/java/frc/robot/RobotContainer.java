@@ -14,7 +14,6 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,7 +37,6 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOReal;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -58,8 +56,6 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
-  private final LoggedDashboardNumber flywheelSpeedInput =
-      new LoggedDashboardNumber("Flywheel Speed", 10.0);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -120,11 +116,11 @@ public class RobotContainer {
     }
 
     // Set up auto routines
-    NamedCommands.registerCommand(
-        "Run Flywheel",
-        Commands.startEnd(
-                () -> flywheel.runVelocity(flywheelSpeedInput.get()), flywheel::stop, flywheel)
-            .withTimeout(5.0));
+    // NamedCommands.registerCommand(
+    //     "Run Flywheel",
+    //     Commands.startEnd(
+    //             () -> flywheel.runVelocity(flywheelSpeedInput.get()), flywheel::stop, flywheel)
+    //         .withTimeout(5.0));
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
@@ -143,6 +139,20 @@ public class RobotContainer {
     configureButtonBindings();
   }
 
+  public double getFlywheelRPM() {
+    double flywheelRPM = 0;
+    switch (arm.armPosition) {
+      case Arm.ARM_LEVEL_AMP:
+        flywheelRPM = 10;
+        break;
+      case Arm.ARM_LEVEL_SPEAKER:
+        flywheelRPM = 600;
+        break;
+      default:
+        flywheelRPM = 0;
+    }
+    return flywheelRPM;
+  }
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
@@ -188,23 +198,24 @@ public class RobotContainer {
     // flywheel
     controller
         .b()
-        .toggleOnTrue(Commands.runOnce(() -> flywheel.runVelocity(flywheelSpeedInput.get())))
+        .toggleOnTrue(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
         .toggleOnFalse(Commands.runOnce(() -> flywheel.stop()));
     // intake
     controller
         .a()
-        .toggleOnTrue(
-            Commands.runOnce(() -> intake.runVolts(12))
-                .alongWith(
-                    Commands.run(
-                        () ->
-                            controller.getHID().setRumble(GenericHID.RumbleType.kBothRumble, 0.20))))
-        .toggleOnFalse(
-            Commands.runOnce(() -> intake.stop())
-                .alongWith(
-                    Commands.run(
-                        () ->
-                            controller.getHID().setRumble(GenericHID.RumbleType.kBothRumble, 0))));
+        .whileTrue(Commands.startEnd(() -> intake.runVolts(6), () -> intake.stop(), intake));
+    // .alongWith(
+    //     Commands.run(
+    //         () ->
+    //             controller
+    //                 .getHID()
+    //                 .setRumble(GenericHID.RumbleType.kBothRumble, 0.20))));
+    // .toggleOnFalse(
+    //     Commands.runOnce(() -> intake.stop())
+    //         .alongWith(
+    //             Commands.run(
+    //                 () ->
+    //                     controller.getHID().setRumble(GenericHID.RumbleType.kBothRumble, 0))));
 
     // arm
     // Left Trigger, Arm to STOW
@@ -229,7 +240,7 @@ public class RobotContainer {
         .rightTrigger()
         .onTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_AMP))
-                .alongWith(Commands.runOnce(() -> flywheel.runVelocity(flywheelSpeedInput.get())))
+                .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
                 .alongWith(Commands.runOnce(() -> intake.stop())));
 
     // Right Bumper, Arm to Speaker
@@ -237,7 +248,7 @@ public class RobotContainer {
         .rightBumper()
         .onTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))
-                .alongWith(Commands.runOnce(() -> flywheel.runVelocity(flywheelSpeedInput.get())))
+                .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
                 .alongWith(Commands.runOnce(() -> intake.stop())));
   }
 

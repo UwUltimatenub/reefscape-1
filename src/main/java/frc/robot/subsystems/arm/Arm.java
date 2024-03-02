@@ -39,9 +39,9 @@ public class Arm extends SubsystemBase {
       new Alert("Arm follower motor disconnected!", Alert.AlertType.WARNING);
   private final Alert absoluteEncoderDisconnected =
       new Alert("Arm absolute encoder disconnected!", Alert.AlertType.WARNING);
-  private static final double INITIAL_ARM_RADS = -0.486;
+  private static final double INITIAL_ARM_RADS = -0.423;
 
-  int armPosition = ARM_LEVEL_STOW;
+  public int armPosition = ARM_LEVEL_STOW;
 
   public Arm(ArmIO io) {
     this.io = io;
@@ -80,10 +80,8 @@ public class Arm extends SubsystemBase {
 
     if (Math.abs(positionRads - inputs.armAbsoluteEncoderPositionRads)
         < PIVOT_POS_SWITCH_THRESHOLD) {
-      System.out.println("BBBBBBBBBBBBBBBBBBBBBBBBBBB" + positionRads);
       io.setPositionControl(Units.radiansToRotations(positionRads));
     } else {
-      System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + positionRads);
       io.setMotionControl(Units.radiansToRotations(positionRads));
     }
 
