@@ -66,13 +66,13 @@ public class Arm extends SubsystemBase {
         positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(20);
         break;
       case Arm.ARM_LEVEL_AMP:
-        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(50);
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(78);
         break;
       case Arm.ARM_LEVEL_SPEAKER:
-        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(60);
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(85);
         break;
       case Arm.ARM_LEVEL_STATION_INTAKE:
-        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(70);
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(50);
         break;
       default:
         throw new RuntimeException("Invalid module index");

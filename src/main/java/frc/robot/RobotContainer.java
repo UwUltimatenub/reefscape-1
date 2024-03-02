@@ -143,13 +143,11 @@ public class RobotContainer {
     double flywheelRPM = 0;
     switch (arm.armPosition) {
       case Arm.ARM_LEVEL_AMP:
-        flywheelRPM = 10;
+        flywheelRPM = 15;
         break;
       case Arm.ARM_LEVEL_SPEAKER:
-        flywheelRPM = 600;
+        flywheelRPM = 100;
         break;
-      default:
-        flywheelRPM = 0;
     }
     return flywheelRPM;
   }
@@ -166,7 +164,7 @@ public class RobotContainer {
             drive,
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
-            () -> controller.getRightX()));
+            () -> controller.getRightX() / 1.25));
 
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
     controller.y().onTrue(Commands.runOnce(drive::resetFieldOrientation, drive));
@@ -203,7 +201,10 @@ public class RobotContainer {
     // intake
     controller
         .a()
-        .whileTrue(Commands.startEnd(() -> intake.runVolts(6), () -> intake.stop(), intake));
+        .whileTrue(
+            Commands.startEnd(() -> intake.runVolts(4), () -> intake.stop(), intake)
+                .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM()))));
+
     // .alongWith(
     //     Commands.run(
     //         () ->
@@ -229,26 +230,38 @@ public class RobotContainer {
     // Left Bumper, Arm to Feeder
     controller
         .leftBumper()
-        .onTrue(
+        .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STATION_INTAKE))
                 .alongWith(Commands.runOnce(() -> flywheel.stop()))
-                .alongWith(Commands.runOnce(() -> intake.runVolts(6))));
+                .alongWith(Commands.runOnce(() -> intake.runVolts(12))))
+        .whileFalse(
+            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
+                .alongWith(Commands.runOnce(() -> flywheel.stop()))
+                .alongWith(Commands.runOnce(() -> intake.stop())));
     // .alongWith(Commands.runOnce(() -> intake.runVolts(12))));
 
     // Right Trigger, Arm to AMP
     controller
         .rightTrigger()
-        .onTrue(
+        .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_AMP))
-                .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
+                // .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
+                .alongWith(Commands.runOnce(() -> intake.stop())))
+        .whileFalse(
+            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
+                .alongWith(Commands.runOnce(() -> flywheel.stop()))
                 .alongWith(Commands.runOnce(() -> intake.stop())));
 
     // Right Bumper, Arm to Speaker
     controller
         .rightBumper()
-        .onTrue(
+        .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))
-                .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
+                // .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
+                .alongWith(Commands.runOnce(() -> intake.stop())))
+        .whileFalse(
+            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
+                .alongWith(Commands.runOnce(() -> flywheel.stop()))
                 .alongWith(Commands.runOnce(() -> intake.stop())));
   }
 
