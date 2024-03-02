@@ -31,9 +31,10 @@ public interface ArmIO {
   /** Set brake mode enabled */
   default void setBrakeMode(boolean enabled) {}
 
-  /** Sets position of internal encoder */
-  default void setPosition(double positionRads) {}
-
   /** Stops motors */
   default void stop() {}
+
+  void setPositionControl(double positionRotations);
+
+  void setMotionControl(double positionRotations);
 }

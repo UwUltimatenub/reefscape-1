@@ -157,8 +157,25 @@ public class RobotContainer {
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> controller.getRightX()));
+
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
     controller.y().onTrue(Commands.runOnce(drive::resetFieldOrientation, drive));
+
+    // controller
+    //     .back()
+    //     .onTrue(
+    //         DriveCommands.joystickDrive(
+    //             drive,
+    //             () -> -controller.getLeftY() / 2,
+    //             () -> -controller.getLeftX() / 2,
+    //             () -> controller.getRightX() / 2))
+    //     .onFalse(getAutonomousCommand())(
+    //         DriveCommands.joystickDrive(
+    //             drive,
+    //             () -> -controller.getLeftY(),
+    //             () -> -controller.getLeftX(),
+    //             () -> controller.getRightX()));
+
     // controller
     //     .b()
     //     .onTrue(
@@ -170,24 +187,58 @@ public class RobotContainer {
     //             .ignoringDisable(true));
     // flywheel
     controller
-        .a()
-        .whileTrue(
-            Commands.startEnd(
-                () -> flywheel.runVelocity(flywheelSpeedInput.get()), flywheel::stop, flywheel));
+        .b()
+        .toggleOnTrue(Commands.runOnce(() -> flywheel.runVelocity(flywheelSpeedInput.get())))
+        .toggleOnFalse(Commands.runOnce(() -> flywheel.stop()));
     // intake
-    controller.b().whileTrue(Commands.startEnd(() -> intake.runVolts(12), intake::stop, intake));
+    controller
+        .a()
+        .toggleOnTrue(
+            Commands.runOnce(() -> intake.runVolts(12))
+                .alongWith(
+                    Commands.run(
+                        () ->
+                            controller.getHID().setRumble(GenericHID.RumbleType.kBothRumble, 0.20))))
+        .toggleOnFalse(
+            Commands.runOnce(() -> intake.stop())
+                .alongWith(
+                    Commands.run(
+                        () ->
+                            controller.getHID().setRumble(GenericHID.RumbleType.kBothRumble, 0))));
 
     // arm
+    // Left Trigger, Arm to STOW
+    controller
+        .leftTrigger()
+        .onTrue(
+            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
+                .alongWith(Commands.runOnce(() -> flywheel.stop()))
+                .alongWith(Commands.runOnce(() -> intake.stop())));
+
+    // Left Bumper, Arm to Feeder
+    controller
+        .leftBumper()
+        .onTrue(
+            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STATION_INTAKE))
+                .alongWith(Commands.runOnce(() -> flywheel.stop()))
+                .alongWith(Commands.runOnce(() -> intake.runVolts(6))));
+    // .alongWith(Commands.runOnce(() -> intake.runVolts(12))));
+
     // Right Trigger, Arm to AMP
     controller
         .rightTrigger()
-        .whileTrue(Commands.startEnd(() -> arm.setArmLevel(Arm.ARM_LEVEL.STOW), arm::stop, arm));
+        .onTrue(
+            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_AMP))
+                .alongWith(Commands.runOnce(() -> flywheel.runVelocity(flywheelSpeedInput.get())))
+                .alongWith(Commands.runOnce(() -> intake.stop())));
 
     // Right Bumper, Arm to Speaker
     controller
         .rightBumper()
-        .whileTrue(
-            Commands.startEnd(() -> arm.setArmLevel(Arm.ARM_LEVEL.DIAGNOSE), arm::stop, arm));
+        .onTrue(
+            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))
+                .alongWith(Commands.runOnce(() -> flywheel.runVelocity(flywheelSpeedInput.get())))
+                .alongWith(Commands.runOnce(() -> intake.stop())));
   }
 
   /**

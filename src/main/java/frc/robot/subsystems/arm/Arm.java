@@ -15,23 +15,11 @@ import org.littletonrobotics.junction.Logger;
 
 public class Arm extends SubsystemBase {
 
-  public enum ARM_LEVEL {
-    STOW(Units.degreesToRadians(-25)),
-    STATION_INTAKE(Units.degreesToRadians(30)),
-    AMP(Units.degreesToRadians(30)),
-    SPEAKER(Units.degreesToRadians(35)),
-    DIAGNOSE(Units.degreesToRadians(0));
-
-    private double numVal;
-
-    ARM_LEVEL(double numVal) {
-      this.numVal = numVal;
-    }
-
-    public double getDegrees() {
-      return numVal;
-    }
-  }
+  public static final int ARM_LEVEL_STOW = 0;
+  public static final int ARM_LEVEL_DIAGNOSE = 1;
+  public static final int ARM_LEVEL_AMP = 2;
+  public static final int ARM_LEVEL_SPEAKER = 3;
+  public static final int ARM_LEVEL_STATION_INTAKE = 4;
 
   //     STATION_INTAKE(  35),
   //     AIM(new LoggedTunableNumber("Arm/StationIntakeDegrees", 30.0)),
@@ -40,6 +28,7 @@ public class Arm extends SubsystemBase {
   //     SUBWOOFER(new LoggedTunableNumber("Arm/SubwooferDegrees", 30.0)),
   //     CUSTOM(new LoggedTunableNumber("Arm/CustomSetpoint", 20.0));
   // }
+  private static final double PIVOT_POS_SWITCH_THRESHOLD = 0.01;
 
   private final ArmIO io;
   private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
@@ -50,6 +39,9 @@ public class Arm extends SubsystemBase {
       new Alert("Arm follower motor disconnected!", Alert.AlertType.WARNING);
   private final Alert absoluteEncoderDisconnected =
       new Alert("Arm absolute encoder disconnected!", Alert.AlertType.WARNING);
+  private static final double INITIAL_ARM_RADS = -0.486;
+
+  int armPosition = ARM_LEVEL_STOW;
 
   public Arm(ArmIO io) {
     this.io = io;
@@ -65,16 +57,45 @@ public class Arm extends SubsystemBase {
     leaderMotorDisconnected.set(!inputs.leaderMotorConnected);
     followerMotorDisconnected.set(!inputs.followerMotorConnected);
     absoluteEncoderDisconnected.set(!inputs.absoluteEncoderConnected);
+    double positionRads = 0;
+    switch (armPosition) {
+      case Arm.ARM_LEVEL_STOW:
+        positionRads = INITIAL_ARM_RADS;
+        break;
+      case Arm.ARM_LEVEL_DIAGNOSE:
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(20);
+        break;
+      case Arm.ARM_LEVEL_AMP:
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(50);
+        break;
+      case Arm.ARM_LEVEL_SPEAKER:
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(60);
+        break;
+      case Arm.ARM_LEVEL_STATION_INTAKE:
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(70);
+        break;
+      default:
+        throw new RuntimeException("Invalid module index");
+    }
+
+    if (Math.abs(positionRads - inputs.armAbsoluteEncoderPositionRads)
+        < PIVOT_POS_SWITCH_THRESHOLD) {
+      System.out.println("BBBBBBBBBBBBBBBBBBBBBBBBBBB" + positionRads);
+      io.setPositionControl(Units.radiansToRotations(positionRads));
+    } else {
+      System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + positionRads);
+      io.setMotionControl(Units.radiansToRotations(positionRads));
+    }
 
     if (DriverStation.isDisabled()) {
       io.stop();
     }
   }
 
-  public void setArmLevel(Arm.ARM_LEVEL level) {
-    double positionRads = Units.degreesToRadians(level.getDegrees());
-    System.out.println("setting arm position degrees=" + level.getDegrees());
-    io.setPosition(positionRads);
+  public void setArmLevel(int level) {
+
+    armPosition = level;
+    System.out.println("setting arm position" + armPosition);
   }
 
   public void stop() {

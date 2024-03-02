@@ -33,7 +33,6 @@ public class ArmIOSim implements ArmIO {
 
   public ArmIOSim() {
     sim.setState(0.0, 0.0);
-    setPosition(0.0);
   }
 
   @Override
@@ -50,7 +49,7 @@ public class ArmIOSim implements ArmIO {
 
     sim.update(0.02);
 
-    inputs.armPositionRads = sim.getAngleRads() + positionOffset;
+    inputs.armAbsoluteEncoderPositionRads = sim.getAngleRads() + positionOffset;
     inputs.armVelocityRadsPerSec = sim.getVelocityRadPerSec();
     inputs.armAppliedVolts = new double[] {appliedVoltage};
     inputs.armCurrentAmps = new double[] {sim.getCurrentDrawAmps()};
@@ -68,7 +67,8 @@ public class ArmIOSim implements ArmIO {
   }
 
   @Override
-  public void setPosition(double position) {
-    positionOffset = position - sim.getAngleRads();
-  }
+  public void setPositionControl(double positionRads) {}
+
+  @Override
+  public void setMotionControl(double positionRads) {}
 }

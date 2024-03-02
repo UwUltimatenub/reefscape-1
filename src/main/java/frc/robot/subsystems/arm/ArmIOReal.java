@@ -22,11 +22,13 @@ import java.util.List;
 
 public class ArmIOReal implements ArmIO {
 
-  private static final double PIVOT_POS_SWITCH_THRESHOLD = 0.01;
+  public static final int ARM_LEADER_ID = 12;
+  public static final int ARM_FOLLOWER_ID = 9;
+  public static final int ARM_ENCODER_ID = 19;
   // Hardware
   private final TalonFX leaderTalon;
   private final TalonFX followerTalon;
-  private final CANcoder absoluteEncoder;
+  private final CANcoder armCANEncoder;
 
   // Status Signals
   private final StatusSignal<Double> armInternalPositionRotations;
@@ -41,13 +43,15 @@ public class ArmIOReal implements ArmIO {
   PositionVoltage pPos = new PositionVoltage(0, 0, false, 0, 0, false, false, false);
   MotionMagicVoltage pMmPos = new MotionMagicVoltage(0, false, 0, 1, false, false, false);
   /** The offset of the arm encoder in rotations. */
-  public static double armEncoderOffsetRotations = Units.radiansToRotations(-2.661 + 0.469);
+  public static double armEncoderOffsetRads = -2.661 + 0.469;
+
+  public static double armEncoderOffsetRotations = Units.radiansToRotations(armEncoderOffsetRads);
 
   public ArmIOReal() {
-    leaderTalon = new TalonFX(leaderID);
-    followerTalon = new TalonFX(followerID);
-    followerTalon.setControl(new Follower(leaderID, true));
-    absoluteEncoder = new CANcoder(armEncoderID);
+    leaderTalon = new TalonFX(ARM_LEADER_ID);
+    followerTalon = new TalonFX(ARM_FOLLOWER_ID);
+    followerTalon.setControl(new Follower(ARM_LEADER_ID, true));
+    armCANEncoder = new CANcoder(ARM_ENCODER_ID);
     //
 
     // Arm Encoder Configs
@@ -56,43 +60,43 @@ public class ArmIOReal implements ArmIO {
         AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
     armEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     armEncoderConfig.MagnetSensor.MagnetOffset = -armEncoderOffsetRotations;
-    absoluteEncoder.getConfigurator().apply(armEncoderConfig, 1);
+    armCANEncoder.getConfigurator().apply(armEncoderConfig, 1);
 
-    // Leader motor configs
+    // Arm motor configs
     TalonFXConfiguration armTalonConfig = new TalonFXConfiguration();
     armTalonConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
     armTalonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     armTalonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     armTalonConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    armTalonConfig.Feedback.FeedbackRemoteSensorID = armEncoderID;
+    armTalonConfig.Feedback.FeedbackRemoteSensorID = ARM_ENCODER_ID;
     armTalonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
     armTalonConfig.Feedback.SensorToMechanismRatio = 1.0;
     armTalonConfig.Feedback.RotorToSensorRatio = reduction;
 
     armTalonConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
-    // posHold
+    // Hold the ARM
     armTalonConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-    armTalonConfig.Slot0.kG = 0.35; // 0.35
-    armTalonConfig.Slot0.kP = 100; // 250
+    armTalonConfig.Slot0.kG = 0.35; // to hold the arm weight
+    armTalonConfig.Slot0.kP = 100; // 100; // adjust PID
     armTalonConfig.Slot0.kI = 0;
     armTalonConfig.Slot0.kD = 0;
     armTalonConfig.Slot0.kS = 0;
     armTalonConfig.Slot0.kV = 0;
     armTalonConfig.Slot0.kA = 0;
 
-    // mmPosMove
+    // Move the arm
     armTalonConfig.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
-    armTalonConfig.Slot1.kG = 0.35; // 0.35
-    armTalonConfig.Slot1.kP = 100; // 170
+    armTalonConfig.Slot1.kG = 0.35; // to hold the arm weight
+    armTalonConfig.Slot1.kP = 100; // 100; // adjust PID
     armTalonConfig.Slot1.kI = 0;
     armTalonConfig.Slot1.kD = 0;
     armTalonConfig.Slot1.kS = 0;
-    armTalonConfig.Slot1.kV = 8.3;
-    armTalonConfig.Slot1.kA = 0.2;
+    armTalonConfig.Slot1.kV = 8; // 8.3; // move velocity
+    armTalonConfig.Slot1.kA = 0.2; // 0.2; // move accerleration
 
-    armTalonConfig.MotionMagic.MotionMagicCruiseVelocity = 0.5;
-    armTalonConfig.MotionMagic.MotionMagicAcceleration = 1.0;
-    armTalonConfig.MotionMagic.MotionMagicJerk = 10;
+    armTalonConfig.MotionMagic.MotionMagicCruiseVelocity = 0.5; // 0.5;
+    armTalonConfig.MotionMagic.MotionMagicAcceleration = 1.0; // 1.0;
+    armTalonConfig.MotionMagic.MotionMagicJerk = 10; // 10;
 
     // Set up armTalonConfig
     leaderTalon.getConfigurator().apply(armTalonConfig);
@@ -103,8 +107,8 @@ public class ArmIOReal implements ArmIO {
 
     // Status signals
     armInternalPositionRotations = leaderTalon.getPosition();
-    armEncoderPositionRotations = absoluteEncoder.getPosition();
-    armAbsolutePositionRotations = absoluteEncoder.getAbsolutePosition();
+    armEncoderPositionRotations = armCANEncoder.getPosition();
+    armAbsolutePositionRotations = armCANEncoder.getAbsolutePosition();
     armVelocityRps = leaderTalon.getVelocity();
     armAppliedVoltage = List.of(leaderTalon.getMotorVoltage(), followerTalon.getMotorVoltage());
     armOutputCurrent = List.of(leaderTalon.getSupplyCurrent(), followerTalon.getSupplyCurrent());
@@ -173,18 +177,6 @@ public class ArmIOReal implements ArmIO {
   //   leaderTalon.setPosition(Units.radiansToRotations(positionRads));
   // }
 
-  public void setPosition(double positionRads) {
-    if (Math.abs(positionRads - armEncoderPositionRotations.getValueAsDouble())
-        < PIVOT_POS_SWITCH_THRESHOLD) {
-      leaderTalon.setControl(pPos.withPosition(positionRads));
-      followerTalon.setControl(pPos.withPosition(positionRads));
-    } else {
-      System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-      leaderTalon.setControl(pMmPos.withPosition(positionRads));
-      followerTalon.setControl(pMmPos.withPosition(positionRads));
-    }
-  }
-
   @Override
   public void setBrakeMode(boolean enabled) {
     leaderTalon.setNeutralMode(enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast);
@@ -194,6 +186,18 @@ public class ArmIOReal implements ArmIO {
   @Override
   public void stop() {
     leaderTalon.setControl(new NeutralOut());
-    leaderTalon.setControl(new NeutralOut());
+    followerTalon.setControl(new NeutralOut());
+  }
+
+  @Override
+  public void setPositionControl(double positionRotations) {
+    leaderTalon.setControl(pPos.withPosition(positionRotations));
+    followerTalon.setControl(pPos.withPosition(positionRotations));
+  }
+
+  @Override
+  public void setMotionControl(double positionRotations) {
+    leaderTalon.setControl(pMmPos.withPosition(positionRotations));
+    followerTalon.setControl(pMmPos.withPosition(positionRotations));
   }
 }

@@ -20,10 +20,6 @@ public class ArmConstants {
   public static Rotation2d minAngle = Rotation2d.fromDegrees(-30.0);
   public static Rotation2d maxAngle = Rotation2d.fromDegrees(80.0);
 
-  public static int leaderID = 12;
-  public static int followerID = 9;
-  public static int armEncoderID = 19;
-
   public static double armLength = Units.inchesToMeters(25.866);
 
   public static Gains gains = new Gains(4000, 0.0, 120, 5.75, 0.0, 0.0, 15);
