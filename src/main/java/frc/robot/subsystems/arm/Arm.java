@@ -19,7 +19,8 @@ public class Arm extends SubsystemBase {
   public static final int ARM_LEVEL_DIAGNOSE = 1;
   public static final int ARM_LEVEL_AMP = 2;
   public static final int ARM_LEVEL_SPEAKER = 3;
-  public static final int ARM_LEVEL_STATION_INTAKE = 4;
+  public static final int ARM_LEVEL_FAR_SPEAKER = 4;
+  public static final int ARM_LEVEL_STATION_INTAKE = 5;
 
   //     STATION_INTAKE(  35),
   //     AIM(new LoggedTunableNumber("Arm/StationIntakeDegrees", 30.0)),
@@ -70,6 +71,9 @@ public class Arm extends SubsystemBase {
         break;
       case Arm.ARM_LEVEL_SPEAKER:
         positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(85);
+        break;
+      case Arm.ARM_LEVEL_FAR_SPEAKER:
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(75);
         break;
       case Arm.ARM_LEVEL_STATION_INTAKE:
         positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(50);
