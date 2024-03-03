@@ -67,7 +67,7 @@ public class ArmIOReal implements ArmIO {
     armTalonConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
     armTalonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     armTalonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    armTalonConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    armTalonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     armTalonConfig.Feedback.FeedbackRemoteSensorID = ARM_ENCODER_ID;
     armTalonConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
     armTalonConfig.Feedback.SensorToMechanismRatio = 1.0;

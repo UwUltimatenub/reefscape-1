@@ -21,6 +21,7 @@ public class Arm extends SubsystemBase {
   public static final int ARM_LEVEL_SPEAKER = 3;
   public static final int ARM_LEVEL_FAR_SPEAKER = 4;
   public static final int ARM_LEVEL_STATION_INTAKE = 5;
+  public static final int ARM_LEVEL_HANG = 6;
 
   //     STATION_INTAKE(  35),
   //     AIM(new LoggedTunableNumber("Arm/StationIntakeDegrees", 30.0)),
@@ -67,16 +68,19 @@ public class Arm extends SubsystemBase {
         positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(20);
         break;
       case Arm.ARM_LEVEL_AMP:
-        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(78);
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(60);
         break;
       case Arm.ARM_LEVEL_SPEAKER:
-        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(85);
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(83);
         break;
       case Arm.ARM_LEVEL_FAR_SPEAKER:
-        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(75);
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(65);
         break;
       case Arm.ARM_LEVEL_STATION_INTAKE:
         positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(50);
+        break;
+      case Arm.ARM_LEVEL_HANG:
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(115);
         break;
       default:
         throw new RuntimeException("Invalid module index");

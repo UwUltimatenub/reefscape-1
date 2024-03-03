@@ -143,13 +143,13 @@ public class RobotContainer {
     double flywheelRPM = 0;
     switch (arm.armPosition) {
       case Arm.ARM_LEVEL_AMP:
-        flywheelRPM = 15;
+        flywheelRPM = 25;
         break;
       case Arm.ARM_LEVEL_SPEAKER:
         flywheelRPM = 100;
         break;
       case Arm.ARM_LEVEL_FAR_SPEAKER:
-        flywheelRPM = 200;
+        flywheelRPM = 300;
         break;
     }
     return flywheelRPM;
@@ -165,8 +165,14 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
+            () ->
+                arm.armPosition == Arm.ARM_LEVEL_STOW
+                    ? -controller.getLeftY()
+                    : -controller.getLeftY() / 1.5,
+            () ->
+                arm.armPosition == Arm.ARM_LEVEL_STOW
+                    ? -controller.getLeftX()
+                    : -controller.getLeftX() / 1.5,
             () -> controller.getRightX() / 1.25));
 
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
@@ -199,8 +205,14 @@ public class RobotContainer {
     // flywheel
     controller
         .b()
-        .toggleOnTrue(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
-        .toggleOnFalse(Commands.runOnce(() -> flywheel.stop()));
+        .whileTrue(
+            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_HANG))
+                // .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
+                .alongWith(Commands.runOnce(() -> intake.stop())))
+        .whileFalse(
+            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
+                .alongWith(Commands.runOnce(() -> flywheel.stop()))
+                .alongWith(Commands.runOnce(() -> intake.stop())));
     // intake
     controller
         .a()
