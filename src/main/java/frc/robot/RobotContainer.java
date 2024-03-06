@@ -61,9 +61,9 @@ public class RobotContainer {
 
   public Arm getArm() {
     return arm;
-}
+  }
 
-// Controller
+  // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
 
   // Dashboard inputs
@@ -178,13 +178,13 @@ public class RobotContainer {
             drive,
             () ->
                 arm.armPosition == Arm.ARM_LEVEL_STOW
-                    ? -controller.getLeftY()
-                    : -controller.getLeftY() / 1.5,
+                    ? -controller.getLeftY() / 1.25
+                    : -controller.getLeftY() / 1.25,
             () ->
                 arm.armPosition == Arm.ARM_LEVEL_STOW
-                    ? -controller.getLeftX()
-                    : -controller.getLeftX() / 1.5,
-            () -> controller.getRightX() / 1.25));
+                    ? -controller.getLeftX() / 1.25
+                    : -controller.getLeftX() / 1.25,
+            () -> controller.getRightX() / 1.4));
 
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
     controller.y().onTrue(Commands.runOnce(drive::resetFieldOrientation, drive));
@@ -197,12 +197,12 @@ public class RobotContainer {
     //             () -> -controller.getLeftY() / 2,
     //             () -> -controller.getLeftX() / 2,
     //             () -> controller.getRightX() / 2))
-    //     .onFalse(getAutonomousCommand())(
+    //     .onFalse(
     //         DriveCommands.joystickDrive(
     //             drive,
     //             () -> -controller.getLeftY(),
-    //             () -> -controller.getLeftX(),
-    //             () -> controller.getRightX()));
+    //             () -> -controller.getLeftX() / 1.5,
+    //             () -> controller.getRightX() / 1.25));
 
     // controller
     //     .b()
@@ -220,10 +220,9 @@ public class RobotContainer {
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_HANG))
                 // .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
                 .alongWith(Commands.runOnce(() -> intake.stop()))
-                .alongWith(Commands.runOnce(() -> flywheel.stop())))                
+                .alongWith(Commands.runOnce(() -> flywheel.stop())))
         .whileFalse(
-            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
-                .andThen(() -> arm.stop()));
+            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW)).andThen(() -> arm.stop()));
     // intake
     controller
         .a()
@@ -314,10 +313,10 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
 
     // Load the path you want to follow using its name in the GUI
-    PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
+    // PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
 
     // Create a path following command using AutoBuilder. This will also trigger event markers.
-    return AutoBuilder.followPath(path);
+    return AutoBuilder.followPath(createPathOTF());
   }
 
   private PathPlannerPath createPathOTF() {
@@ -327,9 +326,9 @@ public class RobotContainer {
     // rotation.
     List<Translation2d> bezierPoints =
         PathPlannerPath.bezierFromPoses(
-            new Pose2d(1.0, 1.0, Rotation2d.fromDegrees(0)),
-            new Pose2d(3.0, 1.0, Rotation2d.fromDegrees(0)),
-            new Pose2d(5.0, 3.0, Rotation2d.fromDegrees(90)));
+            // new Pose2d(1.0, 0, Rotation2d.fromDegrees(0)),
+            // new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+            new Pose2d(0, 1, Rotation2d.fromDegrees(0)));
 
     // Create the path using the bezier points created above
     PathPlannerPath path =
