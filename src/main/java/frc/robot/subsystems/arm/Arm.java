@@ -41,7 +41,7 @@ public class Arm extends SubsystemBase {
       new Alert("Arm follower motor disconnected!", Alert.AlertType.WARNING);
   private final Alert absoluteEncoderDisconnected =
       new Alert("Arm absolute encoder disconnected!", Alert.AlertType.WARNING);
-  private static final double INITIAL_ARM_RADS = -0.44;
+  private static final double INITIAL_ARM_RADS = -0.43;
 
   public int armPosition = ARM_LEVEL_STOW;
 
@@ -94,6 +94,7 @@ public class Arm extends SubsystemBase {
     }
 
     if (DriverStation.isDisabled()) {
+      io.setBrakeMode(true);
       io.stop();
     }
   }

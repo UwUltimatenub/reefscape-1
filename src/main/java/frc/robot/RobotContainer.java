@@ -172,57 +172,60 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+ 
+    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    controller.y().onTrue(Commands.runOnce(drive::resetFieldOrientation, drive));
+
     // drive
+    // drive.setDefaultCommand(
+    //     DriveCommands.joystickDrive(
+    //         drive,
+    //         () ->
+    //             arm.armPosition == Arm.ARM_LEVEL_STOW
+    //                 ? -controller.getLeftY() / 1.25
+    //                 : -controller.getLeftY() / 2,
+    //         () ->
+    //             arm.armPosition == Arm.ARM_LEVEL_STOW
+    //                 ? -controller.getLeftX() / 1.25
+    //                 : -controller.getLeftX() / 2,
+    //         () -> controller.getRightX() / 1.4));
+
+   // drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
             () ->
                 arm.armPosition == Arm.ARM_LEVEL_STOW
-                    ? -controller.getLeftY() / 1.25
-                    : -controller.getLeftY() / 1.25,
+                    ? -controller.getLeftY() / (controller.back().getAsBoolean()?2:1)
+                    : -controller.getLeftY() / (controller.back().getAsBoolean()?2:2),
             () ->
                 arm.armPosition == Arm.ARM_LEVEL_STOW
-                    ? -controller.getLeftX() / 1.25
-                    : -controller.getLeftX() / 1.25,
-            () -> controller.getRightX() / 1.4));
+                    ? -controller.getLeftX() / (controller.back().getAsBoolean()?2:1)
+                    : -controller.getLeftX() / (controller.back().getAsBoolean()?2:2),
+            () -> controller.getRightX() / (controller.back().getAsBoolean()?2:1.25)));
 
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-    controller.y().onTrue(Commands.runOnce(drive::resetFieldOrientation, drive));
 
     // controller
-    //     .back()
-    //     .onTrue(
-    //         DriveCommands.joystickDrive(
-    //             drive,
-    //             () -> -controller.getLeftY() / 2,
-    //             () -> -controller.getLeftX() / 2,
-    //             () -> controller.getRightX() / 2))
-    //     .onFalse(
-    //         DriveCommands.joystickDrive(
-    //             drive,
-    //             () -> -controller.getLeftY(),
-    //             () -> -controller.getLeftX() / 1.5,
-    //             () -> controller.getRightX() / 1.25));
-
-    // controller
-    //     .b()
+    //     .start()
     //     .onTrue(
     //         Commands.runOnce(
     //                 () ->
     //                     drive.setPose(
-    //                         new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+    //                         new Pose2d(drive.getPose().getTranslation(), new
+    // Rotation2d(3.14/2))),
     //                 drive)
     //             .ignoringDisable(true));
+
     // high hang
     controller
         .b()
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_HANG))
-                // .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
                 .alongWith(Commands.runOnce(() -> intake.stop()))
                 .alongWith(Commands.runOnce(() -> flywheel.stop())))
         .whileFalse(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW)).andThen(() -> arm.stop()));
+
     // intake
     controller
         .a()
@@ -243,14 +246,6 @@ public class RobotContainer {
     //                 () ->
     //                     controller.getHID().setRumble(GenericHID.RumbleType.kBothRumble, 0))));
 
-    // arm
-    // Left Trigger, Arm to STOW
-    // controller
-    //     .leftTrigger()
-    //     .onTrue(
-    //         Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
-    //             .alongWith(Commands.runOnce(() -> flywheel.stop()))
-    //             .alongWith(Commands.runOnce(() -> intake.stop())));
 
     // Left Bumper, Arm to Feeder
     controller
@@ -258,11 +253,12 @@ public class RobotContainer {
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STATION_INTAKE))
                 .alongWith(Commands.runOnce(() -> flywheel.stop()))
-                .alongWith(Commands.runOnce(() -> intake.runVolts(12))))
+                .alongWith(Commands.runOnce(() -> intake.runVolts(4))))
         .whileFalse(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
                 .alongWith(Commands.runOnce(() -> flywheel.stop()))
-                .alongWith(Commands.runOnce(() -> intake.stop())));
+                .alongWith(Commands.runOnce(() -> intake.stop()))
+                .andThen(() -> arm.stop()));
     // .alongWith(Commands.runOnce(() -> intake.runVolts(12))));
 
     // Right Trigger, Arm to AMP
@@ -270,36 +266,38 @@ public class RobotContainer {
         .leftBumper()
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_AMP))
-                // .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
+                .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
                 .alongWith(Commands.runOnce(() -> intake.stop())))
         .whileFalse(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
                 .alongWith(Commands.runOnce(() -> flywheel.stop()))
-                .alongWith(Commands.runOnce(() -> intake.stop())));
+                .alongWith(Commands.runOnce(() -> intake.stop()))
+                .andThen(() -> arm.stop()));
 
-    // Right Bumper, Arm to Speaker
+    // Right trigger, Arm to Speaker
     controller
         .rightTrigger()
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))
-                // .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
+                .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
                 .alongWith(Commands.runOnce(() -> intake.stop())))
         .whileFalse(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
                 .alongWith(Commands.runOnce(() -> flywheel.stop()))
-                .alongWith(Commands.runOnce(() -> intake.stop())));
-
-    // Right Bumper, Arm to Speaker
+                .alongWith(Commands.runOnce(() -> intake.stop()))
+                .andThen(() -> arm.stop()));
+    // Right Bumper, Arm to far Speaker
     controller
         .rightBumper()
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_FAR_SPEAKER))
-                // .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
+                .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
                 .alongWith(Commands.runOnce(() -> intake.stop())))
         .whileFalse(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
                 .alongWith(Commands.runOnce(() -> flywheel.stop()))
-                .alongWith(Commands.runOnce(() -> intake.stop())));
+                .alongWith(Commands.runOnce(() -> intake.stop()))
+                .andThen(() -> arm.stop()));
   }
 
   /**
