@@ -42,13 +42,17 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
   public FlywheelIOTalonFX() {
     var config = new TalonFXConfiguration();
-    config.CurrentLimits.SupplyCurrentLimit = 30.0;
+    config.CurrentLimits.SupplyCurrentLimit = 50.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.Voltage.PeakForwardVoltage = 12.0;
+    config.Voltage.PeakReverseVoltage = -12.0;
     config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    config.Slot0.kV = 10;
-    config.Slot0.kP = 0;
+    config.Slot0.kP = 0.04;
+    config.Slot0.kD = 0; // 0.05;
+    config.Slot0.kV = .12; // 10;
+    config.Slot0.kS = 0; // 0.33329;
 
     leader.getConfigurator().apply(config);
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;

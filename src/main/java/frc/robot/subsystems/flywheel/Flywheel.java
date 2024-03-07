@@ -51,8 +51,8 @@ public class Flywheel extends SubsystemBase {
 
   /** Run closed loop at the specified velocity. */
   public void runVelocity(double velocityRPM) {
-    var velocityRatationPerSec = velocityRPM / 60;
-    io.setVelocity(velocityRatationPerSec);
+    var velocityRadPerSec = velocityRPM / 60 * 2 * Math.PI;
+    io.setVelocity(velocityRadPerSec);
 
     // Log flywheel setpoint
     Logger.recordOutput("Flywheel/SetpointRPM", velocityRPM);

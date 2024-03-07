@@ -9,6 +9,7 @@ package frc.robot.subsystems.arm;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.Alert;
 import org.littletonrobotics.junction.Logger;
@@ -41,7 +42,7 @@ public class Arm extends SubsystemBase {
       new Alert("Arm follower motor disconnected!", Alert.AlertType.WARNING);
   private final Alert absoluteEncoderDisconnected =
       new Alert("Arm absolute encoder disconnected!", Alert.AlertType.WARNING);
-  private static final double INITIAL_ARM_RADS = -0.43;
+  private static final double INITIAL_ARM_RADS = -0.33;
 
   public int armPosition = ARM_LEVEL_STOW;
 
@@ -80,7 +81,7 @@ public class Arm extends SubsystemBase {
         positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(50);
         break;
       case Arm.ARM_LEVEL_HANG:
-        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(115);
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(108);
         break;
       default:
         throw new RuntimeException("Invalid module index");
@@ -101,6 +102,7 @@ public class Arm extends SubsystemBase {
 
   public void setArmLevel(int level) {
     armPosition = level;
+    Timer.delay(0.2);
     System.out.println("setting arm position" + armPosition);
   }
 
