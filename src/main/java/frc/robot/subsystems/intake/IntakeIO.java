@@ -12,7 +12,8 @@ public interface IntakeIO {
 
   public default void updateInputs(IntakeIOInputs inputs) {}
 
-  public default void setVoltage(double volts) {}
+  /** Run closed loop at the specified velocity. */
+  public default void setVelocity(double velocityRadPerSec) {}
 
   public default void stop() {}
 }

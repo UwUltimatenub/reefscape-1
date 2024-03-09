@@ -13,18 +13,14 @@
 
 package frc.robot.subsystems.intake;
 
-import static edu.wpi.first.units.Units.*;
-
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
   private final IntakeIO io;
   private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
-
-  private final SysIdRoutine sysId;
 
   /** Creates a new Flywheel. */
   public Intake(IntakeIO io) {
@@ -32,16 +28,6 @@ public class Intake extends SubsystemBase {
 
     // Switch constants based on mode (the physics simulator is treated as a
     // separate robot with different tuning)
-
-    // Configure SysId
-    sysId =
-        new SysIdRoutine(
-            new SysIdRoutine.Config(
-                null,
-                null,
-                null,
-                (state) -> Logger.recordOutput("Intake/SysIdState", state.toString())),
-            new SysIdRoutine.Mechanism((voltage) -> runVolts(voltage.in(Volts)), null, this));
   }
 
   @Override
@@ -50,23 +36,25 @@ public class Intake extends SubsystemBase {
     Logger.processInputs("Intake", inputs);
   }
 
-  /** Run open loop at the specified voltage. */
-  public void runVolts(double volts) {
-    io.setVoltage(volts);
-  }
+  public void runVelocity(double velocityRPM) {
+    var velocityRadPerSec = velocityRPM / 60 * 2 * Math.PI;
+    io.setVelocity(velocityRadPerSec);
 
+    // Log flywheel setpoint
+    Logger.recordOutput("Intake/SetpointRPM", velocityRPM);
+  }
   /** Stops the flywheel. */
   public void stop() {
     io.stop();
   }
-
-  /** Returns a command to run a quasistatic test in the specified direction. */
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return sysId.quasistatic(direction);
+  /** Returns the current velocity in RPM. */
+  @AutoLogOutput
+  public double getVelocityRPM() {
+    return Units.radiansPerSecondToRotationsPerMinute(inputs.velocityRadPerSec);
   }
 
-  /** Returns a command to run a dynamic test in the specified direction. */
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return sysId.dynamic(direction);
+  /** Returns the current velocity in radians per second. */
+  public double getCharacterizationVelocity() {
+    return inputs.velocityRadPerSec;
   }
 }

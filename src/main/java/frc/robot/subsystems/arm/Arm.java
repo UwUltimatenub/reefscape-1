@@ -81,7 +81,7 @@ public class Arm extends SubsystemBase {
         positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(50);
         break;
       case Arm.ARM_LEVEL_HANG:
-        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(108);
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(118);
         break;
       default:
         throw new RuntimeException("Invalid module index");

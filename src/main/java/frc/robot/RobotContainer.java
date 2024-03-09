@@ -47,6 +47,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  private static final double INTAKE_ROLLER_SPEED = 600; // RPM
   // Subsystems
   private final Drive drive;
   private final Flywheel flywheel;
@@ -159,6 +160,7 @@ public class RobotContainer {
     }
     return flywheelRPM;
   }
+
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
@@ -169,20 +171,6 @@ public class RobotContainer {
 
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
     controller.y().onTrue(Commands.runOnce(drive::resetFieldOrientation, drive));
-
-    // drive
-    // drive.setDefaultCommand(
-    //     DriveCommands.joystickDrive(
-    //         drive,
-    //         () ->
-    //             arm.armPosition == Arm.ARM_LEVEL_STOW
-    //                 ? -controller.getLeftY() / 1.25
-    //                 : -controller.getLeftY() / 2,
-    //         () ->
-    //             arm.armPosition == Arm.ARM_LEVEL_STOW
-    //                 ? -controller.getLeftX() / 1.25
-    //                 : -controller.getLeftX() / 2,
-    //         () -> controller.getRightX() / 1.4));
 
     // drive
     drive.setDefaultCommand(
@@ -199,19 +187,20 @@ public class RobotContainer {
             () -> controller.getRightX() / (controller.back().getAsBoolean() ? 2 : 1.25)));
 
     // controller
-    //     .start()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //                 () ->
-    //                     drive.setPose(
-    //                         new Pose2d(drive.getPose().getTranslation(), new
+    // .start()
+    // .onTrue(
+    // Commands.runOnce(
+    // () ->
+    // drive.setPose(
+    // new Pose2d(drive.getPose().getTranslation(), new
     // Rotation2d(3.14/2))),
-    //                 drive)
-    //             .ignoringDisable(true));
+    // drive)
+    // .ignoringDisable(true));
 
     // high hang
     controller
-        .b()
+        .back()
+        .and(controller.start())
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_HANG))
                 .alongWith(Commands.runOnce(() -> intake.stop()))
@@ -223,21 +212,16 @@ public class RobotContainer {
     controller
         .a()
         .whileTrue(
-            Commands.startEnd(() -> intake.runVolts(4), () -> intake.stop(), intake)
-                .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM()))));
-
-    // .alongWith(
-    //     Commands.run(
-    //         () ->
-    //             controller
-    //                 .getHID()
-    //                 .setRumble(GenericHID.RumbleType.kBothRumble, 0.20))));
-    // .toggleOnFalse(
-    //     Commands.runOnce(() -> intake.stop())
-    //         .alongWith(
-    //             Commands.run(
-    //                 () ->
-    //                     controller.getHID().setRumble(GenericHID.RumbleType.kBothRumble, 0))));
+            Commands.startEnd(
+                () ->
+                    intake.runVelocity(
+                        arm.armPosition == Arm.ARM_LEVEL_STATION_INTAKE
+                            ? INTAKE_ROLLER_SPEED
+                            : getFlywheelRPM() * 2),
+                () -> intake.stop(),
+                intake)
+            // .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
+            );
 
     // Left Bumper, Arm to Feeder
     controller
@@ -245,13 +229,12 @@ public class RobotContainer {
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STATION_INTAKE))
                 .alongWith(Commands.runOnce(() -> flywheel.stop()))
-                .alongWith(Commands.runOnce(() -> intake.runVolts(4))))
+                .alongWith(Commands.runOnce(() -> intake.runVelocity(INTAKE_ROLLER_SPEED))))
         .whileFalse(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
                 .alongWith(Commands.runOnce(() -> flywheel.stop()))
                 .alongWith(Commands.runOnce(() -> intake.stop()))
                 .andThen(() -> arm.stop()));
-    // .alongWith(Commands.runOnce(() -> intake.runVolts(12))));
 
     // Right Trigger, Arm to AMP
     controller
@@ -297,15 +280,16 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  //   public Command getAutonomousCommand() {
-  //     return autoChooser.get();
-  //   }
+  // public Command getAutonomousCommand() {
+  // return autoChooser.get();
+  // }
   public Command getAutonomousCommand() {
 
     // Load the path you want to follow using its name in the GUI
     PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
 
-    // Create a path following command using AutoBuilder. This will also trigger event markers.
+    // Create a path following command using AutoBuilder. This will also trigger
+    // event markers.
     return AutoBuilder.followPath(path);
   }
 }

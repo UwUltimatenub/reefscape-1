@@ -42,14 +42,14 @@ public class IntakeIOSim implements IntakeIO {
   }
 
   @Override
-  public void setVoltage(double volts) {
-    closedLoop = false;
-    appliedVolts = volts;
-    sim.setInputVoltage(volts);
+  public void setVelocity(double velocityRadPerSec) {
+    closedLoop = true;
+    pid.setSetpoint(velocityRadPerSec);
+    // this.ffVolts = ffVolts;
   }
 
   @Override
   public void stop() {
-    setVoltage(0.0);
+    setVelocity(0.0);
   }
 }

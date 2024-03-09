@@ -1,18 +1,19 @@
 package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 
 public class IntakeIOReal implements IntakeIO {
 
   private TalonFX motor;
 
-  private VoltageOut vout;
+  // rotations per second.
+  VelocityVoltage velOut =
+      new VelocityVoltage(Units.radiansToRotations(0.0), 0.0, true, 0, 0, false, false, false);
 
   public IntakeIOReal() {
     motor = new TalonFX(8);
@@ -24,8 +25,6 @@ public class IntakeIOReal implements IntakeIO {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.3;
-
-    vout = new VoltageOut(0, false, false, false, false);
 
     motor.getConfigurator().apply(config);
   }
@@ -39,9 +38,9 @@ public class IntakeIOReal implements IntakeIO {
   }
 
   @Override
-  public void setVoltage(double volts) {
-    double input = MathUtil.clamp(volts, -12.0, 12.0);
-    motor.setControl(vout.withOutput(input));
+  public void setVelocity(double velocityRadPerSec) {
+    System.out.println("Vel : " + velocityRadPerSec);
+    motor.setControl(velOut.withVelocity(velocityRadPerSec * 1.1)); // rotations per second.
   }
 
   @Override

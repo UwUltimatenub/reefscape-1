@@ -21,21 +21,10 @@ import org.littletonrobotics.junction.Logger;
 public class Flywheel extends SubsystemBase {
   private final FlywheelIO io;
   private final FlywheelIOInputsAutoLogged inputs = new FlywheelIOInputsAutoLogged();
-  // private final SysIdRoutine sysId;
 
   /** Creates a new Flywheel. */
   public Flywheel(FlywheelIO io) {
     this.io = io;
-
-    // Configure SysId
-    // sysId =
-    //     new SysIdRoutine(
-    //         new SysIdRoutine.Config(
-    //             null,
-    //             null,
-    //             null,
-    //             (state) -> Logger.recordOutput("Flywheel/SysIdState", state.toString())),
-    //         new SysIdRoutine.Mechanism((voltage) -> runVolts(voltage.in(Volts)), null, this));
   }
 
   @Override
@@ -43,11 +32,6 @@ public class Flywheel extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("Flywheel", inputs);
   }
-
-  /** Run open loop at the specified voltage. */
-  // public void runVolts(double volts) {
-  //   io.setVoltage(volts);
-  // }
 
   /** Run closed loop at the specified velocity. */
   public void runVelocity(double velocityRPM) {
@@ -62,16 +46,6 @@ public class Flywheel extends SubsystemBase {
   public void stop() {
     io.stop();
   }
-
-  // /** Returns a command to run a quasistatic test in the specified direction. */
-  // public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-  //   return sysId.quasistatic(direction);
-  // }
-
-  // /** Returns a command to run a dynamic test in the specified direction. */
-  // public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-  //   return sysId.dynamic(direction);
-  // }
 
   /** Returns the current velocity in RPM. */
   @AutoLogOutput

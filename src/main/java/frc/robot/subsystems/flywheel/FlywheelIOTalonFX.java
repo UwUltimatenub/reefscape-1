@@ -78,15 +78,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         new double[] {leaderCurrent.getValueAsDouble(), followerCurrent.getValueAsDouble()};
   }
 
-  // @Override
-  // public void setVoltage(double volts) {
-  //   System.out.println("Volts : " + volts);
-  //   leader.setControl(new VoltageOut(volts));
-  //   follower.setControl(new VoltageOut(volts));
-  //   follower2.setControl(new VoltageOut(volts));
-  //   follower3.setControl(new VoltageOut(volts));
-  // }
-
   @Override
   public void setVelocity(double velocityRadPerSec) {
     System.out.println("Vel : " + velocityRadPerSec);
