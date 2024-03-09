@@ -47,7 +47,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private static final double INTAKE_ROLLER_SPEED = 600; // RPM
+  private static final double INTAKE_ROLLER_SPEED = 300; // RPM
   // Subsystems
   private final Drive drive;
   private final Flywheel flywheel;
@@ -155,7 +155,7 @@ public class RobotContainer {
         flywheelRPM = 2000;
         break;
       case Arm.ARM_LEVEL_FAR_SPEAKER:
-        flywheelRPM = 3000;
+        flywheelRPM = 4000;
         break;
     }
     return flywheelRPM;
@@ -213,15 +213,18 @@ public class RobotContainer {
         .a()
         .whileTrue(
             Commands.startEnd(
-                () ->
-                    intake.runVelocity(
-                        arm.armPosition == Arm.ARM_LEVEL_STATION_INTAKE
-                            ? INTAKE_ROLLER_SPEED
-                            : getFlywheelRPM() * 2),
-                () -> intake.stop(),
-                intake)
-            // .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
-            );
+                    () ->
+                        intake.runVelocity(
+                            arm.armPosition == Arm.ARM_LEVEL_STATION_INTAKE
+                                ? INTAKE_ROLLER_SPEED
+                                : getFlywheelRPM() * 2),
+                    () -> intake.stop(),
+                    intake)
+                .alongWith(
+                    Commands.startEnd(
+                        () -> flywheel.runVelocity(getFlywheelRPM()),
+                        () -> flywheel.stop(),
+                        flywheel)));
 
     // Left Bumper, Arm to Feeder
     controller
@@ -241,11 +244,11 @@ public class RobotContainer {
         .leftBumper()
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_AMP))
-                .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
+                // .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
                 .alongWith(Commands.runOnce(() -> intake.stop())))
         .whileFalse(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
-                .alongWith(Commands.runOnce(() -> flywheel.stop()))
+                // .alongWith(Commands.runOnce(() -> flywheel.stop()))
                 .alongWith(Commands.runOnce(() -> intake.stop()))
                 .andThen(() -> arm.stop()));
 
@@ -254,11 +257,11 @@ public class RobotContainer {
         .rightTrigger()
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))
-                .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
+                // .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
                 .alongWith(Commands.runOnce(() -> intake.stop())))
         .whileFalse(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
-                .alongWith(Commands.runOnce(() -> flywheel.stop()))
+                // .alongWith(Commands.runOnce(() -> flywheel.stop()))
                 .alongWith(Commands.runOnce(() -> intake.stop()))
                 .andThen(() -> arm.stop()));
     // Right Bumper, Arm to far Speaker
@@ -266,11 +269,11 @@ public class RobotContainer {
         .rightBumper()
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_FAR_SPEAKER))
-                .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
+                // .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
                 .alongWith(Commands.runOnce(() -> intake.stop())))
         .whileFalse(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
-                .alongWith(Commands.runOnce(() -> flywheel.stop()))
+                // .alongWith(Commands.runOnce(() -> flywheel.stop()))
                 .alongWith(Commands.runOnce(() -> intake.stop()))
                 .andThen(() -> arm.stop()));
   }

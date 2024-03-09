@@ -81,10 +81,10 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   @Override
   public void setVelocity(double velocityRadPerSec) {
     System.out.println("Vel : " + velocityRadPerSec);
-    leader.setControl(velOut.withVelocity(velocityRadPerSec * 1.1)); // rotations per second.
-    follower.setControl(velOut.withVelocity(velocityRadPerSec * 0.95));
-    follower2.setControl(velOut.withVelocity(velocityRadPerSec * 1.1));
-    follower3.setControl(velOut.withVelocity(velocityRadPerSec * 0.95));
+    leader.setControl(velOut.withVelocity(velocityRadPerSec)); // rotations per second.
+    follower.setControl(velOut.withVelocity(velocityRadPerSec));
+    follower2.setControl(velOut.withVelocity(velocityRadPerSec));
+    follower3.setControl(velOut.withVelocity(velocityRadPerSec));
   }
 
   @Override

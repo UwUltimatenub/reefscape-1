@@ -75,7 +75,7 @@ public class Arm extends SubsystemBase {
         positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(83);
         break;
       case Arm.ARM_LEVEL_FAR_SPEAKER:
-        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(62);
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(63);
         break;
       case Arm.ARM_LEVEL_STATION_INTAKE:
         positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(50);
@@ -102,7 +102,7 @@ public class Arm extends SubsystemBase {
 
   public void setArmLevel(int level) {
     armPosition = level;
-    Timer.delay(0.1);
+    Timer.delay(0.3);
     System.out.println("setting arm position" + armPosition);
   }
 
