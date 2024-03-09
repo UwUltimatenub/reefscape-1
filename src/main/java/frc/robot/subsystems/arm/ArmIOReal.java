@@ -94,8 +94,8 @@ public class ArmIOReal implements ArmIO {
     armTalonConfig.Slot1.kV = 8; // 8.3; // move velocity
     armTalonConfig.Slot1.kA = 0.2; // 0.2; // move accerleration
 
-    armTalonConfig.MotionMagic.MotionMagicCruiseVelocity = 0.5; // 0.5;
-    armTalonConfig.MotionMagic.MotionMagicAcceleration = 1.0; // 1.0;
+    armTalonConfig.MotionMagic.MotionMagicCruiseVelocity = 1.0; // 0.5;
+    armTalonConfig.MotionMagic.MotionMagicAcceleration = 2; // 1.0;
     armTalonConfig.MotionMagic.MotionMagicJerk = 10; // 10;
 
     // Set up armTalonConfig

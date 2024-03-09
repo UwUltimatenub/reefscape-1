@@ -19,12 +19,17 @@ public class IntakeIOReal implements IntakeIO {
     motor = new TalonFX(8);
 
     var config = new TalonFXConfiguration();
-
-    config.CurrentLimits.SupplyCurrentLimit = 30;
+    config.CurrentLimits.SupplyCurrentLimit = 50.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.Voltage.PeakForwardVoltage = 12.0;
+    config.Voltage.PeakReverseVoltage = -12.0;
+    config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.3;
+    config.Slot0.kP = 0.04;
+    config.Slot0.kD = 0; // 0.05;
+    config.Slot0.kV = .12; // 10;
+    config.Slot0.kS = 0; // 0.33329;
 
     motor.getConfigurator().apply(config);
   }
@@ -40,7 +45,7 @@ public class IntakeIOReal implements IntakeIO {
   @Override
   public void setVelocity(double velocityRadPerSec) {
     System.out.println("Vel : " + velocityRadPerSec);
-    motor.setControl(velOut.withVelocity(velocityRadPerSec * 1.1)); // rotations per second.
+    motor.setControl(velOut.withVelocity(velocityRadPerSec)); // rotations per second.
   }
 
   @Override
