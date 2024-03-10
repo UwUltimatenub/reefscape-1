@@ -22,9 +22,9 @@ import java.util.List;
 
 public class ArmIOReal implements ArmIO {
 
-  public static final int ARM_LEADER_ID = 12;
-  public static final int ARM_FOLLOWER_ID = 9;
-  public static final int ARM_ENCODER_ID = 19;
+  public static final int ARM_LEADER_ID = 15;
+  public static final int ARM_FOLLOWER_ID = 21;
+  public static final int ARM_ENCODER_ID = 14;
   // Hardware
   private final TalonFX leaderTalon;
   private final TalonFX followerTalon;

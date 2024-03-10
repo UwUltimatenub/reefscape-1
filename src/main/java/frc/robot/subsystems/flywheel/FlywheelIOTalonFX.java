@@ -25,10 +25,10 @@ import edu.wpi.first.math.util.Units;
 public class FlywheelIOTalonFX implements FlywheelIO {
   private static final double GEAR_RATIO = 1;
 
-  private final TalonFX leader = new TalonFX(7);
-  private final TalonFX follower = new TalonFX(6);
-  private final TalonFX follower2 = new TalonFX(5);
-  private final TalonFX follower3 = new TalonFX(2);
+  private final TalonFX leader = new TalonFX(20);
+  private final TalonFX follower = new TalonFX(17);
+  private final TalonFX follower2 = new TalonFX(19);
+  private final TalonFX follower3 = new TalonFX(18);
 
   private final StatusSignal<Double> leaderPosition = leader.getPosition();
   private final StatusSignal<Double> leaderVelocity = leader.getVelocity();

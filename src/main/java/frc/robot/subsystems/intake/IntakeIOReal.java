@@ -17,7 +17,7 @@ public class IntakeIOReal implements IntakeIO {
       new VelocityVoltage(Units.radiansToRotations(0.0), 0.0, true, 0, 0, false, false, false);
 
   public IntakeIOReal() {
-    motor = new TalonFX(8);
+    motor = new TalonFX(16);
 
     var config = new TalonFXConfiguration();
     config.CurrentLimits.SupplyCurrentLimit = 50.0;
