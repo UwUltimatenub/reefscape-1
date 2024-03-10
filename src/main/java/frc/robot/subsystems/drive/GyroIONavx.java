@@ -54,4 +54,9 @@ public class GyroIONavx implements GyroIO {
     initial_degree = -ahrs.getAngle();
     System.out.println("resetting Field Orientation...");
   }
+
+  @Override
+  public double getRobotHeading() {
+    return -ahrs.getAngle();
+  }
 }

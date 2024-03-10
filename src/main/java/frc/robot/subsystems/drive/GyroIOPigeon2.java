@@ -35,8 +35,8 @@ public class GyroIOPigeon2 implements GyroIO {
     yaw.setUpdateFrequency(100.0);
     yawVelocity.setUpdateFrequency(100.0);
     pigeon.optimizeBusUtilization();
-    initial_degree = pigeon.getAngle();
-    prevAngle = pigeon.getAngle();
+    initial_degree = pigeon.getYaw().getValueAsDouble();
+    prevAngle = initial_degree;
   }
 
   @Override
@@ -55,5 +55,10 @@ public class GyroIOPigeon2 implements GyroIO {
   public void resetFO() {
     initial_degree = yaw.getValueAsDouble();
     System.out.println("resetting Field Orientation...");
+  }
+
+  @Override
+  public double getRobotHeading() {
+    return pigeon.getYaw().getValueAsDouble();
   }
 }

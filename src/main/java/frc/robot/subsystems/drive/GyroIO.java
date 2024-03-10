@@ -27,4 +27,6 @@ public interface GyroIO {
   public default void updateInputs(GyroIOInputs inputs) {}
 
   public void resetFO();
+
+  public double getRobotHeading();
 }

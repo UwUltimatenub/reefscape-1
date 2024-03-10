@@ -1,0 +1,683 @@
+[1mdiff --git a/src/main/java/frc/robot/Robot.java b/src/main/java/frc/robot/Robot.java[m
+[1mindex 175581b..701f470 100644[m
+[1m--- a/src/main/java/frc/robot/Robot.java[m
+[1m+++ b/src/main/java/frc/robot/Robot.java[m
+[36m@@ -15,6 +15,7 @@[m [mpackage frc.robot;[m
+ [m
+ import edu.wpi.first.wpilibj2.command.Command;[m
+ import edu.wpi.first.wpilibj2.command.CommandScheduler;[m
+[32m+[m[32mimport frc.robot.subsystems.arm.Arm;[m
+ import org.littletonrobotics.junction.LogFileUtil;[m
+ import org.littletonrobotics.junction.LoggedRobot;[m
+ import org.littletonrobotics.junction.Logger;[m
+[36m@@ -136,6 +137,7 @@[m [mpublic class Robot extends LoggedRobot {[m
+     if (autonomousCommand != null) {[m
+       autonomousCommand.cancel();[m
+     }[m
+[32m+[m[32m    robotContainer.getArm().armPosition = Arm.ARM_LEVEL_STOW;[m
+   }[m
+ [m
+   /** This function is called periodically during operator control. */[m
+[1mdiff --git a/src/main/java/frc/robot/RobotContainer.java b/src/main/java/frc/robot/RobotContainer.java[m
+[1mindex 76de018..1745640 100644[m
+[1m--- a/src/main/java/frc/robot/RobotContainer.java[m
+[1m+++ b/src/main/java/frc/robot/RobotContainer.java[m
+[36m@@ -16,6 +16,7 @@[m [mpackage frc.robot;[m
+ import com.pathplanner.lib.auto.AutoBuilder;[m
+ import com.pathplanner.lib.auto.NamedCommands;[m
+ import com.pathplanner.lib.path.PathPlannerPath;[m
+[32m+[m[32mimport edu.wpi.first.math.controller.PIDController;[m
+ import edu.wpi.first.wpilibj.GenericHID;[m
+ import edu.wpi.first.wpilibj.XboxController;[m
+ import edu.wpi.first.wpilibj2.command.Command;[m
+[36m@@ -41,276 +42,324 @@[m [mimport frc.robot.subsystems.intake.IntakeIOSim;[m
+ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;[m
+ [m
+ /**[m
+[31m- * This class is where the bulk of the robot should be declared. Since[m
+[31m- * Command-based is a[m
+[31m- * "declarative" paradigm, very little robot logic should actually be handled in[m
+[31m- * the {@link Robot}[m
+[31m- * periodic methods (other than the scheduler calls). Instead, the structure of[m
+[31m- * the robot (including[m
+[32m+[m[32m * This class is where the bulk of the robot should be declared. Since Command-based is a[m
+[32m+[m[32m * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}[m
+[32m+[m[32m * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including[m
+  * subsystems, commands, and button mappings) should be declared here.[m
+  */[m
+ public class RobotContainer {[m
+[31m-    private static final double INTAKE_ROLLER_SPEED = 300; // RPM[m
+[31m-    // Subsystems[m
+[31m-    private final Drive drive;[m
+[31m-    private final Flywheel flywheel;[m
+[31m-    private final Intake intake;[m
+[31m-    private final Arm arm;[m
+[31m-[m
+[31m-    public Arm getArm() {[m
+[31m-        return arm;[m
+[31m-    }[m
+[32m+[m[32m  private static final double INTAKE_ROLLER_SPEED = 300; // RPM[m
+[32m+[m[32m  // joystick threshold[m
+[32m+[m[32m  // joystick value 0 under the threshold[m
+[32m+[m[32m  static final float Joystick_Threshold = 20;[m
+ [m
+[31m-    // Controller[m
+[31m-    private final CommandXboxController controller = new CommandXboxController(0);[m
+[31m-[m
+[31m-    // Dashboard inputs[m
+[31m-    private final LoggedDashboardChooser<Command> autoChooser;[m
+[31m-[m
+[31m-    /**[m
+[31m-     * The container for the robot. Contains subsystems, OI devices, and commands.[m
+[31m-     */[m
+[31m-    public RobotContainer() {[m
+[31m-        switch (Constants.currentMode) {[m
+[31m-            case REAL:[m
+[31m-                // Real robot, instantiate hardware IO implementations[m
+[31m-                drive = new Drive([m
+[31m-                        // new GyroIONavx(),[m
+[31m-                        new GyroIOPigeon2(),[m
+[31m-                        new ModuleIOTalonFX(0),[m
+[31m-                        new ModuleIOTalonFX(1),[m
+[31m-                        new ModuleIOTalonFX(2),[m
+[31m-                        new ModuleIOTalonFX(3));[m
+[31m-                flywheel = new Flywheel(new FlywheelIOTalonFX());[m
+[31m-[m
+[31m-                intake = new Intake(new IntakeIOReal());[m
+[31m-                arm = new Arm(new ArmIOReal());[m
+[31m-                // drive = new Drive([m
+[31m-                // new GyroIOPigeon2(),[m
+[31m-                // new ModuleIOTalonFX(0),[m
+[31m-                // new ModuleIOTalonFX(1),[m
+[31m-                // new ModuleIOTalonFX(2),[m
+[31m-                // new ModuleIOTalonFX(3));[m
+[31m-                // flywheel = new Flywheel(new FlywheelIOTalonFX());[m
+[31m-                break;[m
+[31m-[m
+[31m-            case SIM:[m
+[31m-                // Sim robot, instantiate physics sim IO implementations[m
+[31m-                drive = new Drive([m
+[31m-                        // new GyroIONavx(),[m
+[31m-                        new GyroIOPigeon2(),[m
+[31m-                        new ModuleIOSim(),[m
+[31m-                        new ModuleIOSim(),[m
+[31m-                        new ModuleIOSim(),[m
+[31m-                        new ModuleIOSim());[m
+[31m-                flywheel = new Flywheel(new FlywheelIOSim());[m
+[31m-                intake = new Intake(new IntakeIOSim());[m
+[31m-                arm = new Arm(new ArmIOSim());[m
+[31m-[m
+[31m-                break;[m
+[31m-[m
+[31m-            default:[m
+[31m-                // Replayed robot, disable IO implementations[m
+[31m-                drive = new Drive([m
+[31m-                        // new GyroIONavx(),[m
+[31m-                        new GyroIOPigeon2(),[m
+[31m-                        new ModuleIO() {[m
+[31m-                        },[m
+[31m-                        new ModuleIO() {[m
+[31m-                        },[m
+[31m-                        new ModuleIO() {[m
+[31m-                        },[m
+[31m-                        new ModuleIO() {[m
+[31m-                        });[m
+[31m-                flywheel = new Flywheel(new FlywheelIO() {[m
+[31m-                });[m
+[31m-                intake = new Intake(new IntakeIOReal());[m
+[31m-                arm = new Arm(new ArmIOReal());[m
+[31m-                break;[m
+[31m-        }[m
+[31m-[m
+[31m-        // Set up auto routines[m
+[31m-        NamedCommands.registerCommand([m
+[31m-                "Run Flywheel",[m
+[31m-                Commands.startEnd(() -> flywheel.runVelocity(getFlywheelRPM()), flywheel::stop, flywheel)[m
+[31m-                        .withTimeout(5.0));[m
+[31m-        autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());[m
+[31m-[m
+[31m-        // Set up SysId routines[m
+[31m-        autoChooser.addOption([m
+[31m-                "Drive SysId (Quasistatic Forward)",[m
+[31m-                drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));[m
+[31m-        autoChooser.addOption([m
+[31m-                "Drive SysId (Quasistatic Reverse)",[m
+[31m-                drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));[m
+[31m-        autoChooser.addOption([m
+[31m-                "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));[m
+[31m-        autoChooser.addOption([m
+[31m-                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));[m
+[31m-[m
+[31m-        // Configure the button bindings[m
+[31m-        configureButtonBindings();[m
+[31m-    }[m
+[32m+[m[32m  // Subsystems[m
+[32m+[m[32m  private final Drive drive;[m
+[32m+[m[32m  private final Flywheel flywheel;[m
+[32m+[m[32m  private final Intake intake;[m
+[32m+[m[32m  private final Arm arm;[m
+ [m
+[31m-    public double getFlywheelRPM() {[m
+[31m-        double flywheelRPM = 0;[m
+[31m-        switch (arm.armPosition) {[m
+[31m-            case Arm.ARM_LEVEL_AMP:[m
+[31m-                flywheelRPM = 500;[m
+[31m-                break;[m
+[31m-            case Arm.ARM_LEVEL_SPEAKER:[m
+[31m-                flywheelRPM = 2000;[m
+[31m-                break;[m
+[31m-            case Arm.ARM_LEVEL_FAR_SPEAKER:[m
+[31m-                flywheelRPM = 3000;[m
+[31m-                break;[m
+[31m-        }[m
+[31m-        return flywheelRPM;[m
+[31m-    }[m
+[32m+[m[32m  PIDController turnPIDController = new PIDController(0.5, 0, 0.005);[m
+[32m+[m[32m  boolean isHeadingLock = false;[m
+[32m+[m[32m  double heading;[m
+[32m+[m
+[32m+[m[32m  // Controller[m
+[32m+[m[32m  private final CommandXboxController controller = new CommandXboxController(0);[m
+[32m+[m
+[32m+[m[32m  // Dashboard inputs[m
+[32m+[m[32m  private final LoggedDashboardChooser<Command> autoChooser;[m
+[32m+[m
+[32m+[m[32m  /** The container for the robot. Contains subsystems, OI devices, and commands. */[m
+[32m+[m[32m  public RobotContainer() {[m
+[32m+[m[32m    switch (Constants.currentMode) {[m
+[32m+[m[32m      case REAL:[m
+[32m+[m[32m        // Real robot, instantiate hardware IO implementations[m
+[32m+[m[32m        drive =[m
+[32m+[m[32m            new Drive([m
+[32m+[m[32m                // new GyroIONavx(),[m
+[32m+[m[32m                new GyroIOPigeon2(),[m
+[32m+[m[32m                new ModuleIOTalonFX(0),[m
+[32m+[m[32m                new ModuleIOTalonFX(1),[m
+[32m+[m[32m                new ModuleIOTalonFX(2),[m
+[32m+[m[32m                new ModuleIOTalonFX(3));[m
+[32m+[m[32m        flywheel = new Flywheel(new FlywheelIOTalonFX());[m
+[32m+[m
+[32m+[m[32m        intake = new Intake(new IntakeIOReal());[m
+[32m+[m[32m        arm = new Arm(new ArmIOReal());[m
+[32m+[m[32m        // drive = new Drive([m
+[32m+[m[32m        // new GyroIOPigeon2(),[m
+[32m+[m[32m        // new ModuleIOTalonFX(0),[m
+[32m+[m[32m        // new ModuleIOTalonFX(1),[m
+[32m+[m[32m        // new ModuleIOTalonFX(2),[m
+[32m+[m[32m        // new ModuleIOTalonFX(3));[m
+[32m+[m[32m        // flywheel = new Flywheel(new FlywheelIOTalonFX());[m
+[32m+[m[32m        break;[m
+ [m
+[31m-    // joystick threshold[m
+[31m-    // joystick value 0 under the threshold[m
+[31m-    final static float Joystick_Threshold = 20;[m
+[32m+[m[32m      case SIM:[m
+[32m+[m[32m        // Sim robot, instantiate physics sim IO implementations[m
+[32m+[m[32m        drive =[m
+[32m+[m[32m            new Drive([m
+[32m+[m[32m                // new GyroIONavx(),[m
+[32m+[m[32m                new GyroIOPigeon2(),[m
+[32m+[m[32m                new ModuleIOSim(),[m
+[32m+[m[32m                new ModuleIOSim(),[m
+[32m+[m[32m                new ModuleIOSim(),[m
+[32m+[m[32m                new ModuleIOSim());[m
+[32m+[m[32m        flywheel = new Flywheel(new FlywheelIOSim());[m
+[32m+[m[32m        intake = new Intake(new IntakeIOSim());[m
+[32m+[m[32m        arm = new Arm(new ArmIOSim());[m
+ [m
+[31m-    // map joystick input to curved output[m
+[31m-    // less sensitive at the low range, very sensentive at high range[m
+[31m-    private double regulate(double input) {[m
+[31m-        double output = (100 / (100 - Joystick_Threshold)) * (input - Math.copySign(100, input))[m
+[31m-                + Math.copySign(100, input);[m
+[31m-        return output * Math.abs(output) / 100;[m
+[32m+[m[32m        break;[m
+[32m+[m
+[32m+[m[32m      default:[m
+[32m+[m[32m        // Replayed robot, disable IO implementations[m
+[32m+[m[32m        drive =[m
+[32m+[m[32m            new Drive([m
+[32m+[m[32m                // new GyroIONavx(),[m
+[32m+[m[32m                new GyroIOPigeon2(),[m
+[32m+[m[32m                new ModuleIO() {},[m
+[32m+[m[32m                new ModuleIO() {},[m
+[32m+[m[32m                new ModuleIO() {},[m
+[32m+[m[32m                new ModuleIO() {});[m
+[32m+[m[32m        flywheel = new Flywheel(new FlywheelIO() {});[m
+[32m+[m[32m        intake = new Intake(new IntakeIOReal());[m
+[32m+[m[32m        arm = new Arm(new ArmIOReal());[m
+[32m+[m[32m        break;[m
+     }[m
+ [m
+[31m-    /**[m
+[31m-     * Use this method to define your button->command mappings. Buttons can be[m
+[31m-     * created by[m
+[31m-     * instantiating a {@link GenericHID} or one of its subclasses ({@link[m
+[31m-     * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing[m
+[31m-     * it to a {@link[m
+[31m-     * edu.wpi.first.wpilibj2.command.button.JoystickButton}.[m
+[31m-     */[m
+[31m-    private void configureButtonBindings() {[m
+[31m-[m
+[31m-        controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));[m
+[31m-        controller.y().onTrue(Commands.runOnce(drive::resetFieldOrientation, drive));[m
+[31m-[m
+[31m-        // drive[m
+[31m-        drive.setDefaultCommand([m
+[31m-                DriveCommands.joystickDrive([m
+[31m-                        drive,[m
+[31m-                        () -> arm.armPosition == Arm.ARM_LEVEL_STOW[m
+[31m-                                ? regulate(-controller.getLeftY()) / (controller.back().getAsBoolean() ? 2 : 1)[m
+[31m-                                : regulate(-controller.getLeftY()) / (controller.back().getAsBoolean() ? 2 : 1.5),[m
+[31m-                        () -> arm.armPosition == Arm.ARM_LEVEL_STOW[m
+[31m-                                ? regulate(-controller.getLeftX()) / (controller.back().getAsBoolean() ? 2 : 1)[m
+[31m-                                : regulate(-controller.getLeftX()) / (controller.back().getAsBoolean() ? 2 : 1.5),[m
+[31m-                        () -> regulate(controller.getRightX()) / (controller.back().getAsBoolean() ? 2 : 1.5)));[m
+[31m-[m
+[31m-        // controller[m
+[31m-        // .start()[m
+[31m-        // .onTrue([m
+[31m-        // Commands.runOnce([m
+[31m-        // () ->[m
+[31m-        // drive.setPose([m
+[31m-        // new Pose2d(drive.getPose().getTranslation(), new[m
+[31m-        // Rotation2d(3.14/2))),[m
+[31m-        // drive)[m
+[31m-        // .ignoringDisable(true));[m
+[31m-[m
+[31m-        // high hang[m
+[31m-        controller[m
+[31m-                .back()[m
+[31m-                .and(controller.start())[m
+[31m-                .whileTrue([m
+[31m-                        Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_HANG))[m
+[31m-                                .alongWith(Commands.runOnce(() -> intake.stop()))[m
+[31m-                                .alongWith(Commands.runOnce(() -> flywheel.stop())))[m
+[31m-                .whileFalse([m
+[31m-                        Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW)).andThen(() -> arm.stop()));[m
+[31m-[m
+[31m-        // intake[m
+[31m-        controller[m
+[31m-                .a()[m
+[31m-                .whileTrue([m
+[31m-                        Commands.startEnd([m
+[31m-                                () -> intake.runVelocity([m
+[31m-                                        arm.armPosition == Arm.ARM_LEVEL_STATION_INTAKE[m
+[31m-                                                ? INTAKE_ROLLER_SPEED[m
+[31m-                                                : getFlywheelRPM() * 2),[m
+[31m-                                () -> intake.stop(),[m
+[31m-                                intake)[m
+[31m-                                .alongWith([m
+[31m-                                        Commands.startEnd([m
+[31m-                                                () -> flywheel.runVelocity(getFlywheelRPM()),[m
+[31m-                                                () -> flywheel.stop(),[m
+[31m-                                                flywheel)));[m
+[31m-[m
+[31m-        // Left Bumper, Arm to Feeder[m
+[31m-        controller[m
+[31m-                .leftTrigger()[m
+[31m-                .whileTrue([m
+[31m-                        Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STATION_INTAKE))[m
+[31m-                                .alongWith(Commands.runOnce(() -> flywheel.stop()))[m
+[31m-                                .alongWith(Commands.runOnce(() -> intake.runVelocity(INTAKE_ROLLER_SPEED))))[m
+[31m-                .whileFalse([m
+[31m-                        Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))[m
+[31m-                                .alongWith(Commands.runOnce(() -> flywheel.stop()))[m
+[31m-                                .alongWith(Commands.runOnce(() -> intake.stop()))[m
+[31m-                                .andThen(() -> arm.stop()));[m
+[31m-[m
+[31m-        // Right Trigger, Arm to AMP[m
+[31m-        controller[m
+[31m-                .leftBumper()[m
+[31m-                .whileTrue([m
+[31m-                        Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_AMP))[m
+[31m-                                .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))[m
+[31m-                                .alongWith(Commands.runOnce(() -> intake.stop())))[m
+[31m-                .whileFalse([m
+[31m-                        Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))[m
+[31m-                                .alongWith(Commands.runOnce(() -> flywheel.stop()))[m
+[31m-                                .alongWith(Commands.runOnce(() -> intake.stop()))[m
+[31m-                                .andThen(() -> arm.stop()));[m
+[31m-[m
+[31m-        // Right trigger, Arm to Speaker[m
+[31m-        controller[m
+[31m-                .rightTrigger()[m
+[31m-                .whileTrue([m
+[31m-                        Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))[m
+[31m-                                .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))[m
+[31m-                                .alongWith(Commands.runOnce(() -> intake.stop())))[m
+[31m-                .whileFalse([m
+[31m-                        Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))[m
+[31m-                                .alongWith(Commands.runOnce(() -> flywheel.stop()))[m
+[31m-                                .alongWith(Commands.runOnce(() -> intake.stop()))[m
+[31m-                                .andThen(() -> arm.stop()));[m
+[31m-        // Right Bumper, Arm to far Speaker[m
+[31m-        controller[m
+[31m-                .rightBumper()[m
+[31m-                .whileTrue([m
+[31m-                        Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_FAR_SPEAKER))[m
+[31m-                                .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))[m
+[31m-                                .alongWith(Commands.runOnce(() -> intake.stop())))[m
+[31m-                .whileFalse([m
+[31m-                        Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))[m
+[31m-                                .alongWith(Commands.runOnce(() -> flywheel.stop()))[m
+[31m-                                .alongWith(Commands.runOnce(() -> intake.stop()))[m
+[31m-                                .andThen(() -> arm.stop()));[m
+[32m+[m[32m    // Set up auto routines[m
+[32m+[m[32m    NamedCommands.registerCommand([m
+[32m+[m[32m        "Run Flywheel",[m
+[32m+[m[32m        Commands.startEnd(() -> flywheel.runVelocity(getFlywheelRPM()), flywheel::stop, flywheel)[m
+[32m+[m[32m            .withTimeout(5.0));[m
+[32m+[m[32m    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());[m
+[32m+[m
+[32m+[m[32m    // Set up SysId routines[m
+[32m+[m[32m    autoChooser.addOption([m
+[32m+[m[32m        "Drive SysId (Quasistatic Forward)",[m
+[32m+[m[32m        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));[m
+[32m+[m[32m    autoChooser.addOption([m
+[32m+[m[32m        "Drive SysId (Quasistatic Reverse)",[m
+[32m+[m[32m        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));[m
+[32m+[m[32m    autoChooser.addOption([m
+[32m+[m[32m        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));[m
+[32m+[m[32m    autoChooser.addOption([m
+[32m+[m[32m        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));[m
+[32m+[m
+[32m+[m[32m    // Configure the button bindings[m
+[32m+[m[32m    configureButtonBindings();[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  public Arm getArm() {[m
+[32m+[m[32m    return arm;[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  public double getFlywheelRPM() {[m
+[32m+[m[32m    double flywheelRPM = 0;[m
+[32m+[m[32m    switch (arm.armPosition) {[m
+[32m+[m[32m      case Arm.ARM_LEVEL_AMP:[m
+[32m+[m[32m        flywheelRPM = 500;[m
+[32m+[m[32m        break;[m
+[32m+[m[32m      case Arm.ARM_LEVEL_SPEAKER:[m
+[32m+[m[32m        flywheelRPM = 2000;[m
+[32m+[m[32m        break;[m
+[32m+[m[32m      case Arm.ARM_LEVEL_FAR_SPEAKER:[m
+[32m+[m[32m        flywheelRPM = 3000;[m
+[32m+[m[32m        break;[m
+     }[m
+[32m+[m[32m    return flywheelRPM;[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  /***************************************************************************************************************************************[m
+[32m+[m[32m   * double getClosestAngle(double angle_lib)[m
+[32m+[m[32m   * take Normalized Angle and return value -180 to 180.[m
+[32m+[m[32m   *[m
+[32m+[m[32m   * for example: getClosestAngle(350) will return -20[m
+[32m+[m[32m   * getNormalizedAngle(20) will return 20[m
+[32m+[m[32m   ***************************************************************************************************************************************/[m
+[32m+[m[32m  double getClosestAngle(double input) {[m
+[32m+[m[32m    return (input > 180 ? -(360 - input) : input);[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  // map joystick input to curved output[m
+[32m+[m[32m  // less sensitive at the low range, very sensentive at high range[m
+[32m+[m[32m  private double regulate(double input) {[m
+[32m+[m[32m    double output =[m
+[32m+[m[32m        (100 / (100 - Joystick_Threshold)) * (input - Math.copySign(100, input))[m
+[32m+[m[32m            + Math.copySign(100, input);[m
+[32m+[m[32m    return output * Math.abs(output) / 100;[m
+[32m+[m[32m  }[m
+ [m
+[31m-    /**[m
+[31m-     * Use this to pass the autonomous command to the main {@link Robot} class.[m
+[31m-     *[m
+[31m-     * @return the command to run in autonomous[m
+[31m-     */[m
+[31m-    // public Command getAutonomousCommand() {[m
+[31m-    // return autoChooser.get();[m
+[31m-    // }[m
+[31m-    public Command getAutonomousCommand() {[m
+[31m-[m
+[31m-        // Load the path you want to follow using its name in the GUI[m
+[31m-        PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");[m
+[31m-[m
+[31m-        // Create a path following command using AutoBuilder. This will also trigger[m
+[31m-        // event markers.[m
+[31m-        return AutoBuilder.followPath(path);[m
+[32m+[m[32m  /**[m
+[32m+[m[32m   * Use this method to define your button->command mappings. Buttons can be created by[m
+[32m+[m[32m   * instantiating a {@link GenericHID} or one of its subclasses ({@link[m
+[32m+[m[32m   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link[m
+[32m+[m[32m   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.[m
+[32m+[m[32m   */[m
+[32m+[m[32m  private void configureButtonBindings() {[m
+[32m+[m
+[32m+[m[32m    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));[m
+[32m+[m[32m    controller.y().onTrue(Commands.runOnce(drive::resetFieldOrientation, drive));[m
+[32m+[m
+[32m+[m[32m    if (Math.abs(controller.getRightX()) > Joystick_Threshold) {[m
+[32m+[m[32m      isHeadingLock = false;[m
+     }[m
+[32m+[m[32m    // drive[m
+[32m+[m[32m    drive.setDefaultCommand([m
+[32m+[m[32m        DriveCommands.joystickDrive([m
+[32m+[m[32m            drive,[m
+[32m+[m[32m            () ->[m
+[32m+[m[32m                arm.armPosition == Arm.ARM_LEVEL_STOW[m
+[32m+[m[32m                    ? regulate(-controller.getLeftY()) / (controller.back().getAsBoolean() ? 2 : 1)[m
+[32m+[m[32m                    : regulate(-controller.getLeftY())[m
+[32m+[m[32m                        / (controller.back().getAsBoolean() ? 2 : 1.5),[m
+[32m+[m[32m            () ->[m
+[32m+[m[32m                arm.armPosition == Arm.ARM_LEVEL_STOW[m
+[32m+[m[32m                    ? regulate(-controller.getLeftX()) / (controller.back().getAsBoolean() ? 2 : 1)[m
+[32m+[m[32m                    : regulate(-controller.getLeftX())[m
+[32m+[m[32m                        / (controller.back().getAsBoolean() ? 2 : 1.5),[m
+[32m+[m[32m            () ->[m
+[32m+[m[32m                isHeadingLock[m
+[32m+[m[32m                    ? regulate([m
+[32m+[m[32m                            turnPIDController.calculate([m
+[32m+[m[32m                                drive.getGyroIO().getRobotHeading(),[m
+[32m+[m[32m                                drive.getGyroIO().getRobotHeading() //[m
+[32m+[m[32m                                    + getClosestAngle([m
+[32m+[m[32m                                        heading - drive.getGyroIO().getRobotHeading())))[m
+[32m+[m[32m                        / (controller.back().getAsBoolean() ? 2 : 1.5)[m
+[32m+[m[32m                    : regulate(controller.getRightX())[m
+[32m+[m[32m                        / (controller.back().getAsBoolean() ? 2 : 1.5)));[m
+[32m+[m
+[32m+[m[32m    // controller[m
+[32m+[m[32m    // .start()[m
+[32m+[m[32m    // .onTrue([m
+[32m+[m[32m    // Commands.runOnce([m
+[32m+[m[32m    // () ->[m
+[32m+[m[32m    // drive.setPose([m
+[32m+[m[32m    // new Pose2d(drive.getPose().getTranslation(), new[m
+[32m+[m[32m    // Rotation2d(3.14/2))),[m
+[32m+[m[32m    // drive)[m
+[32m+[m[32m    // .ignoringDisable(true));[m
+[32m+[m
+[32m+[m[32m    // high hang[m
+[32m+[m[32m    controller[m
+[32m+[m[32m        .back()[m
+[32m+[m[32m        .and(controller.start())[m
+[32m+[m[32m        .whileTrue([m
+[32m+[m[32m            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_HANG))[m
+[32m+[m[32m                .alongWith(Commands.runOnce(() -> intake.stop()))[m
+[32m+[m[32m                .alongWith(Commands.runOnce(() -> flywheel.stop())))[m
+[32m+[m[32m        .whileFalse([m
+[32m+[m[32m            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW)).andThen(() -> arm.stop()));[m
+[32m+[m
+[32m+[m[32m    // intake[m
+[32m+[m[32m    controller[m
+[32m+[m[32m        .a()[m
+[32m+[m[32m        .whileTrue([m
+[32m+[m[32m            Commands.startEnd([m
+[32m+[m[32m                    () ->[m
+[32m+[m[32m                        intake.runVelocity([m
+[32m+[m[32m                            arm.armPosition == Arm.ARM_LEVEL_STATION_INTAKE[m
+[32m+[m[32m                                ? INTAKE_ROLLER_SPEED[m
+[32m+[m[32m                                : getFlywheelRPM() * 2),[m
+[32m+[m[32m                    () -> intake.stop(),[m
+[32m+[m[32m                    intake)[m
+[32m+[m[32m                .alongWith([m
+[32m+[m[32m                    Commands.startEnd([m
+[32m+[m[32m                        () -> flywheel.runVelocity(getFlywheelRPM()),[m
+[32m+[m[32m                        () -> flywheel.stop(),[m
+[32m+[m[32m                        flywheel)));[m
+[32m+[m
+[32m+[m[32m    // set robot heading[m
+[32m+[m[32m    controller[m
+[32m+[m[32m        .start()[m
+[32m+[m[32m        .and(controller.leftTrigger())[m
+[32m+[m[32m        .onTrue(Commands.runOnce(() -> setRobotHeading(45)));[m
+[32m+[m[32m    controller[m
+[32m+[m[32m        .start()[m
+[32m+[m[32m        .and(controller.leftBumper())[m
+[32m+[m[32m        .onTrue(Commands.runOnce(() -> setRobotHeading(-90)));[m
+[32m+[m[32m    controller[m
+[32m+[m[32m        .back()[m
+[32m+[m[32m        .and(controller.rightTrigger())[m
+[32m+[m[32m        .onTrue(Commands.runOnce(() -> setRobotHeading(180)));[m
+[32m+[m[32m    controller[m
+[32m+[m[32m        .back()[m
+[32m+[m[32m        .and(controller.rightBumper())[m
+[32m+[m[32m        .onTrue(Commands.runOnce(() -> setRobotHeading(180)));[m
+[32m+[m
+[32m+[m[32m    // Left Bumper, Arm to Feeder[m
+[32m+[m[32m    controller[m
+[32m+[m[32m        .leftTrigger()[m
+[32m+[m[32m        .whileTrue([m
+[32m+[m[32m            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STATION_INTAKE))[m
+[32m+[m[32m                .alongWith(Commands.runOnce(() -> flywheel.stop()))[m
+[32m+[m[32m                .alongWith(Commands.runOnce(() -> intake.runVelocity(INTAKE_ROLLER_SPEED))))[m
+[32m+[m[32m        .whileFalse([m
+[32m+[m[32m            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))[m
+[32m+[m[32m                .alongWith(Commands.runOnce(() -> flywheel.stop()))[m
+[32m+[m[32m                .alongWith(Commands.runOnce(() -> intake.stop()))[m
+[32m+[m[32m                .andThen(() -> arm.stop()));[m
+[32m+[m
+[32m+[m[32m    // Right Trigger, Arm to AMP[m
+[32m+[m[32m    controller[m
+[32m+[m[32m        .leftBumper()[m
+[32m+[m[32m        .whileTrue([m
+[32m+[m[32m            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_AMP))[m
+[32m+[m[32m                .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))[m
+[32m+[m[32m                .alongWith(Commands.runOnce(() -> intake.stop())))[m
+[32m+[m[32m        .whileFalse([m
+[32m+[m[32m            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))[m
+[32m+[m[32m                .alongWith(Commands.runOnce(() -> flywheel.stop()))[m
+[32m+[m[32m                .alongWith(Commands.runOnce(() -> intake.stop()))[m
+[32m+[m[32m                .andThen(() -> arm.stop()));[m
+[32m+[m
+[32m+[m[32m    // Right trigger, Arm to Speaker[m
+[32m+[m[32m    controller[m
+[32m+[m[32m        .rightTrigger()[m
+[32m+[m[32m        .whileTrue([m
+[32m+[m[32m            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))[m
+[32m+[m[32m                .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))[m
+[32m+[m[32m                .alongWith(Commands.runOnce(() -> intake.stop())))[m
+[32m+[m[32m        .whileFalse([m
+[32m+[m[32m            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))[m
+[32m+[m[32m                .alongWith(Commands.runOnce(() -> flywheel.stop()))[m
+[32m+[m[32m                .alongWith(Commands.runOnce(() -> intake.stop()))[m
+[32m+[m[32m                .andThen(() -> arm.stop()));[m
+[32m+[m[32m    // Right Bumper, Arm to far Speaker[m
+[32m+[m[32m    controller[m
+[32m+[m[32m        .rightBumper()[m
+[32m+[m[32m        .whileTrue([m
+[32m+[m[32m            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_FAR_SPEAKER))[m
+[32m+[m[32m                .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))[m
+[32m+[m[32m                .alongWith(Commands.runOnce(() -> intake.stop())))[m
+[32m+[m[32m        .whileFalse([m
+[32m+[m[32m            Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))[m
+[32m+[m[32m                .alongWith(Commands.runOnce(() -> flywheel.stop()))[m
+[32m+[m[32m                .alongWith(Commands.runOnce(() -> intake.stop()))[m
+[32m+[m[32m                .andThen(() -> arm.stop()));[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  private void setRobotHeading(double target) {[m
+[32m+[m[32m    isHeadingLock = true;[m
+[32m+[m[32m    heading = target;[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  /**[m
+[32m+[m[32m   * Use this to pass the autonomous command to the main {@link Robot} class.[m
+[32m+[m[32m   *[m
+[32m+[m[32m   * @return the command to run in autonomous[m
+[32m+[m[32m   */[m
+[32m+[m[32m  // public Command getAutonomousCommand() {[m
+[32m+[m[32m  // return autoChooser.get();[m
+[32m+[m[32m  // }[m
+[32m+[m[32m  public Command getAutonomousCommand() {[m
+[32m+[m
+[32m+[m[32m    // Load the path you want to follow using its name in the GUI[m
+[32m+[m[32m    PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");[m
+[32m+[m
+[32m+[m[32m    // Create a path following command using AutoBuilder. This will also trigger[m
+[32m+[m[32m    // event markers.[m
+[32m+[m[32m    return AutoBuilder.followPath(path);[m
+[32m+[m[32m  }[m
+ }[m
+[1mdiff --git a/src/main/java/frc/robot/subsystems/drive/Drive.java b/src/main/java/frc/robot/subsystems/drive/Drive.java[m
+[1mindex 2ce1d24..ef97343 100644[m
+[1m--- a/src/main/java/frc/robot/subsystems/drive/Drive.java[m
+[1m+++ b/src/main/java/frc/robot/subsystems/drive/Drive.java[m
+[36m@@ -48,6 +48,11 @@[m [mpublic class Drive extends SubsystemBase {[m
+   private static final double MAX_ANGULAR_SPEED = MAX_LINEAR_SPEED / DRIVE_BASE_RADIUS;[m
+ [m
+   private final GyroIO gyroIO;[m
+[32m+[m
+[32m+[m[32m  public GyroIO getGyroIO() {[m
+[32m+[m[32m    return gyroIO;[m
+[32m+[m[32m  }[m
+[32m+[m
+   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();[m
+   private final Module[] modules = new Module[4]; // FL, FR, BL, BR[m
+   private final SysIdRoutine sysId;[m
+[1mdiff --git a/src/main/java/frc/robot/subsystems/drive/GyroIO.java b/src/main/java/frc/robot/subsystems/drive/GyroIO.java[m
+[1mindex e2f3a6a..77c64c8 100644[m
+[1m--- a/src/main/java/frc/robot/subsystems/drive/GyroIO.java[m
+[1m+++ b/src/main/java/frc/robot/subsystems/drive/GyroIO.java[m
+[36m@@ -27,4 +27,6 @@[m [mpublic interface GyroIO {[m
+   public default void updateInputs(GyroIOInputs inputs) {}[m
+ [m
+   public void resetFO();[m
+[32m+[m
+[32m+[m[32m  public double getRobotHeading();[m
+ }[m
+[1mdiff --git a/src/main/java/frc/robot/subsystems/drive/GyroIONavx.java b/src/main/java/frc/robot/subsystems/drive/GyroIONavx.java[m
+[1mindex 7663fd0..474cf11 100644[m
+[1m--- a/src/main/java/frc/robot/subsystems/drive/GyroIONavx.java[m
+[1m+++ b/src/main/java/frc/robot/subsystems/drive/GyroIONavx.java[m
+[36m@@ -54,4 +54,9 @@[m [mpublic class GyroIONavx implements GyroIO {[m
+     initial_degree = -ahrs.getAngle();[m
+     System.out.println("resetting Field Orientation...");[m
+   }[m
+[32m+[m
+[32m+[m[32m  @Override[m
+[32m+[m[32m  public double getRobotHeading() {[m
+[32m+[m[32m    return -ahrs.getAngle();[m
+[32m+[m[32m  }[m
+ }[m
+[1mdiff --git a/src/main/java/frc/robot/subsystems/drive/GyroIOPigeon2.java b/src/main/java/frc/robot/subsystems/drive/GyroIOPigeon2.java[m
+[1mindex 188982a..1a9bbb8 100644[m
+[1m--- a/src/main/java/frc/robot/subsystems/drive/GyroIOPigeon2.java[m
+[1m+++ b/src/main/java/frc/robot/subsystems/drive/GyroIOPigeon2.java[m
+[36m@@ -35,8 +35,8 @@[m [mpublic class GyroIOPigeon2 implements GyroIO {[m
+     yaw.setUpdateFrequency(100.0);[m
+     yawVelocity.setUpdateFrequency(100.0);[m
+     pigeon.optimizeBusUtilization();[m
+[31m-    initial_degree = pigeon.getAngle();[m
+[31m-    prevAngle = pigeon.getAngle();[m
+[32m+[m[32m    initial_degree = pigeon.getYaw().getValueAsDouble();[m
+[32m+[m[32m    prevAngle = initial_degree;[m
+   }[m
+ [m
+   @Override[m
+[36m@@ -56,4 +56,9 @@[m [mpublic class GyroIOPigeon2 implements GyroIO {[m
+     initial_degree = yaw.getValueAsDouble();[m
+     System.out.println("resetting Field Orientation...");[m
+   }[m
+[32m+[m
+[32m+[m[32m  @Override[m
+[32m+[m[32m  public double getRobotHeading() {[m
+[32m+[m[32m    return pigeon.getYaw().getValueAsDouble();[m
+[32m+[m[32m  }[m
+ }[m
