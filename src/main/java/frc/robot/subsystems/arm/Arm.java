@@ -102,7 +102,7 @@ public class Arm extends SubsystemBase {
 
   public void setArmLevel(int level) {
     armPosition = level;
-    Timer.delay(0.3);
+    Timer.delay(0.1);
     System.out.println("setting arm position" + armPosition);
   }
 

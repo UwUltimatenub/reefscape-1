@@ -6,6 +6,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 
 public class IntakeIOReal implements IntakeIO {
 
@@ -50,6 +51,8 @@ public class IntakeIOReal implements IntakeIO {
 
   @Override
   public void stop() {
+    motor.setVoltage(-1);
+    Timer.delay(0.1);
     motor.stopMotor();
   }
 }

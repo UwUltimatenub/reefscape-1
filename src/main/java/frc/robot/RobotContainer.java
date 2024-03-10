@@ -155,7 +155,7 @@ public class RobotContainer {
         flywheelRPM = 2000;
         break;
       case Arm.ARM_LEVEL_FAR_SPEAKER:
-        flywheelRPM = 4000;
+        flywheelRPM = 3000;
         break;
     }
     return flywheelRPM;
@@ -244,11 +244,11 @@ public class RobotContainer {
         .leftBumper()
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_AMP))
-                // .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
+                .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
                 .alongWith(Commands.runOnce(() -> intake.stop())))
         .whileFalse(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
-                // .alongWith(Commands.runOnce(() -> flywheel.stop()))
+                .alongWith(Commands.runOnce(() -> flywheel.stop()))
                 .alongWith(Commands.runOnce(() -> intake.stop()))
                 .andThen(() -> arm.stop()));
 
@@ -257,11 +257,11 @@ public class RobotContainer {
         .rightTrigger()
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))
-                // .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
+                .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
                 .alongWith(Commands.runOnce(() -> intake.stop())))
         .whileFalse(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
-                // .alongWith(Commands.runOnce(() -> flywheel.stop()))
+                .alongWith(Commands.runOnce(() -> flywheel.stop()))
                 .alongWith(Commands.runOnce(() -> intake.stop()))
                 .andThen(() -> arm.stop()));
     // Right Bumper, Arm to far Speaker
@@ -269,11 +269,11 @@ public class RobotContainer {
         .rightBumper()
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_FAR_SPEAKER))
-                // .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
+                .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
                 .alongWith(Commands.runOnce(() -> intake.stop())))
         .whileFalse(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
-                // .alongWith(Commands.runOnce(() -> flywheel.stop()))
+                .alongWith(Commands.runOnce(() -> flywheel.stop()))
                 .alongWith(Commands.runOnce(() -> intake.stop()))
                 .andThen(() -> arm.stop()));
   }
