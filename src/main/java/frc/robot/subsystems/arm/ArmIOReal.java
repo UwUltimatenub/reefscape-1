@@ -77,9 +77,9 @@ public class ArmIOReal implements ArmIO {
     // Hold the ARM
     armTalonConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
     armTalonConfig.Slot0.kG = 0.35; // to hold the arm weight
-    armTalonConfig.Slot0.kP = 100; // 100; // adjust PID
+    armTalonConfig.Slot0.kP = 60; // 100; // adjust PID
     armTalonConfig.Slot0.kI = 0;
-    armTalonConfig.Slot0.kD = 0;
+    armTalonConfig.Slot0.kD = 0.02;
     armTalonConfig.Slot0.kS = 0;
     armTalonConfig.Slot0.kV = 0;
     armTalonConfig.Slot0.kA = 0;
@@ -87,7 +87,7 @@ public class ArmIOReal implements ArmIO {
     // Move the arm
     armTalonConfig.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
     armTalonConfig.Slot1.kG = 0.35; // to hold the arm weight
-    armTalonConfig.Slot1.kP = 100; // 100; // adjust PID
+    armTalonConfig.Slot1.kP = 60; // 100; // adjust PID
     armTalonConfig.Slot1.kI = 0;
     armTalonConfig.Slot1.kD = 0;
     armTalonConfig.Slot1.kS = 0;

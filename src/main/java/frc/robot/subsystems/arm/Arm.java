@@ -31,7 +31,7 @@ public class Arm extends SubsystemBase {
   //     SUBWOOFER(new LoggedTunableNumber("Arm/SubwooferDegrees", 30.0)),
   //     CUSTOM(new LoggedTunableNumber("Arm/CustomSetpoint", 20.0));
   // }
-  private static final double PIVOT_POS_SWITCH_THRESHOLD = 0.01;
+  private static final double PIVOT_POS_SWITCH_THRESHOLD = 0.1;
 
   private final ArmIO io;
   private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
