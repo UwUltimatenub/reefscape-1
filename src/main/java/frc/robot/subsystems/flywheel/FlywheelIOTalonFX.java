@@ -25,16 +25,16 @@ import edu.wpi.first.math.util.Units;
 public class FlywheelIOTalonFX implements FlywheelIO {
   private static final double GEAR_RATIO = 1;
 
-  private final TalonFX leader = new TalonFX(20);
-  private final TalonFX follower = new TalonFX(17);
-  private final TalonFX follower2 = new TalonFX(19);
-  private final TalonFX follower3 = new TalonFX(18);
+  private final TalonFX lf = new TalonFX(20);
+  private final TalonFX rf = new TalonFX(17);
+  private final TalonFX lb = new TalonFX(19);
+  private final TalonFX rb = new TalonFX(18);
 
-  private final StatusSignal<Double> leaderPosition = leader.getPosition();
-  private final StatusSignal<Double> leaderVelocity = leader.getVelocity();
-  private final StatusSignal<Double> leaderAppliedVolts = leader.getMotorVoltage();
-  private final StatusSignal<Double> leaderCurrent = leader.getSupplyCurrent();
-  private final StatusSignal<Double> followerCurrent = follower.getSupplyCurrent();
+  private final StatusSignal<Double> leaderPosition = lf.getPosition();
+  private final StatusSignal<Double> leaderVelocity = lf.getVelocity();
+  private final StatusSignal<Double> leaderAppliedVolts = lf.getMotorVoltage();
+  private final StatusSignal<Double> leaderCurrent = lf.getSupplyCurrent();
+  private final StatusSignal<Double> followerCurrent = rf.getSupplyCurrent();
 
   // rotations per second.
   VelocityVoltage velOut =
@@ -54,13 +54,13 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     config.Slot0.kV = .12; // 10;
     config.Slot0.kS = 0; // 0.33329;
 
-    leader.getConfigurator().apply(config);
+    lf.getConfigurator().apply(config);
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    follower.getConfigurator().apply(config);
+    rf.getConfigurator().apply(config);
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    follower2.getConfigurator().apply(config);
+    lb.getConfigurator().apply(config);
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    follower3.getConfigurator().apply(config);
+    rb.getConfigurator().apply(config);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         100.0, leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent, followerCurrent);
@@ -81,18 +81,18 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   @Override
   public void setVelocity(double velocityRadPerSec) {
     System.out.println("Vel : " + velocityRadPerSec);
-    leader.setControl(velOut.withVelocity(velocityRadPerSec)); // rotations per second.
-    follower.setControl(velOut.withVelocity(velocityRadPerSec));
-    follower2.setControl(velOut.withVelocity(velocityRadPerSec));
-    follower3.setControl(velOut.withVelocity(velocityRadPerSec));
+    lf.setControl(velOut.withVelocity(velocityRadPerSec)); // rotations per second.
+    rf.setControl(velOut.withVelocity(velocityRadPerSec));
+    lb.setControl(velOut.withVelocity(velocityRadPerSec));
+    rb.setControl(velOut.withVelocity(velocityRadPerSec));
   }
 
   @Override
   public void stop() {
 
-    leader.stopMotor();
-    follower.stopMotor();
-    follower2.stopMotor();
-    follower3.stopMotor();
+    lf.stopMotor();
+    rf.stopMotor();
+    lb.stopMotor();
+    rb.stopMotor();
   }
 }
