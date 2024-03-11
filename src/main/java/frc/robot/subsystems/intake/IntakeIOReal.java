@@ -52,7 +52,7 @@ public class IntakeIOReal implements IntakeIO {
   @Override
   public void stop() {
     motor.setVoltage(-1);
-    Timer.delay(0.1);
+    Timer.delay(0.05);
     motor.stopMotor();
   }
 }

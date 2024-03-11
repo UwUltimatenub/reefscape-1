@@ -17,7 +17,6 @@ import org.littletonrobotics.junction.Logger;
 public class Arm extends SubsystemBase {
 
   public static final int ARM_LEVEL_STOW = 0;
-  public static final int ARM_LEVEL_DIAGNOSE = 1;
   public static final int ARM_LEVEL_AMP = 2;
   public static final int ARM_LEVEL_SPEAKER = 3;
   public static final int ARM_LEVEL_FAR_SPEAKER = 4;
@@ -65,17 +64,14 @@ public class Arm extends SubsystemBase {
       case Arm.ARM_LEVEL_STOW:
         positionRads = INITIAL_ARM_RADS;
         break;
-      case Arm.ARM_LEVEL_DIAGNOSE:
-        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(20);
-        break;
       case Arm.ARM_LEVEL_AMP:
-        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(60);
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(60); // 60
         break;
       case Arm.ARM_LEVEL_SPEAKER:
-        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(83);
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(83); // 83
         break;
       case Arm.ARM_LEVEL_FAR_SPEAKER:
-        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(63);
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(65); // 63
         break;
       case Arm.ARM_LEVEL_STATION_INTAKE:
         positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(50);

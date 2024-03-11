@@ -161,10 +161,10 @@ public class RobotContainer {
         flywheelRPM = 500;
         break;
       case Arm.ARM_LEVEL_SPEAKER:
-        flywheelRPM = 3000;
+        flywheelRPM = 2000;
         break;
       case Arm.ARM_LEVEL_FAR_SPEAKER:
-        flywheelRPM = 4000;
+        flywheelRPM = 2000;
         break;
     }
     return flywheelRPM;
@@ -308,8 +308,7 @@ public class RobotContainer {
         .leftBumper()
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_AMP))
-                .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
-                .alongWith(Commands.runOnce(() -> intake.stop())))
+                .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM()))))
         .whileFalse(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
                 .alongWith(Commands.runOnce(() -> flywheel.stop()))
@@ -321,8 +320,7 @@ public class RobotContainer {
         .rightTrigger()
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))
-                .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
-                .alongWith(Commands.runOnce(() -> intake.stop())))
+                .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM()))))
         .whileFalse(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
                 .alongWith(Commands.runOnce(() -> flywheel.stop()))
@@ -333,8 +331,7 @@ public class RobotContainer {
         .rightBumper()
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_FAR_SPEAKER))
-                .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM())))
-                .alongWith(Commands.runOnce(() -> intake.stop())))
+                .andThen(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM()))))
         .whileFalse(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
                 .alongWith(Commands.runOnce(() -> flywheel.stop()))
