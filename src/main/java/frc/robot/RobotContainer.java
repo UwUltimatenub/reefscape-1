@@ -16,7 +16,6 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -59,9 +58,9 @@ public class RobotContainer {
   private final Intake intake;
   private final Arm arm;
 
-//   PIDController turnPIDController = new PIDController(0.001, 0, 0.00);
-//   boolean isHeadingLock = false;
-//   double heading;
+  //   PIDController turnPIDController = new PIDController(0.001, 0, 0.00);
+  //   boolean isHeadingLock = false;
+  //   double heading;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -188,7 +187,6 @@ public class RobotContainer {
         (1 / (1 - Joystick_Threshold)) * (input - Math.copySign(1, input))
             + Math.copySign(1, input);
     output = output * Math.abs(output) / 1;
-    System.out.println("aaa=" + output);
     return output;
   }
 
@@ -226,9 +224,8 @@ public class RobotContainer {
                 //                     + getClosestAngle(
                 //                         heading - drive.getGyroIO().getRobotHeading())))
                 //         / (controller.back().getAsBoolean() ? 2 : 1.5)
-                //     : 
-                    regulate(controller.getRightX())
-                        / (controller.back().getAsBoolean() ? 2 : 1.5)));
+                //     :
+                regulate(controller.getRightX()) / (controller.back().getAsBoolean() ? 2 : 1.5)));
 
     // controller
     // .start()
@@ -337,10 +334,10 @@ public class RobotContainer {
                 .andThen(() -> arm.stop()));
   }
 
-//   private void setRobotHeading(double target) {
-//     // isHeadingLock = true;
-//     heading = target;
-//   }
+  //   private void setRobotHeading(double target) {
+  //     // isHeadingLock = true;
+  //     heading = target;
+  //   }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
