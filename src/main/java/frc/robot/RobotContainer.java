@@ -59,9 +59,9 @@ public class RobotContainer {
   private final Intake intake;
   private final Arm arm;
 
-  PIDController turnPIDController = new PIDController(0.001, 0, 0.00);
-  boolean isHeadingLock = false;
-  double heading;
+//   PIDController turnPIDController = new PIDController(0.001, 0, 0.00);
+//   boolean isHeadingLock = false;
+//   double heading;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -203,9 +203,6 @@ public class RobotContainer {
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
     controller.y().onTrue(Commands.runOnce(drive::resetFieldOrientation, drive));
 
-    if (Math.abs(controller.getRightX()) > Joystick_Threshold) {
-      isHeadingLock = false;
-    }
     // drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
@@ -221,15 +218,16 @@ public class RobotContainer {
                     : regulate(-controller.getLeftX())
                         / (controller.back().getAsBoolean() ? 2 : 1.5),
             () ->
-                isHeadingLock
-                    ? regulate(
-                            turnPIDController.calculate(
-                                drive.getGyroIO().getRobotHeading(),
-                                drive.getGyroIO().getRobotHeading() //
-                                    + getClosestAngle(
-                                        heading - drive.getGyroIO().getRobotHeading())))
-                        / (controller.back().getAsBoolean() ? 2 : 1.5)
-                    : regulate(controller.getRightX())
+                // isHeadingLock
+                //     ? regulate(
+                //             turnPIDController.calculate(
+                //                 drive.getGyroIO().getRobotHeading(),
+                //                 drive.getGyroIO().getRobotHeading() //
+                //                     + getClosestAngle(
+                //                         heading - drive.getGyroIO().getRobotHeading())))
+                //         / (controller.back().getAsBoolean() ? 2 : 1.5)
+                //     : 
+                    regulate(controller.getRightX())
                         / (controller.back().getAsBoolean() ? 2 : 1.5)));
 
     // controller
@@ -273,22 +271,22 @@ public class RobotContainer {
                         flywheel)));
 
     // set robot heading
-    controller
-        .start()
-        .and(controller.leftTrigger())
-        .onTrue(Commands.runOnce(() -> setRobotHeading(45)));
-    controller
-        .start()
-        .and(controller.leftBumper())
-        .onTrue(Commands.runOnce(() -> setRobotHeading(-90)));
-    controller
-        .back()
-        .and(controller.rightTrigger())
-        .onTrue(Commands.runOnce(() -> setRobotHeading(180)));
-    controller
-        .back()
-        .and(controller.rightBumper())
-        .onTrue(Commands.runOnce(() -> setRobotHeading(180)));
+    // controller
+    //     .start()
+    //     .and(controller.leftTrigger())
+    //     .onTrue(Commands.runOnce(() -> setRobotHeading(45)));
+    // controller
+    //     .start()
+    //     .and(controller.leftBumper())
+    //     .onTrue(Commands.runOnce(() -> setRobotHeading(-90)));
+    // controller
+    //     .back()
+    //     .and(controller.rightTrigger())
+    //     .onTrue(Commands.runOnce(() -> setRobotHeading(180)));
+    // controller
+    //     .back()
+    //     .and(controller.rightBumper())
+    //     .onTrue(Commands.runOnce(() -> setRobotHeading(180)));
 
     // Left Bumper, Arm to Feeder
     controller
@@ -339,10 +337,10 @@ public class RobotContainer {
                 .andThen(() -> arm.stop()));
   }
 
-  private void setRobotHeading(double target) {
-    // isHeadingLock = true;
-    heading = target;
-  }
+//   private void setRobotHeading(double target) {
+//     // isHeadingLock = true;
+//     heading = target;
+//   }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
