@@ -157,7 +157,7 @@ public class RobotContainer {
     double flywheelRPM = 0;
     switch (arm.armPosition) {
       case Arm.ARM_LEVEL_AMP:
-        flywheelRPM = 500;
+        flywheelRPM = 400;
         break;
       case Arm.ARM_LEVEL_SPEAKER:
         flywheelRPM = 2000;

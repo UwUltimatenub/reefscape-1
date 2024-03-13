@@ -65,13 +65,13 @@ public class Arm extends SubsystemBase {
         positionRads = INITIAL_ARM_RADS;
         break;
       case Arm.ARM_LEVEL_AMP:
-        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(60); // 60
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(55); // 60
         break;
       case Arm.ARM_LEVEL_SPEAKER:
-        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(83); // 83
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(74); // 83
         break;
       case Arm.ARM_LEVEL_FAR_SPEAKER:
-        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(65); // 63
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(60); // 63
         break;
       case Arm.ARM_LEVEL_STATION_INTAKE:
         positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(50);
