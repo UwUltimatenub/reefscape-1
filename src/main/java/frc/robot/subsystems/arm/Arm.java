@@ -74,7 +74,7 @@ public class Arm extends SubsystemBase {
         positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(60); // 63
         break;
       case Arm.ARM_LEVEL_STATION_INTAKE:
-        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(50);
+        positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(45);
         break;
       case Arm.ARM_LEVEL_HANG:
         positionRads = INITIAL_ARM_RADS + Units.degreesToRadians(118);
