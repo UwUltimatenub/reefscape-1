@@ -74,32 +74,34 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveTalon = new TalonFX(8);
         turnTalon = new TalonFX(9);
         cancoder = new CANcoder(13);
-        absoluteEncoderOffset = new Rotation2d(-1.978); // MUST BE CALIBRATED
+        absoluteEncoderOffset = new Rotation2d(-1.952); // MUST BE CALIBRATED
         break;
       case 1:
         driveTalon = new TalonFX(6);
         turnTalon = new TalonFX(7);
         cancoder = new CANcoder(12);
-        absoluteEncoderOffset = new Rotation2d(1.293); // MUST BE CALIBRATED
+        absoluteEncoderOffset = new Rotation2d(1.292); // MUST BE CALIBRATED
         break;
       case 2:
         driveTalon = new TalonFX(2);
         turnTalon = new TalonFX(3);
         cancoder = new CANcoder(10);
-        absoluteEncoderOffset = new Rotation2d(2.165); // MUST BE CALIBRATED
+        absoluteEncoderOffset = new Rotation2d(2.159); // MUST BE CALIBRATED
         break;
       case 3:
         driveTalon = new TalonFX(4);
         turnTalon = new TalonFX(5);
         cancoder = new CANcoder(11);
-        absoluteEncoderOffset = new Rotation2d(2.217); // MUST BE CALIBRATED
+        absoluteEncoderOffset = new Rotation2d(2.233); // MUST BE CALIBRATED
         break;
       default:
         throw new RuntimeException("Invalid module index");
     }
 
     var driveConfig = new TalonFXConfiguration();
-    driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
+    driveConfig.CurrentLimits.SupplyCurrentLimit = 70.0;
+    driveConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
+    driveConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.05;
     driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     driveConfig.Voltage.PeakForwardVoltage = 12.0;
     driveConfig.Voltage.PeakReverseVoltage = -12.0;
@@ -107,6 +109,8 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     var turnConfig = new TalonFXConfiguration();
     turnConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
+    turnConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.05;
+    turnConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.05;
     turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     turnConfig.Voltage.PeakForwardVoltage = 12.0;
     turnConfig.Voltage.PeakReverseVoltage = -12.0;
