@@ -50,7 +50,7 @@ public class RobotContainer {
   private static final double INTAKE_ROLLER_SPEED = 300; // RPM
   // joystick threshold
   // joystick value 0 under the threshold
-  static final double Joystick_Threshold = 0.2;
+  static final double Joystick_Threshold = 0.05;
 
   // Subsystems
   private final Drive drive;
