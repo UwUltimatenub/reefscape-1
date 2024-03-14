@@ -352,8 +352,11 @@ public class RobotContainer {
     // Load the path you want to follow using its name in the GUI
     PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
 
+    return Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))
+        .andThen(() -> flywheel.runVelocity(getFlywheelRPM()))
+        .andThen(Commands.runOnce(() -> intake.runVelocity(INTAKE_ROLLER_SPEED)));
     // Create a path following command using AutoBuilder. This will also trigger
     // event markers.
-    return AutoBuilder.followPath(path);
+    // return AutoBuilder.followPath(path);
   }
 }
