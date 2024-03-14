@@ -28,7 +28,7 @@ public class Arm extends SubsystemBase {
     INITIAL_ARM_RADS + Units.degreesToRadians(55), // AMP
     INITIAL_ARM_RADS + Units.degreesToRadians(74), // SPEAKER
     INITIAL_ARM_RADS + Units.degreesToRadians(60), // FAR SPEAKER
-    INITIAL_ARM_RADS + Units.degreesToRadians(50), // INTAKE
+    INITIAL_ARM_RADS + Units.degreesToRadians(45), // INTAKE
     INITIAL_ARM_RADS + Units.degreesToRadians(118) // HANG
   };
 
