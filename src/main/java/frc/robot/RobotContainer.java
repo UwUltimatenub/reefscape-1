@@ -16,6 +16,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -25,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.SpeakerShoot;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIOReal;
 import frc.robot.subsystems.arm.ArmIOSim;
@@ -40,6 +42,7 @@ import frc.robot.subsystems.flywheel.FlywheelIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOReal;
 import frc.robot.subsystems.intake.IntakeIOSim;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -49,16 +52,16 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private static final double INTAKE_ROLLER_SPEED = 300; // RPM
+  public static final double INTAKE_ROLLER_SPEED = 300; // RPM
   // joystick threshold
   // joystick value 0 under the threshold
   static final double Joystick_Threshold = 0.05;
 
   // Subsystems
-  private final Drive drive;
-  private final Flywheel flywheel;
-  private final Intake intake;
-  private final Arm arm;
+  public final Drive drive;
+  public final Flywheel flywheel;
+  public final Intake intake;
+  public final Arm arm;
 
   //   PIDController turnPIDController = new PIDController(0.001, 0, 0.00);
   //   boolean isHeadingLock = false;
@@ -149,10 +152,6 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
-  }
-
-  public Arm getArm() {
-    return arm;
   }
 
   public double getFlywheelRPM() {
@@ -353,15 +352,11 @@ public class RobotContainer {
   // return autoChooser.get();
   // }
   public Command getAutonomousCommand() {
-
+ 
     // Load the path you want to follow using its name in the GUI
-    PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
+    PathPlannerPath path = PathPlannerPath.fromPathFile("Path1");
 
-    return Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))
-        .andThen(() -> flywheel.runVelocity(getFlywheelRPM()))
-        .andThen(Commands.runOnce(() -> intake.runVelocity(INTAKE_ROLLER_SPEED)));
-    // Create a path following command using AutoBuilder. This will also trigger
-    // event markers.
-    // return AutoBuilder.followPath(path);
+    return new SpeakerShoot(this).andThen(AutoBuilder.followPath(path));
+     
   }
 }
