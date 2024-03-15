@@ -16,7 +16,6 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -26,7 +25,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.SpeakerShoot;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIOReal;
 import frc.robot.subsystems.arm.ArmIOSim;
@@ -42,7 +40,6 @@ import frc.robot.subsystems.flywheel.FlywheelIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOReal;
 import frc.robot.subsystems.intake.IntakeIOSim;
-
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -184,13 +181,14 @@ public class RobotContainer {
   // map joystick input to curved output
   // less sensitive at the low range, very sensentive at high range
   private double regulate(double input) {
+    double output = input;
     if (DriverStation.getAlliance().get() == Alliance.Blue) {
-      input = -input;
+      output = -input;
     }
-    double output =
-        (1 / (1 - Joystick_Threshold)) * (input - Math.copySign(1, input))
-            + Math.copySign(1, input);
-    output = output * Math.abs(output) / 1;
+    // double output =
+    //     (1 / (1 - Joystick_Threshold)) * (input - Math.copySign(1, input))
+    //         + Math.copySign(1, input);
+    // output = output * Math.abs(output) / 1;
     return output;
   }
 
@@ -229,7 +227,7 @@ public class RobotContainer {
                 //                         heading - drive.getGyroIO().getRobotHeading())))
                 //         / (controller.back().getAsBoolean() ? 2 : 1.5)
                 //     :
-                regulate(controller.getRightX()) / (controller.back().getAsBoolean() ? 2 : 1.5)));
+                controller.getRightX() / (controller.back().getAsBoolean() ? 2 : 1.5)));
 
     // controller
     // .start()
@@ -342,6 +340,18 @@ public class RobotContainer {
   //     // isHeadingLock = true;
   //     heading = target;
   //   }
+  public void speakerNote() {
+    arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER);
+    // Timer.delay(1);
+    flywheel.runVelocity(getFlywheelRPM());
+    intake.runVelocity(RobotContainer.INTAKE_ROLLER_SPEED);
+    // Timer.delay(500);
+
+    // arm.setArmLevel(Arm.ARM_LEVEL_STOW);
+    // flywheel.stop();
+    // intake.stop();
+    // // Timer.delay(1000);
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -352,11 +362,30 @@ public class RobotContainer {
   // return autoChooser.get();
   // }
   public Command getAutonomousCommand() {
- 
-    // Load the path you want to follow using its name in the GUI
-    PathPlannerPath path = PathPlannerPath.fromPathFile("Path1");
+    // Translation2d m_translation = this.drive.getPose().getTranslation();
 
-    return new SpeakerShoot(this).andThen(AutoBuilder.followPath(path));
-     
+    // Rotation2d m_rotation = new Rotation2d();
+    // this.drive.setPose(new Pose2d(m_translation, m_rotation));
+    // Load the path you want to follow using its name in the GUI
+    // Pose2d initialPose2D = PathPlannerAuto.getStaringPoseFromAutoFile("MyAuto");
+    // drive.setPose(initialPose2D);
+
+    PathPlannerPath path = PathPlannerPath.fromPathFile("Path1");
+    // PathPlannerPath path = PathPlannerAuto. .getPathGroupFromAutoFile("MyAuto").get(0);
+
+    // return Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))
+    //     .andThen(new WaitCommand(1))
+    //     .andThen(() -> flywheel.runVelocity(getFlywheelRPM()))
+    //     .andThen(() -> intake.runVelocity(INTAKE_ROLLER_SPEED))
+    //     .andThen(new WaitCommand(0.5))
+    //     .andThen(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
+    //     .andThen(new WaitCommand(1))
+    //     .andThen(() -> flywheel.stop())
+    //     .andThen(() -> intake.stop())
+    //     .andThen(AutoBuilder.followPath(path));
+
+    return AutoBuilder.followPath(path);
+
+    // return Commands.runOnce(() -> speakerNote()).andThen(new WaitCommand(1));
   }
 }

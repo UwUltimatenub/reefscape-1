@@ -15,7 +15,7 @@ public class SpeakerShoot extends Command {
   private RobotContainer robot;
   /** Creates a new MoveArm. */
   public SpeakerShoot(RobotContainer myRobot) {
-    robot = myRobot ;
+    robot = myRobot;
   }
 
   // Called when the command is initially scheduled.
@@ -36,7 +36,6 @@ public class SpeakerShoot extends Command {
     robot.intake.stop();
     Timer.delay(1000);
     isFinished = true;
-    
   }
 
   // Called once the command ends or is interrupted.

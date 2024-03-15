@@ -105,7 +105,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     // stop the arm and set to brake mode
-    robotContainer.getArm().stop();
+    robotContainer.arm.stop();
   }
 
   /** This function is called periodically when disabled. */
@@ -137,7 +137,7 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
-    robotContainer.getArm().armPosition = Arm.ARM_LEVEL_STOW;
+    robotContainer.arm.armPosition = Arm.ARM_LEVEL_STOW;
   }
 
   /** This function is called periodically during operator control. */
