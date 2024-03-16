@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
@@ -204,9 +205,9 @@ public class RobotContainer {
 
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
     controller.y().onTrue(Commands.runOnce(drive::resetFieldOrientation, drive));
-    controller
-        .b()
-        .onTrue(Commands.runOnce(() -> drive.setPose(new Pose2d(0.0, 0.0, new Rotation2d(0)))));
+    // controller
+    //     .b()
+    //     .onTrue(Commands.runOnce(() -> drive.setPose(new Pose2d(0.0, 0.0, new Rotation2d(0)))));
 
     // drive
     drive.setDefaultCommand(
@@ -377,20 +378,20 @@ public class RobotContainer {
     PathPlannerPath path = PathPlannerPath.fromPathFile("Path1");
     // PathPlannerPath path = PathPlannerAuto. .getPathGroupFromAutoFile("MyAuto").get(0);
 
-    // return Commands.runOnce(() -> flywheel.stop())
-    //     .andThen(() -> intake.stop())
-    //     .andThen(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))
-    //     .andThen(new WaitCommand(1))
-    //     .andThen(() -> flywheel.runVelocity(getFlywheelRPM()))
-    //     .andThen(() -> intake.runVelocity(INTAKE_ROLLER_SPEED))
-    //     .andThen(new WaitCommand(0.8))
-    //     .andThen(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
-    //     .andThen(new WaitCommand(1))
-    //     .andThen(() -> flywheel.stop())
-    //     .andThen(() -> intake.stop());
+    return Commands.runOnce(() -> flywheel.stop())
+        .andThen(() -> intake.stop())
+        .andThen(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))
+        .andThen(new WaitCommand(1))
+        .andThen(() -> flywheel.runVelocity(getFlywheelRPM()))
+        .andThen(() -> intake.runVelocity(INTAKE_ROLLER_SPEED))
+        .andThen(new WaitCommand(0.8))
+        .andThen(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
+        .andThen(new WaitCommand(1))
+        .andThen(() -> flywheel.stop())
+        .andThen(() -> intake.stop());
     // .andThen(AutoBuilder.followPath(path));
 
-    return AutoBuilder.followPath(path);
+    // return AutoBuilder.followPath(path);
 
     // return Commands.runOnce(() -> speakerNote()).andThen(new WaitCommand(1));
   }
