@@ -16,6 +16,8 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -202,6 +204,9 @@ public class RobotContainer {
 
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
     controller.y().onTrue(Commands.runOnce(drive::resetFieldOrientation, drive));
+    controller
+        .b()
+        .onTrue(Commands.runOnce(() -> drive.setPose(new Pose2d(0.0, 0.0, new Rotation2d(0)))));
 
     // drive
     drive.setDefaultCommand(
@@ -364,25 +369,26 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // Translation2d m_translation = this.drive.getPose().getTranslation();
 
-    // Rotation2d m_rotation = new Rotation2d();
-    // this.drive.setPose(new Pose2d(m_translation, m_rotation));
+    Rotation2d m_rotation = new Rotation2d();
     // Load the path you want to follow using its name in the GUI
-    // Pose2d initialPose2D = PathPlannerAuto.getStaringPoseFromAutoFile("MyAuto");
-    // drive.setPose(initialPose2D);
+    Pose2d initialPose2D = PathPlannerPath.fromPathFile("Path1").getPreviewStartingHolonomicPose();
+    drive.setPose(initialPose2D);
 
     PathPlannerPath path = PathPlannerPath.fromPathFile("Path1");
     // PathPlannerPath path = PathPlannerAuto. .getPathGroupFromAutoFile("MyAuto").get(0);
 
-    // return Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))
+    // return Commands.runOnce(() -> flywheel.stop())
+    //     .andThen(() -> intake.stop())
+    //     .andThen(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))
     //     .andThen(new WaitCommand(1))
     //     .andThen(() -> flywheel.runVelocity(getFlywheelRPM()))
     //     .andThen(() -> intake.runVelocity(INTAKE_ROLLER_SPEED))
-    //     .andThen(new WaitCommand(0.5))
+    //     .andThen(new WaitCommand(0.8))
     //     .andThen(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
     //     .andThen(new WaitCommand(1))
     //     .andThen(() -> flywheel.stop())
-    //     .andThen(() -> intake.stop())
-    //     .andThen(AutoBuilder.followPath(path));
+    //     .andThen(() -> intake.stop());
+    // .andThen(AutoBuilder.followPath(path));
 
     return AutoBuilder.followPath(path);
 
