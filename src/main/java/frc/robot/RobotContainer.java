@@ -185,7 +185,7 @@ public class RobotContainer {
   // less sensitive at the low range, very sensentive at high range
   private double regulate(double input) {
     double output = input;
-    if (DriverStation.getAlliance().get() == Alliance.Blue) {
+    if (DriverStation.getAlliance().get() == Alliance.Red) {
       output = -input;
     }
     // double output =
@@ -205,9 +205,18 @@ public class RobotContainer {
 
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
     controller.y().onTrue(Commands.runOnce(drive::resetFieldOrientation, drive));
-    // controller
-    //     .b()
-    //     .onTrue(Commands.runOnce(() -> drive.setPose(new Pose2d(0.0, 0.0, new Rotation2d(0)))));
+    controller
+        .b()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    drive.setPose(
+                        new Pose2d(
+                            2.0,
+                            5.0,
+                            DriverStation.getAlliance().get() == Alliance.Blue
+                                ? new Rotation2d(0)
+                                : new Rotation2d(Math.PI)))));
 
     // drive
     drive.setDefaultCommand(
@@ -233,7 +242,7 @@ public class RobotContainer {
                 //                         heading - drive.getGyroIO().getRobotHeading())))
                 //         / (controller.back().getAsBoolean() ? 2 : 1.5)
                 //     :
-                controller.getRightX() / (controller.back().getAsBoolean() ? 2 : 1.5)));
+                -controller.getRightX() / (controller.back().getAsBoolean() ? 2 : 1.5)));
 
     // controller
     // .start()
@@ -372,11 +381,13 @@ public class RobotContainer {
 
     Rotation2d m_rotation = new Rotation2d();
     // Load the path you want to follow using its name in the GUI
-    Pose2d initialPose2D = PathPlannerPath.fromPathFile("Path1").getPreviewStartingHolonomicPose();
-    drive.setPose(initialPose2D);
 
     PathPlannerPath path = PathPlannerPath.fromPathFile("Path1");
-    // PathPlannerPath path = PathPlannerAuto. .getPathGroupFromAutoFile("MyAuto").get(0);
+    if (DriverStation.getAlliance().get() == Alliance.Red) {
+      path.flipPath();
+    }
+    Pose2d initialPose2D = path.getPreviewStartingHolonomicPose();
+    drive.setPose(initialPose2D);
 
     return Commands.runOnce(() -> flywheel.stop())
         .andThen(() -> intake.stop())
@@ -388,8 +399,8 @@ public class RobotContainer {
         .andThen(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
         .andThen(new WaitCommand(1))
         .andThen(() -> flywheel.stop())
-        .andThen(() -> intake.stop());
-    // .andThen(AutoBuilder.followPath(path));
+        .andThen(() -> intake.stop())
+        .andThen(AutoBuilder.followPath(path));
 
     // return AutoBuilder.followPath(path);
 

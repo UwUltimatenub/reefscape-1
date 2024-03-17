@@ -246,8 +246,8 @@ public class Drive extends SubsystemBase {
   public Pose2d getPose() {
 
     return new Pose2d(
-        -poseEstimator.getEstimatedPosition().getX(),
-        -poseEstimator.getEstimatedPosition().getY(),
+        poseEstimator.getEstimatedPosition().getX(),
+        poseEstimator.getEstimatedPosition().getY(),
         poseEstimator.getEstimatedPosition().getRotation());
 
     // return poseEstimator.getEstimatedPosition();

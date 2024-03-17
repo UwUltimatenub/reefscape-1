@@ -20,6 +20,8 @@ import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 /** IO implementation for Pigeon2 */
 public class GyroIOPigeon2 implements GyroIO {
@@ -54,6 +56,9 @@ public class GyroIOPigeon2 implements GyroIO {
   @Override
   public void resetFO() {
     initial_degree = yaw.getValueAsDouble();
+    if (DriverStation.getAlliance().get() == Alliance.Red) {
+      initial_degree = yaw.getValueAsDouble() + 180;
+    }
     System.out.println("resetting Field Orientation...");
   }
 
