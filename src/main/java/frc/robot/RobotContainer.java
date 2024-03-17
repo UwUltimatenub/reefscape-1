@@ -378,7 +378,7 @@ public class RobotContainer {
   // }
   public Command getAutonomousCommand() {
     // Load the path you want to follow using its name in the GUI
-    PathPlannerPath path = PathPlannerPath.fromPathFile("Path1");
+    PathPlannerPath path = PathPlannerPath.fromPathFile("Path3");
 
     // get preview initial pose
     Pose2d initialPose2D = path.getPreviewStartingHolonomicPose();
