@@ -16,6 +16,8 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.GeometryUtil;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -377,16 +379,17 @@ public class RobotContainer {
   // return autoChooser.get();
   // }
   public Command getAutonomousCommand() {
-    // Translation2d m_translation = this.drive.getPose().getTranslation();
-
-    Rotation2d m_rotation = new Rotation2d();
     // Load the path you want to follow using its name in the GUI
-
     PathPlannerPath path = PathPlannerPath.fromPathFile("Path1");
-    if (DriverStation.getAlliance().get() == Alliance.Red) {
+
+    //get preview initial pose
+     Pose2d initialPose2D = path.getPreviewStartingHolonomicPose();
+
+     //the path is design from Blue Alliance prospect, filp path and initial start point when from Red.
+     if (DriverStation.getAlliance().get() == Alliance.Red) {
       path.flipPath();
+      initialPose2D = GeometryUtil.flipFieldPose(initialPose2D);
     }
-    Pose2d initialPose2D = path.getPreviewStartingHolonomicPose();
     drive.setPose(initialPose2D);
 
     return Commands.runOnce(() -> flywheel.stop())
@@ -401,9 +404,5 @@ public class RobotContainer {
         .andThen(() -> flywheel.stop())
         .andThen(() -> intake.stop())
         .andThen(AutoBuilder.followPath(path));
-
-    // return AutoBuilder.followPath(path);
-
-    // return Commands.runOnce(() -> speakerNote()).andThen(new WaitCommand(1));
   }
 }
