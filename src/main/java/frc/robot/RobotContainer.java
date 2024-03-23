@@ -18,6 +18,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.GeometryUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -204,19 +205,19 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-    controller.y().onTrue(Commands.runOnce(drive::resetFieldOrientation, drive));
-    // controller
-    //     .b()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //             () ->
-    //                 drive.setPose(
-    //                     new Pose2d(
-    //                         2.0,
-    //                         5.0,
-    //                         DriverStation.getAlliance().get() == Alliance.Blue
-    //                             ? new Rotation2d(0)
-    //                             : new Rotation2d(Math.PI)))));
+    // controller.y().onTrue(Commands.runOnce(drive::resetFieldOrientation, drive));
+    controller
+        .y()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    drive.setPose(
+                        new Pose2d(
+                            2.0,
+                            5.0,
+                            DriverStation.getAlliance().get() == Alliance.Blue
+                                ? new Rotation2d(0)
+                                : new Rotation2d(Math.PI)))));
 
     // drive
     drive.setDefaultCommand(
@@ -383,8 +384,9 @@ public class RobotContainer {
     // get preview initial pose
     Pose2d initialPose2D = path.getPreviewStartingHolonomicPose();
 
-    // the path is design from Blue Alliance prospect, filp path and initial start point when from
-    // Red.
+    // // the path is design from Blue Alliance prospect, filp path and initial start point when
+    // from
+    // // Red.
     if (DriverStation.getAlliance().get() == Alliance.Red) {
       path.flipPath();
       initialPose2D = GeometryUtil.flipFieldPose(initialPose2D);
