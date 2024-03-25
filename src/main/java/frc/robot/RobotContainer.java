@@ -379,7 +379,7 @@ public class RobotContainer {
   // }
   public Command getAutonomousCommand() {
     // Load the path you want to follow using its name in the GUI
-    PathPlannerPath path = PathPlannerPath.fromPathFile("Path3");
+    PathPlannerPath path = PathPlannerPath.fromPathFile("ampside push");
 
     // get preview initial pose
     Pose2d initialPose2D = path.getPreviewStartingHolonomicPose();
@@ -401,7 +401,6 @@ public class RobotContainer {
         .andThen(() -> intake.runVelocity(INTAKE_ROLLER_SPEED))
         .andThen(new WaitCommand(0.8))
         .andThen(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
-        .andThen(new WaitCommand(1))
         .andThen(() -> flywheel.stop())
         .andThen(() -> intake.stop())
         .andThen(AutoBuilder.followPath(path));
