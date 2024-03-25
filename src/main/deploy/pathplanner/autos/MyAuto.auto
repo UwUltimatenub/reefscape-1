@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.18,
-      "y": 5.93
+      "x": 0.82,
+      "y": 6.63
     },
-    "rotation": 180.0
+    "rotation": -120.0
   },
   "command": {
     "type": "sequential",
@@ -14,7 +14,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Path1"
+            "pathName": "ampside push1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ampside push2"
           }
         }
       ]
