@@ -14,13 +14,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ampside push1"
+            "pathName": "ampside begin"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "ampside push2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ampside push1"
           }
         }
       ]
