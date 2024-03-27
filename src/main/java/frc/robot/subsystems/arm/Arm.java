@@ -22,7 +22,7 @@ public class Arm extends SubsystemBase {
   public static final int ARM_LEVEL_STATION_INTAKE = 4;
   public static final int ARM_LEVEL_HANG = 5;
 
-  private static final double INITIAL_ARM_RADS = -0.32; // -338
+  private static final double INITIAL_ARM_RADS = -0.29; // -338
   public static final double ARM_DEGREES[] = {
     INITIAL_ARM_RADS, // STOW
     INITIAL_ARM_RADS + Units.degreesToRadians(55), // AMP
