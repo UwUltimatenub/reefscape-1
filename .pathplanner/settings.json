@@ -4,6 +4,7 @@
   "holonomicMode": true,
   "pathFolders": [
     "AmpSide Push",
+    "Speaker Push",
     "SourceSide Push"
   ],
   "autoFolders": [],
