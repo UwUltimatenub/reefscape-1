@@ -386,9 +386,11 @@ public class RobotContainer {
     return command;
   }
 
+  public static final String Path_File = "ampside begin";
+  // public static final String Path_File = "ampside push";
   public Command getPath() {
     // Load the path you want to follow using its name in the GUI
-    PathPlannerPath path = PathPlannerPath.fromPathFile("ampside push");
+    PathPlannerPath path = PathPlannerPath.fromPathFile(Path_File);
 
     // get preview initial pose
     Pose2d initialPose2D = path.getPreviewStartingHolonomicPose();
@@ -415,9 +417,9 @@ public class RobotContainer {
         .andThen(AutoBuilder.followPath(path));
   }
 
-  //   public static final String Auto_File = "Ampside 12";
+  public static final String Auto_File = "Ampside 12";
   //   public static final String Auto_File = "Ampside 21";
-  public static final String Auto_File = "Sourceside 12";
+  // public static final String Auto_File = "Sourceside 12";
   //   public static final String Auto_File = "Sourceside 21";
   //   public static final String Auto_File = "Speaker 3";
 
