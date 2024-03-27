@@ -54,7 +54,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  public static final double INTAKE_ROLLER_SPEED = 300; // RPM
+  public static final double INTAKE_ROLLER_SPEED = 500; // RPM
   // joystick threshold
   // joystick value 0 under the threshold
   static final double Joystick_Threshold = 0.05;
