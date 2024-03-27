@@ -1,0 +1,122 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.0,
+        "y": 6.5
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.463748483052522,
+        "y": 6.49592188073265
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.194705500522112,
+        "y": 6.527248610052776
+      },
+      "prevControl": {
+        "x": 6.463748483052522,
+        "y": 6.464595151412526
+      },
+      "nextControl": {
+        "x": 8.328462654130657,
+        "y": 6.624427794647792
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.623091630137415,
+        "y": 6.950851265599379
+      },
+      "prevControl": {
+        "x": 8.579086857197082,
+        "y": 6.7495132127073685
+      },
+      "nextControl": {
+        "x": 8.69365864806228,
+        "y": 7.273721378044965
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.705720397114147,
+        "y": 7.609476766231469
+      },
+      "prevControl": {
+        "x": 8.083852639052797,
+        "y": 7.654506459038365
+      },
+      "nextControl": {
+        "x": 6.948817088517369,
+        "y": 7.519341306488881
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.0,
+        "y": 6.5
+      },
+      "prevControl": {
+        "x": 5.0,
+        "y": 6.5
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 2.6999999999999993,
+      "rotationDegrees": 0.5164484844629476,
+      "rotateFast": false
+    },
+    {
+      "waypointRelativePos": 1.2,
+      "rotationDegrees": -94.62363338764928,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.0,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": []
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.4,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0,
+    "rotateFast": true
+  },
+  "reversed": false,
+  "folder": "AmpSide Push",
+  "previewStartingState": {
+    "rotation": -90.0,
+    "velocity": 4.4
+  },
+  "useDefaultConstraints": false
+}

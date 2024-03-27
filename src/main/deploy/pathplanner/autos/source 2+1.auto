@@ -3,9 +3,9 @@
   "startingPose": {
     "position": {
       "x": 0.82,
-      "y": 6.63
+      "y": 4.46
     },
-    "rotation": -120.0
+    "rotation": 120.0
   },
   "command": {
     "type": "sequential",
@@ -14,19 +14,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ampside begin"
+            "pathName": "source begin"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "ampside push12-1"
+            "pathName": "source push12-2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "ampside push12-2"
+            "pathName": "source push12-1"
           }
         }
       ]

@@ -15,6 +15,7 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.GeometryUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -378,6 +379,14 @@ public class RobotContainer {
   // return autoChooser.get();
   // }
   public Command getAutonomousCommand() {
+
+    // Command command = getPath();
+    Command command = getAuto();
+
+    return command;
+  }
+
+  public Command getPath() {
     // Load the path you want to follow using its name in the GUI
     PathPlannerPath path = PathPlannerPath.fromPathFile("ampside push");
 
@@ -404,5 +413,34 @@ public class RobotContainer {
         .andThen(() -> flywheel.stop())
         .andThen(() -> intake.stop())
         .andThen(AutoBuilder.followPath(path));
+  }
+
+  //   public static final String Auto_File = "Ampside 1+2";
+  public static final String Auto_File = "Ampside 2+1";
+
+  public Command getAuto() {
+    // Load the path you want to follow using its name in the GUI
+    // PathPlannerPath path = PathPlannerPath.fromPathFile("ampside push");
+    // get preview initial pose
+    Pose2d initialPose2D = PathPlannerAuto.getStaringPoseFromAutoFile(Auto_File);
+
+    // // the path is design from Blue Alliance prospect, filp path and initial start point when
+    // from Red.
+    if (DriverStation.getAlliance().get() == Alliance.Red) {
+      initialPose2D = GeometryUtil.flipFieldPose(initialPose2D);
+    }
+    drive.setPose(initialPose2D);
+
+    return Commands.runOnce(() -> flywheel.stop())
+        .andThen(() -> intake.stop())
+        .andThen(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))
+        .andThen(new WaitCommand(0.5))
+        .andThen(() -> flywheel.runVelocity(getFlywheelRPM()))
+        .andThen(() -> intake.runVelocity(INTAKE_ROLLER_SPEED))
+        .andThen(new WaitCommand(0.8))
+        .andThen(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
+        .andThen(() -> flywheel.stop())
+        .andThen(() -> intake.stop())
+        .andThen(AutoBuilder.buildAuto(Auto_File));
   }
 }
