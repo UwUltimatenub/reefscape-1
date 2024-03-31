@@ -160,7 +160,7 @@ public class RobotContainer {
     double flywheelRPM = 0;
     switch (arm.armPosition) {
       case Arm.ARM_LEVEL_AMP:
-        flywheelRPM = 400;
+        flywheelRPM = 300; // used to be 400
         break;
       case Arm.ARM_LEVEL_SPEAKER:
         flywheelRPM = 2000;
@@ -244,7 +244,7 @@ public class RobotContainer {
                 //                         heading - drive.getGyroIO().getRobotHeading())))
                 //         / (controller.back().getAsBoolean() ? 2 : 1.5)
                 //     :
-                -controller.getRightX() / (controller.back().getAsBoolean() ? 2 : 1.5)));
+                -controller.getRightX() / (controller.back().getAsBoolean() ? 1.9 : 1.35)));
 
     // controller
     // .start()
@@ -406,21 +406,21 @@ public class RobotContainer {
 
     return Commands.runOnce(() -> flywheel.stop())
         .andThen(() -> intake.stop())
-        .andThen(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER))
+        .andThen(() -> arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER + 2))
         .andThen(new WaitCommand(0.8))
         .andThen(() -> flywheel.runVelocity(getFlywheelRPM()))
         .andThen(() -> intake.runVelocity(INTAKE_ROLLER_SPEED))
-        .andThen(new WaitCommand(0.4))
+        .andThen(new WaitCommand(0.6))
         .andThen(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
         .andThen(() -> flywheel.stop())
         .andThen(() -> intake.stop())
         .andThen(AutoBuilder.followPath(path));
   }
 
-  public static final String Auto_File = "AmpAmp";
-  // public static final String Auto_File = "Ampside 12";
+  //   public static final String Auto_File = "AmpAmp";
+  //   public static final String Auto_File = "Ampside 12";
   // public static final String Auto_File = "Ampside 21";
-  // public static final String Auto_File = "Sourceside 12";
+  public static final String Auto_File = "Sourceside 12";
   //   public static final String Auto_File = "Sourceside 21";
   // public static final String Auto_File = "Speaker 3";
 
