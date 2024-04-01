@@ -56,7 +56,7 @@ public class Arm extends SubsystemBase {
   private final Alert absoluteEncoderDisconnected =
       new Alert("Arm absolute encoder disconnected!", Alert.AlertType.WARNING);
 
-  public int armPosition = ARM_LEVEL_STOW;
+  public int armPosition = ARM_LEVEL_FAR_SPEAKER;
 
   public Arm(ArmIO io) {
     this.io = io;

@@ -418,10 +418,10 @@ public class RobotContainer {
   }
 
   //   public static final String Auto_File = "AmpAmp";
-  //   public static final String Auto_File = "Ampside 12";
+  public static final String Auto_File = "Ampside 12";
   // public static final String Auto_File = "Ampside 21";
-  public static final String Auto_File = "Sourceside 12";
-  //   public static final String Auto_File = "Sourceside 21";
+  // public static final String Auto_File = "Sourceside 12";
+  // public static final String Auto_File = "Sourceside 21";
   // public static final String Auto_File = "Speaker 3";
 
   public Command getAuto() {

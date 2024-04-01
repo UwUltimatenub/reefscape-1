@@ -31,7 +31,7 @@ public class SpeakerShoot extends Command {
     robot.intake.runVelocity(RobotContainer.INTAKE_ROLLER_SPEED);
     Timer.delay(500);
 
-    robot.arm.setArmLevel(Arm.ARM_LEVEL_STOW);
+    robot.arm.setArmLevel(Arm.ARM_LEVEL_FAR_SPEAKER);
     robot.flywheel.stop();
     robot.intake.stop();
     Timer.delay(1000);
