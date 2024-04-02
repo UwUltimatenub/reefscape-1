@@ -15,7 +15,6 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.GeometryUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -28,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIOReal;
@@ -140,18 +138,6 @@ public class RobotContainer {
             .withTimeout(5.0));
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
-    // Set up SysId routines
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -166,7 +152,7 @@ public class RobotContainer {
         flywheelRPM = 2000;
         break;
       case Arm.ARM_LEVEL_FAR_SPEAKER:
-        flywheelRPM = 2000;
+        flywheelRPM = 5000;
         break;
     }
     return flywheelRPM;
@@ -240,8 +226,8 @@ public class RobotContainer {
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
     // a + start -> resetFieldOrientation
     controller
-        .a()
-        .and(controller.start())
+        .y()
+        .and(controller.start().negate())
         .onTrue(
             Commands.runOnce(
                 () ->
@@ -260,11 +246,11 @@ public class RobotContainer {
             () ->
                 arm.armPosition == Arm.ARM_LEVEL_STOW
                     ? regulate(-controller.getLeftY())
-                    : regulate(-controller.getLeftY()) / 1.5,
+                    : regulate(-controller.getLeftY()) / 1.6,
             () ->
                 arm.armPosition == Arm.ARM_LEVEL_STOW
                     ? regulate(-controller.getLeftX())
-                    : regulate(-controller.getLeftX()) / 1.5,
+                    : regulate(-controller.getLeftX()) / 1.6,
             () -> getTurnPower()));
 
     // back + start -> high hang
@@ -404,14 +390,14 @@ public class RobotContainer {
     // Load the path you want to follow using its name in the GUI
     // PathPlannerPath path = PathPlannerPath.fromPathFile("ampside push");
     // get preview initial pose
-    Pose2d initialPose2D = PathPlannerAuto.getStaringPoseFromAutoFile(Auto_File);
+    // Pose2d initialPose2D = PathPlannerAuto.getStaringPoseFromAutoFile(Auto_File);
 
-    // // the path is design from Blue Alliance prospect, filp path and initial start point when
-    // from Red.
-    if (DriverStation.getAlliance().get() == Alliance.Red) {
-      initialPose2D = GeometryUtil.flipFieldPose(initialPose2D);
-    }
-    drive.setPose(initialPose2D);
+    // // // the path is design from Blue Alliance prospect, filp path and initial start point when
+    // // from Red.
+    // if (DriverStation.getAlliance().get() == Alliance.Red) {
+    //   initialPose2D = GeometryUtil.flipFieldPose(initialPose2D);
+    // }
+    // drive.setPose(initialPose2D);
 
     return Commands.runOnce(() -> flywheel.stop())
         .andThen(() -> intake.stop())
@@ -423,6 +409,6 @@ public class RobotContainer {
         .andThen(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW))
         .andThen(() -> flywheel.stop())
         .andThen(() -> intake.stop())
-        .andThen(AutoBuilder.buildAuto(Auto_File));
+        .andThen(autoChooser.get());
   }
 }
