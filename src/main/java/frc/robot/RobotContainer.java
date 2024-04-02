@@ -204,12 +204,24 @@ public class RobotContainer {
     double targetAngle = 0;
     double power = 0;
     if (controller.start().getAsBoolean() && controller.leftTrigger().getAsBoolean()) {
-      //start + leftTrigger -> face to Source
+      // start + leftTrigger -> face to Source
       targetAngle = DriverStation.getAlliance().get() == Alliance.Blue ? -60 : -120;
       power = calculateTurnpower(targetAngle);
     } else if (controller.start().getAsBoolean() && controller.leftBumper().getAsBoolean()) {
-      //start + leftBumper -> face to Amp
+      // start + leftBumper -> face to Amp
       targetAngle = 90;
+      power = calculateTurnpower(targetAngle);
+    } else if (controller.start().getAsBoolean() && controller.y().getAsBoolean()) {
+      // start + y -> face to back
+      targetAngle = DriverStation.getAlliance().get() == Alliance.Blue ? 180 : 0;
+      power = calculateTurnpower(targetAngle);
+    } else if (controller.start().getAsBoolean() && controller.x().getAsBoolean()) {
+      // start + x -> face to left hang
+      targetAngle = DriverStation.getAlliance().get() == Alliance.Blue ? -60 : 120;
+      power = calculateTurnpower(targetAngle);
+    } else if (controller.start().getAsBoolean() && controller.b().getAsBoolean()) {
+      // start + b -> face to right hang
+      targetAngle = DriverStation.getAlliance().get() == Alliance.Blue ? 60 : -120;
       power = calculateTurnpower(targetAngle);
     } else {
       power = -controller.getRightX() / 1.35;
@@ -225,10 +237,11 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-    // y -> resetFieldOrientation
+    // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    // a + start -> resetFieldOrientation
     controller
-        .y()
+        .a()
+        .and(controller.start())
         .onTrue(
             Commands.runOnce(
                 () ->
@@ -286,6 +299,7 @@ public class RobotContainer {
     // Left Bumper, Arm to Feeder
     controller
         .leftTrigger()
+        .and(controller.start().negate())
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STATION_INTAKE))
                 .alongWith(Commands.runOnce(() -> flywheel.stop()))
@@ -299,6 +313,7 @@ public class RobotContainer {
     // Right Trigger, Arm to AMP
     controller
         .leftBumper()
+        .and(controller.start().negate())
         .whileTrue(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_AMP))
                 .alongWith(Commands.runOnce(() -> flywheel.runVelocity(getFlywheelRPM()))))
