@@ -179,8 +179,15 @@ public class RobotContainer {
    * for example: getClosestAngle(350) will return -20
    * getNormalizedAngle(20) will return 20
    ***************************************************************************************************************************************/
-  double getClosestAngle(double input) {
-    return (input > 180 ? -(360 - input) : input);
+  double calculateTurnpower(double targetAngle) {
+    double power = 0;
+    System.out.println("asd=" + targetAngle + "   " + drive.getPose().getRotation().getDegrees());
+    targetAngle = targetAngle - drive.getPose().getRotation().getDegrees();
+    targetAngle = (targetAngle + 3600) % 360;
+    targetAngle = targetAngle > 180 ? -(360 - targetAngle) : targetAngle;
+    power = targetAngle / 15;
+    power = Math.abs(power) > 0.5 ? Math.signum(power) * 0.5 : power;
+    return power;
   }
 
   // map joystick input to curved output
@@ -190,11 +197,24 @@ public class RobotContainer {
     if (DriverStation.getAlliance().get() == Alliance.Red) {
       output = -input;
     }
-    // double output =
-    //     (1 / (1 - Joystick_Threshold)) * (input - Math.copySign(1, input))
-    //         + Math.copySign(1, input);
-    // output = output * Math.abs(output) / 1;
     return output;
+  }
+
+  private double getTurnPower() {
+    double targetAngle = 0;
+    double power = 0;
+    if (controller.start().getAsBoolean() && controller.leftTrigger().getAsBoolean()) {
+      //start + leftTrigger -> face to Source
+      targetAngle = DriverStation.getAlliance().get() == Alliance.Blue ? -60 : -120;
+      power = calculateTurnpower(targetAngle);
+    } else if (controller.start().getAsBoolean() && controller.leftBumper().getAsBoolean()) {
+      //start + leftBumper -> face to Amp
+      targetAngle = 90;
+      power = calculateTurnpower(targetAngle);
+    } else {
+      power = -controller.getRightX() / 1.35;
+    }
+    return power;
   }
 
   /**
@@ -206,7 +226,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-    // controller.y().onTrue(Commands.runOnce(drive::resetFieldOrientation, drive));
+    // y -> resetFieldOrientation
     controller
         .y()
         .onTrue(
@@ -226,38 +246,15 @@ public class RobotContainer {
             drive,
             () ->
                 arm.armPosition == Arm.ARM_LEVEL_STOW
-                    ? regulate(-controller.getLeftY()) / (controller.back().getAsBoolean() ? 2 : 1)
-                    : regulate(-controller.getLeftY())
-                        / (controller.back().getAsBoolean() ? 2 : 1.5),
+                    ? regulate(-controller.getLeftY())
+                    : regulate(-controller.getLeftY()) / 1.5,
             () ->
                 arm.armPosition == Arm.ARM_LEVEL_STOW
-                    ? regulate(-controller.getLeftX()) / (controller.back().getAsBoolean() ? 2 : 1)
-                    : regulate(-controller.getLeftX())
-                        / (controller.back().getAsBoolean() ? 2 : 1.5),
-            () ->
-                // isHeadingLock
-                //     ? regulate(
-                //             turnPIDController.calculate(
-                //                 drive.getGyroIO().getRobotHeading(),
-                //                 drive.getGyroIO().getRobotHeading() //
-                //                     + getClosestAngle(
-                //                         heading - drive.getGyroIO().getRobotHeading())))
-                //         / (controller.back().getAsBoolean() ? 2 : 1.5)
-                //     :
-                -controller.getRightX() / (controller.back().getAsBoolean() ? 1.9 : 1.35)));
+                    ? regulate(-controller.getLeftX())
+                    : regulate(-controller.getLeftX()) / 1.5,
+            () -> getTurnPower()));
 
-    // controller
-    // .start()
-    // .onTrue(
-    // Commands.runOnce(
-    // () ->
-    // drive.setPose(
-    // new Pose2d(drive.getPose().getTranslation(), new
-    // Rotation2d(3.14/2))),
-    // drive)
-    // .ignoringDisable(true));
-
-    // high hang
+    // back + start -> high hang
     controller
         .back()
         .and(controller.start())
@@ -268,7 +265,7 @@ public class RobotContainer {
         .whileFalse(
             Commands.runOnce(() -> arm.setArmLevel(Arm.ARM_LEVEL_STOW)).andThen(() -> arm.stop()));
 
-    // intake
+    // a -> intake
     controller
         .a()
         .whileTrue(
@@ -285,24 +282,6 @@ public class RobotContainer {
                         () -> flywheel.runVelocity(getFlywheelRPM()),
                         () -> flywheel.stop(),
                         flywheel)));
-
-    // set robot heading
-    // controller
-    //     .start()
-    //     .and(controller.leftTrigger())
-    //     .onTrue(Commands.runOnce(() -> setRobotHeading(45)));
-    // controller
-    //     .start()
-    //     .and(controller.leftBumper())
-    //     .onTrue(Commands.runOnce(() -> setRobotHeading(-90)));
-    // controller
-    //     .back()
-    //     .and(controller.rightTrigger())
-    //     .onTrue(Commands.runOnce(() -> setRobotHeading(180)));
-    // controller
-    //     .back()
-    //     .and(controller.rightBumper())
-    //     .onTrue(Commands.runOnce(() -> setRobotHeading(180)));
 
     // Left Bumper, Arm to Feeder
     controller
@@ -353,23 +332,6 @@ public class RobotContainer {
                 .andThen(() -> arm.stop()));
   }
 
-  //   private void setRobotHeading(double target) {
-  //     // isHeadingLock = true;
-  //     heading = target;
-  //   }
-  public void speakerNote() {
-    arm.setArmLevel(Arm.ARM_LEVEL_SPEAKER);
-    // Timer.delay(1);
-    flywheel.runVelocity(getFlywheelRPM());
-    intake.runVelocity(RobotContainer.INTAKE_ROLLER_SPEED);
-    // Timer.delay(500);
-
-    // arm.setArmLevel(Arm.ARM_LEVEL_STOW);
-    // flywheel.stop();
-    // intake.stop();
-    // // Timer.delay(1000);
-  }
-
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -382,7 +344,6 @@ public class RobotContainer {
 
     // Command command = getPath();
     Command command = getAuto();
-
     return command;
   }
 
