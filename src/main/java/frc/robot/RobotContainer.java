@@ -152,7 +152,7 @@ public class RobotContainer {
         flywheelRPM = 2000;
         break;
       case Arm.ARM_LEVEL_FAR_SPEAKER:
-        flywheelRPM = 5000;
+        flywheelRPM = 5500;
         break;
     }
     return flywheelRPM;

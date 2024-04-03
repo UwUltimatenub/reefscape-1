@@ -22,13 +22,13 @@ public class Arm extends SubsystemBase {
   public static final int ARM_LEVEL_STATION_INTAKE = 4;
   public static final int ARM_LEVEL_HANG = 5;
 
-  private static final double INITIAL_ARM_RADS = -0.412; // -29
+  private static final double INITIAL_ARM_RADS = -0.422; // -29
   // public static final double INITIAL_ARM_RADS = -0.316; // -22 degree
   public static final double ARM_DEGREES[] = {
     INITIAL_ARM_RADS, // STOW
     INITIAL_ARM_RADS + Units.degreesToRadians(55), // AMP used to be 55 WAS 59
     INITIAL_ARM_RADS + Units.degreesToRadians(74), // SPEAKER
-    INITIAL_ARM_RADS + Units.degreesToRadians(60), // FAR SPEAKER
+    INITIAL_ARM_RADS + Units.degreesToRadians(70), // FAR SPEAKER aka feeding
     INITIAL_ARM_RADS + Units.degreesToRadians(45), // INTAKE
     INITIAL_ARM_RADS + Units.degreesToRadians(113) // HANG
   };
