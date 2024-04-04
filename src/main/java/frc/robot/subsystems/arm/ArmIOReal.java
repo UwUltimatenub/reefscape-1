@@ -44,7 +44,7 @@ public class ArmIOReal implements ArmIO {
   MotionMagicVoltage pMmPos = new MotionMagicVoltage(0, false, 0, 1, false, false, false);
   /** The offset of the arm encoder in rotations. */
   // public static double armEncoderOffsetRads = -2.538 + Arm.INITIAL_ARM_RADS; // -2.854;
-  public static double armEncoderOffsetRads = 2.605;
+  public static double armEncoderOffsetRads = 2.605 + 0.996;
 
   public static double armEncoderOffsetRotations = Units.radiansToRotations(armEncoderOffsetRads);
 

@@ -246,11 +246,11 @@ public class RobotContainer {
             () ->
                 arm.armPosition == Arm.ARM_LEVEL_STOW
                     ? regulate(-controller.getLeftY())
-                    : regulate(-controller.getLeftY()) / 1.6,
+                    : regulate(-controller.getLeftY()) / 1.5,
             () ->
                 arm.armPosition == Arm.ARM_LEVEL_STOW
                     ? regulate(-controller.getLeftX())
-                    : regulate(-controller.getLeftX()) / 1.6,
+                    : regulate(-controller.getLeftX()) / 1.5,
             () -> getTurnPower()));
 
     // back + start -> high hang
