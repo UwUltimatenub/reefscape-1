@@ -22,12 +22,15 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 
 /**
  * Module IO implementation for Talon FX drive motor controller, Talon FX turn motor controller, and
@@ -46,16 +49,16 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final TalonFX turnTalon;
   private final CANcoder cancoder;
 
-  private final StatusSignal<Double> drivePosition;
-  private final StatusSignal<Double> driveVelocity;
-  private final StatusSignal<Double> driveAppliedVolts;
-  private final StatusSignal<Double> driveCurrent;
+  private final StatusSignal<Angle> drivePosition;
+  private final StatusSignal<AngularVelocity> driveVelocity;
+  private final StatusSignal<Voltage> driveAppliedVolts;
+  private final StatusSignal<Current> driveCurrent;
 
-  private final StatusSignal<Double> turnAbsolutePosition;
-  private final StatusSignal<Double> turnPosition;
-  private final StatusSignal<Double> turnVelocity;
-  private final StatusSignal<Double> turnAppliedVolts;
-  private final StatusSignal<Double> turnCurrent;
+  private final StatusSignal<Angle> turnAbsolutePosition;
+  private final StatusSignal<Angle> turnPosition;
+  private final StatusSignal<AngularVelocity> turnVelocity;
+  private final StatusSignal<Voltage> turnAppliedVolts;
+  private final StatusSignal<Current> turnCurrent;
 
   // Gear ratios for SDS MK4i L2, adjust as necessary
   private final double DRIVE_GEAR_RATIO = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0);
@@ -127,7 +130,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     }
 
     CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
-    cancoderConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
+    cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5; //AbsoluteSensorRange.Signed_PlusMinus180;
     cancoderConfig.MagnetSensor.MagnetOffset = -absoluteEncoderOffset.getRotations();
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
 

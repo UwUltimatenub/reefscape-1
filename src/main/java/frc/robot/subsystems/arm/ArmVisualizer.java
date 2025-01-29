@@ -36,7 +36,7 @@ public class ArmVisualizer {
   public void update(double angleRads) {
     // Log Mechanism2d
     arm.setAngle(Rotation2d.fromRadians(angleRads));
-    Logger.recordOutput("Arm/Mechanism2d/" + key, mechanism);
+    //Logger.recordOutput("Arm/Mechanism2d/" + key, mechanism);
 
     // Log 3D poses
     Pose3d pivot =

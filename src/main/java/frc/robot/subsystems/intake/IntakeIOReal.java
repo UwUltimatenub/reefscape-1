@@ -14,7 +14,7 @@ public class IntakeIOReal implements IntakeIO {
 
   // rotations per second.
   VelocityVoltage velOut =
-      new VelocityVoltage(Units.radiansToRotations(0.0), 0.0, true, 0, 0, false, false, false);
+      new VelocityVoltage(Units.radiansToRotations(0.0));
 
   public IntakeIOReal() {
     motor = new TalonFX(16);

@@ -18,6 +18,12 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
+
 import java.util.List;
 
 public class ArmIOReal implements ArmIO {
@@ -31,17 +37,17 @@ public class ArmIOReal implements ArmIO {
   private final CANcoder armCANEncoder;
 
   // Status Signals
-  private final StatusSignal<Double> armInternalPositionRotations;
-  private final StatusSignal<Double> armEncoderPositionRotations;
-  private final StatusSignal<Double> armAbsolutePositionRotations;
-  private final StatusSignal<Double> armVelocityRps;
-  private final List<StatusSignal<Double>> armAppliedVoltage;
-  private final List<StatusSignal<Double>> armOutputCurrent;
-  private final List<StatusSignal<Double>> armTorqueCurrent;
-  private final List<StatusSignal<Double>> armTempCelsius;
+  private final StatusSignal<Angle> armInternalPositionRotations;
+  private final StatusSignal<Angle> armEncoderPositionRotations;
+  private final StatusSignal<Angle> armAbsolutePositionRotations;
+  private final StatusSignal<AngularVelocity> armVelocityRps;
+  private final List<StatusSignal<Voltage>> armAppliedVoltage;
+  private final List<StatusSignal<Current>> armOutputCurrent;
+  private final List<StatusSignal<Current>> armTorqueCurrent;
+  private final List<StatusSignal<Temperature>> armTempCelsius;
 
-  PositionVoltage pPos = new PositionVoltage(0, 0, false, 0, 0, false, false, false);
-  MotionMagicVoltage pMmPos = new MotionMagicVoltage(0, false, 0, 1, false, false, false);
+  PositionVoltage pPos = new PositionVoltage(0);
+  MotionMagicVoltage pMmPos = new MotionMagicVoltage(0);
   /** The offset of the arm encoder in rotations. */
   // public static double armEncoderOffsetRads = -2.538 + Arm.INITIAL_ARM_RADS; // -2.854;
   public static double armEncoderOffsetRads = 2.605 + 0.996 + 0.965 + 0.025;
@@ -57,8 +63,8 @@ public class ArmIOReal implements ArmIO {
 
     // Arm Encoder Configs
     CANcoderConfiguration armEncoderConfig = new CANcoderConfiguration();
-    armEncoderConfig.MagnetSensor.AbsoluteSensorRange =
-        AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
+    armEncoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint  = 0.5;
+      //  AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
     armEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     armEncoderConfig.MagnetSensor.MagnetOffset = -armEncoderOffsetRotations;
     armCANEncoder.getConfigurator().apply(armEncoderConfig, 1);
@@ -157,12 +163,12 @@ public class ArmIOReal implements ArmIO {
         BaseStatusSignal.refreshAll(armEncoderPositionRotations, armAbsolutePositionRotations)
             .isOK();
 
-    inputs.armPositionRads = Units.rotationsToRadians(armInternalPositionRotations.getValue());
+    inputs.armPositionRads = Units.rotationsToRadians(armInternalPositionRotations.getValueAsDouble());
     inputs.armEncoderPositionRads =
-        Units.rotationsToRadians(armEncoderPositionRotations.getValue());
+        Units.rotationsToRadians(armEncoderPositionRotations.getValueAsDouble());
     inputs.armAbsoluteEncoderPositionRads =
-        Units.rotationsToRadians(armAbsolutePositionRotations.getValue());
-    inputs.armVelocityRadsPerSec = Units.rotationsToRadians(armVelocityRps.getValue());
+        Units.rotationsToRadians(armAbsolutePositionRotations.getValueAsDouble());
+    inputs.armVelocityRadsPerSec = Units.rotationsToRadians(armVelocityRps.getValueAsDouble());
     inputs.armAppliedVolts =
         armAppliedVoltage.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
     inputs.armCurrentAmps =

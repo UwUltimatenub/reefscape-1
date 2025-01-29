@@ -21,6 +21,10 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 
 public class FlywheelIOTalonFX implements FlywheelIO {
   private static final double GEAR_RATIO = 1;
@@ -30,15 +34,15 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final TalonFX lb = new TalonFX(17);
   private final TalonFX rb = new TalonFX(19);
 
-  private final StatusSignal<Double> leaderPosition = lf.getPosition();
-  private final StatusSignal<Double> leaderVelocity = lf.getVelocity();
-  private final StatusSignal<Double> leaderAppliedVolts = lf.getMotorVoltage();
-  private final StatusSignal<Double> leaderCurrent = lf.getSupplyCurrent();
-  private final StatusSignal<Double> followerCurrent = rf.getSupplyCurrent();
+  private final StatusSignal<Angle> leaderPosition = lf.getPosition();
+  private final StatusSignal<AngularVelocity> leaderVelocity = lf.getVelocity();
+  private final StatusSignal<Voltage> leaderAppliedVolts = lf.getMotorVoltage();
+  private final StatusSignal<Current> leaderCurrent = lf.getSupplyCurrent();
+  private final StatusSignal<Current> followerCurrent = rf.getSupplyCurrent();
 
   // rotations per second.
   VelocityVoltage velOut =
-      new VelocityVoltage(Units.radiansToRotations(0.0), 0.0, true, 0, 0, false, false, false);
+      new VelocityVoltage(Units.radiansToRotations(0.0));
 
   public FlywheelIOTalonFX() {
     var config = new TalonFXConfiguration();

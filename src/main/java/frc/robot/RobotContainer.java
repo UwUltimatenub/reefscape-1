@@ -16,6 +16,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.FileVersionException;
 import com.pathplanner.lib.util.GeometryUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -43,6 +44,11 @@ import frc.robot.subsystems.flywheel.FlywheelIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOReal;
 import frc.robot.subsystems.intake.IntakeIOSim;
+
+import java.io.IOException;
+import java.util.Optional;
+
+import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -352,19 +358,25 @@ public class RobotContainer {
   // public static final String Path_File = "ampside push";
   public Command getPath() {
     // Load the path you want to follow using its name in the GUI
-    PathPlannerPath path = PathPlannerPath.fromPathFile(Path_File);
+    PathPlannerPath path=null;
+    try {
+      path = PathPlannerPath.fromPathFile(Path_File);
+    } catch (FileVersionException | IOException | ParseException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
 
     // get preview initial pose
-    Pose2d initialPose2D = path.getPreviewStartingHolonomicPose();
+    Optional<Pose2d> initialPose2D = path.getStartingHolonomicPose();
 
     // // the path is design from Blue Alliance prospect, filp path and initial start point when
     // from
     // // Red.
     if (DriverStation.getAlliance().get() == Alliance.Red) {
       path.flipPath();
-      initialPose2D = GeometryUtil.flipFieldPose(initialPose2D);
+    //  initialPose2D = GeometryUtil.flipFieldPose(initialPose2D);
     }
-    drive.setPose(initialPose2D);
+    drive.setPose(initialPose2D.get());
 
     return Commands.runOnce(() -> flywheel.stop())
         .andThen(() -> intake.stop())

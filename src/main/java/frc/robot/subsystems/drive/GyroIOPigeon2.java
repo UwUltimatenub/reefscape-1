@@ -20,14 +20,16 @@ import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 /** IO implementation for Pigeon2 */
 public class GyroIOPigeon2 implements GyroIO {
   private final Pigeon2 pigeon = new Pigeon2(1);
-  private final StatusSignal<Double> yaw = pigeon.getYaw();
-  private final StatusSignal<Double> yawVelocity = pigeon.getAngularVelocityZWorld();
+  private final StatusSignal<Angle> yaw = pigeon.getYaw();
+  private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
   private double initial_degree;
   private double prevAngle;
 
