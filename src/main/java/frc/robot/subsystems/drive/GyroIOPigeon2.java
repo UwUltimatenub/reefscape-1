@@ -1,17 +1,14 @@
-// Copyright 2021-2024 FRC 6328
-// http://github.com/Mechanical-Advantage
+// Copyright (c) 2025 FRC 9785
+// https://github.com/tonytigr/reefscape
 //
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.drive;
+
+import static frc.robot.subsystems.drive.DriveConstants.PigeonConstants;
+import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
@@ -22,50 +19,38 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import java.util.Queue;
 
-/** IO implementation for Pigeon2 */
+/** IO implementation for Pigeon 2. */
 public class GyroIOPigeon2 implements GyroIO {
-  private final Pigeon2 pigeon = new Pigeon2(1);
+  private final Pigeon2 pigeon = new Pigeon2(PigeonConstants.id, "*");
   private final StatusSignal<Angle> yaw = pigeon.getYaw();
+  private final Queue<Double> yawPositionQueue;
+  private final Queue<Double> yawTimestampQueue;
   private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
-  private double initial_degree;
-  private double prevAngle;
 
   public GyroIOPigeon2() {
     pigeon.getConfigurator().apply(new Pigeon2Configuration());
     pigeon.getConfigurator().setYaw(0.0);
-    yaw.setUpdateFrequency(100.0);
-    yawVelocity.setUpdateFrequency(100.0);
+    yaw.setUpdateFrequency(DriveConstants.odometryFrequency);
+    yawVelocity.setUpdateFrequency(50.0);
     pigeon.optimizeBusUtilization();
-    initial_degree = pigeon.getYaw().getValueAsDouble();
-    prevAngle = initial_degree;
+    yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
+    yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(pigeon.getYaw());
+    tryUntilOk(5, () -> pigeon.setYaw(0.0, 0.25));
   }
 
   @Override
   public void updateInputs(GyroIOInputs inputs) {
     inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
-    // inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
-    // inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
+    inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
+    inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
 
-    double current_angle = yaw.getValueAsDouble() - initial_degree;
-    inputs.yawPosition = Rotation2d.fromDegrees(current_angle);
-    inputs.yawVelocityRadPerSec = Units.degreesToRadians((current_angle - prevAngle) / 0.02);
-    prevAngle = current_angle;
-  }
-
-  @Override
-  public void resetFO() {
-    initial_degree = yaw.getValueAsDouble();
-    if (DriverStation.getAlliance().get() == Alliance.Red) {
-      initial_degree = yaw.getValueAsDouble() + 180;
-    }
-    System.out.println("resetting Field Orientation...");
-  }
-
-  @Override
-  public double getRobotHeading() {
-    return pigeon.getYaw().getValueAsDouble();
+    inputs.odometryYawTimestamps =
+        yawTimestampQueue.stream().mapToDouble((Double value) -> value).toArray();
+    inputs.odometryYawPositions =
+        yawPositionQueue.stream().map(Rotation2d::fromDegrees).toArray(Rotation2d[]::new);
+    yawTimestampQueue.clear();
+    yawPositionQueue.clear();
   }
 }
