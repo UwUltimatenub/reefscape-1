@@ -7,50 +7,99 @@
 
 package frc.robot.subsystems.elevator;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.hardware.ParentDevice;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.AutoLog;
 
 public class Elevator extends SubsystemBase {
+  public static final double reduction = 5.0;
 
-  private final ElevatorIO io;
+  // Hardware
+  private final TalonFX talon;
+  private final TalonFX followerTalon;
+
+  @AutoLog
+  public static class ElevatorIOInputs {
+    public double motorCurrent = 0;
+    public double motorVoltage = 0;
+    public double motorAngle = 0;
+  }
+
   private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
-  // Constructor
-  public Elevator(ElevatorIO io) {
-    this.io = io;
+  // Config
+  private final TalonFXConfiguration config = new TalonFXConfiguration();
+
+  private final PositionTorqueCurrentFOC positionTorqueCurrentRequest =
+      new PositionTorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
+
+  public Elevator() {
+    talon = new TalonFX(0, "*");
+    followerTalon = new TalonFX(1, "*");
+    followerTalon.setControl(new Follower(talon.getDeviceID(), false));
+
+    // Configure motor
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.Slot0 = new Slot0Configs().withKP(0).withKI(0).withKD(0);
+    config.Feedback.SensorToMechanismRatio = reduction;
+    config.TorqueCurrent.PeakForwardTorqueCurrent = 120.0;
+    config.TorqueCurrent.PeakReverseTorqueCurrent = -120.0;
+    config.CurrentLimits.StatorCurrentLimit = 120.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    talon.getConfigurator().apply(config);
+
+    ParentDevice.optimizeBusUtilizationForAll(talon);
   }
 
-  // Method to set power for the elevator
   public void setVoltage(double voltage) {
-    System.out.println("Elevator position: " + getPosition());
-    io.set(voltage);
-  }
-
-  // Method to stop the elevator
-  public void stop() {
-    io.stop();
-  }
-
-  // Set the elevator to a specific position
-  public void setPosition(double position) {
-    // System.out.println("Elevator position: " + getPosition());
-    io.setPosition(position);
+    // Set the power to the main motor
+    talon.set(voltage);
   }
 
   // Periodic method called in every cycle (e.g., 20ms)
   @Override
   public void periodic() {
-    io.updateInputs(inputs);
+    //
   }
 
   public double getPosition() {
-    return io.getPosition();
+    // Get the position from the encoder
+    return talon.getPosition().getValueAsDouble();
   }
 
   public double getVelocity() {
-    return io.getVelocity();
+    // Get the velocity from the encoder
+    return talon.getVelocity().getValueAsDouble();
   }
 
   public void resetPosition() {
-    io.resetPosition();
+    // Reset the encoder to the specified position
+    talon.setPosition(0);
+  }
+
+  public void setPosition(double positionRad) {
+    talon.setControl(
+        positionTorqueCurrentRequest.withPosition(positionRad)); // .withFeedForward(feedforward));
+  }
+
+  public void stop() {
+    talon.stopMotor();
+  }
+
+  public void setBrakeMode(boolean enabled) {
+    new Thread(
+            () -> talon.setNeutralMode(enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast))
+        .start();
   }
 }

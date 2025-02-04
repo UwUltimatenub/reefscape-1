@@ -24,11 +24,8 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.pivot.Wrist;
-import frc.robot.subsystems.pivot.WristIOTalonFX;
 import frc.robot.subsystems.vision.AprilTagVision;
 import frc.robot.subsystems.vision.AprilTagVisionIOPhotonvision;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -75,9 +72,9 @@ public class RobotContainer {
 
     // Real robot, instantiate hardware IO implementations
     vision = new AprilTagVision(new AprilTagVisionIOPhotonvision());
-    intake = new Intake(new IntakeIOTalonFX());
-    wrist = new Wrist(new WristIOTalonFX());
-    elevator = new Elevator(new ElevatorIOTalonFX());
+    intake = new Intake();
+    wrist = new Wrist();
+    elevator = new Elevator();
     drive =
         new Drive(
             new GyroIOPigeon2(),

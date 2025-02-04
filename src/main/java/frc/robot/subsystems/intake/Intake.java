@@ -7,31 +7,42 @@
 
 package frc.robot.subsystems.intake;
 
+import com.ctre.phoenix6.hardware.CANrange;
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.AutoLog;
 
 public class Intake extends SubsystemBase {
+  TalonFX coralIntake;
+  CANrange canRange;
 
-  IntakeIO io;
-  IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
-
-  public Intake(IntakeIO io) {
-    this.io = io;
+  @AutoLog
+  public static class IntakeIOInputs {
+    public double coralRange = 0.0;
   }
 
-  public void setCoralIntakeVoltage(double voltage) {
-    io.setIntakeVoltage(voltage);
+  IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
+
+  public Intake() {
+    // find actual motor IDs
+    coralIntake = new TalonFX(0, "*");
+    canRange = new CANrange(1, "*");
   }
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs);
+    inputs.coralRange = canRange.getDistance().getValueAsDouble();
+  }
+
+  public void setCoralIntakeVoltage(double voltage) {
+    coralIntake.setVoltage(voltage);
   }
 
   public void setAlgaeVoltage(double voltage) {
-    io.setIntakeVoltage(voltage);
+    coralIntake.setVoltage(voltage);
   }
 
   public boolean isCoralLoaded() {
-    return io.getCanRange() < 10;
+    return canRange.getDistance().getValueAsDouble() < 10;
   }
 }
