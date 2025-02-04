@@ -180,7 +180,10 @@ public class RobotContainer {
     // Intake coral
     Command intakeCoralCommand =
         new StartEndCommand(
-            () -> intake.setCoralIntakeVoltage(-6), () -> intake.setCoralIntakeVoltage(0), intake);
+                () -> intake.setCoralIntakeVoltage(-6),
+                () -> intake.setCoralIntakeVoltage(0),
+                intake)
+            .until((() -> intake.isCoralLoaded()));
     driverController.leftTrigger().whileTrue(intakeCoralCommand);
 
     Command ejectCoralCommand =

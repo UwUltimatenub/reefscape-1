@@ -30,4 +30,8 @@ public class Intake extends SubsystemBase {
   public void setAlgaeVoltage(double voltage) {
     io.setIntakeVoltage(voltage);
   }
+
+  public boolean isCoralLoaded() {
+    return io.getCanRange() < 10;
+  }
 }

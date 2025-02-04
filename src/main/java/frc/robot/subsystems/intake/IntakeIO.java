@@ -15,10 +15,15 @@ public interface IntakeIO {
     public double coralWristCurrent = 0.0;
     public double coralWristVelocity = 0.0;
     public double coralWristPosition = 0.0;
+    public double coralRange = 0.0;
   }
 
   /** Updates the set of loggable inputs. */
   public default void updateInputs(IntakeIOInputs inputs) {}
 
   public default void setIntakeVoltage(double voltage) {}
+
+  public default double getCanRange() {
+    return 0;
+  }
 }
