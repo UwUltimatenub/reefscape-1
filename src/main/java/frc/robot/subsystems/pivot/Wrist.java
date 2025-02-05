@@ -18,6 +18,7 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -29,6 +30,7 @@ public class Wrist extends SubsystemBase {
   private static final int encoderId = 0;
   public static final Rotation2d minAngle = Rotation2d.fromDegrees(-140.0);
   public static final Rotation2d maxAngle = Rotation2d.fromDegrees(160.0);
+  private static final double ARM_VELOCITY = 1;
 
   // Hardware
   private final TalonFX talon;
@@ -79,12 +81,15 @@ public class Wrist extends SubsystemBase {
     pivotInputs.wristAngle = wristEncoder.getAbsolutePosition().getValueAsDouble();
   }
 
-  public void wristAngle(double position) {
-    double targetPosition = Math.toRadians(position);
+  public void wristAngle(double targetDegrees) {
+    // Get target position (in radians)
+    double targetAngle =
+        MathUtil.clamp(Math.toRadians(targetDegrees), minAngle.getRadians(), maxAngle.getRadians());
+    // double targetPosition = Math.toRadians(position);
     ArmFeedforward feedforward = new ArmFeedforward(0.0, 0.577, 0.0);
     talon.setControl(
         positionTorqueCurrentFOC
-            .withPosition(position)
-            .withFeedForward(feedforward.calculate(position, targetPosition)));
+            .withPosition(targetAngle)
+            .withFeedForward(feedforward.calculate(targetAngle, 0, 0)));
   }
 }
