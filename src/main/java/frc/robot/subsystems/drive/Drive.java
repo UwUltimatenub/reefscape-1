@@ -29,8 +29,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.subsystems.vision.AprilTagVision;
-import frc.robot.subsystems.vision.AprilTagVisionIO;
+import frc.robot.subsystems.vision.LimeLight;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -66,18 +65,16 @@ public class Drive extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
-  private final AprilTagVision aprilTagVision;
-
   public Drive(
       GyroIO gyroIO,
-      AprilTagVisionIO aprilTagVisionIO,
+      LimeLight limeLight,
       ModuleIO flModuleIO,
       ModuleIO frModuleIO,
       ModuleIO blModuleIO,
       ModuleIO brModuleIO) {
     this.gyroIO = gyroIO;
     gyro = new Gyro(gyroIO);
-    aprilTagVision = new AprilTagVision(aprilTagVisionIO);
+    limeLight = new LimeLight();
     modules[0] = new Module(flModuleIO, 0);
     modules[1] = new Module(frModuleIO, 1);
     modules[2] = new Module(blModuleIO, 2);
