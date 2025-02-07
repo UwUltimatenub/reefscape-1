@@ -11,9 +11,6 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLog;
@@ -27,31 +24,28 @@ public class LimeLight extends SubsystemBase {
   private final AprilTagFieldLayout APRILTAGFIELDLAYOUT =
       AprilTagFields.k2025Reefscape.loadAprilTagLayoutField();
   //  AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
-  private final Transform3d ROBOTTOCAM =
-      new Transform3d(
-          new Translation3d(0.5, 0.0, 0.5),
-          new Rotation3d(
-              0, 0,
-              0)); // From docs, cam mounted facing forward, half a meter forward of center, half a
 
   // meter up from center.
   @AutoLog
-  public static class LoggableAprilTagVisionIOInputs {
-    public double[] ntPose = {0, 0, 0, 0, 0, 0};
-    public double ntYaw = 0;
-    public double ntX = 0;
-    public double ntY = 0;
-    public boolean hasTarget = false;
-    public Transform3d latestCamToTagTranslation = new Transform3d();
+  public static class LoggableLimeLightIOInputs {
+    public double pitch = 0;
+    public double yaw = 0;
+    public double distance= 0;
   }
 
-  private LoggableAprilTagVisionIOInputs loggableInputs = new LoggableAprilTagVisionIOInputs();
+  private LoggableLimeLightIOInputs limeLightInputs = new LoggableLimeLightIOInputs();
 
   private final double CAMERA_HEIGHT = 0.28;
   private final double REEF_TARGET = 0.22;
   private final double CAMERA_PITCH = 0;
 
   public LimeLight() {}
+
+  public void periodic() {
+    limeLightInputs.pitch = getTy();
+    limeLightInputs.yaw = getTx();
+    limeLightInputs.distance = getDistance();
+  }
 
   /** Check if an AprilTag is detected */
   public boolean hasTarget() {
@@ -86,11 +80,11 @@ public class LimeLight extends SubsystemBase {
   //
   public double getDistance() {
     double ty = getTy();
-    double angle = Units.degreesToRadians(CAMERA_PITCH + ty);
+    double angleRadian = Units.degreesToRadians(CAMERA_PITCH + ty);
 
-    if (Math.abs(angle) < 1e-6) return Double.MAX_VALUE; // Prevent unreliable distances
+    if (Math.abs(angleRadian) < 1e-6) return Double.MAX_VALUE; // Prevent unreliable distances
 
-    return (REEF_TARGET - CAMERA_HEIGHT) / Math.tan(angle);
+    return (REEF_TARGET - CAMERA_HEIGHT) / Math.tan(angleRadian);
   }
 
   public double autoRotate() {
