@@ -21,7 +21,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLog;
 
 public class Elevator extends SubsystemBase {
-  public static final double reduction = 5.0;
+  public static final double ELEVATOR_GEAR_REDUCTION = 5.0;
+  public static final double PINION_PERIMETER = 4.7;//CM
 
   // Hardware
   private final TalonFX talon;
@@ -52,7 +53,7 @@ public class Elevator extends SubsystemBase {
     // Configure motor
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.Slot0 = new Slot0Configs().withKP(0).withKI(0).withKD(0);
-    config.Feedback.SensorToMechanismRatio = reduction;
+    config.Feedback.SensorToMechanismRatio = ELEVATOR_GEAR_REDUCTION;
     config.TorqueCurrent.PeakForwardTorqueCurrent = 120.0;
     config.TorqueCurrent.PeakReverseTorqueCurrent = -120.0;
     config.CurrentLimits.StatorCurrentLimit = 120.0;
@@ -71,12 +72,12 @@ public class Elevator extends SubsystemBase {
   // Periodic method called in every cycle (e.g., 20ms)
   @Override
   public void periodic() {
-    //
+    //if elevator height > height1 and wrist angle < angle1, stop elevator motor
   }
 
-  public double getPosition() {
+  public double getElevatorHeight() {
     // Get the position from the encoder
-    return talon.getPosition().getValueAsDouble();
+    return talon.getPosition().getValueAsDouble() * PINION_PERIMETER;
   }
 
   public double getVelocity() {
@@ -89,14 +90,14 @@ public class Elevator extends SubsystemBase {
     talon.setPosition(0);
   }
 
-  public void setPosition(double desireHeight) {
+  public void setElevatorHeight(double desireHeightCM) {
     // Get target position (in radians)
-    double targetHeight = MathUtil.clamp(desireHeight, minHeight, maxHeight);
+    double targetHeight = MathUtil.clamp(desireHeightCM, minHeight, maxHeight);
     // Feedforward Model (Tune These Values)
     ElevatorFeedforward feedforward = new ElevatorFeedforward(0.0, 0.8, 0, 0);
     talon.setControl(
         positionTorqueCurrentRequest
-            .withPosition(targetHeight/4.7)//perimeter of pinion gear in centmeter
+            .withPosition(targetHeight/PINION_PERIMETER)//perimeter of pinion gear in centmeter
             .withFeedForward(feedforward.calculate(0)));
   }
 

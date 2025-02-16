@@ -163,34 +163,37 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // Eject algae
-    Command ejectAlgaeCommand =
-        new StartEndCommand(
-            () -> intake.setAlgaeVoltage(12), () -> intake.setAlgaeVoltage(0), intake);
-    driverController.rightBumper().whileTrue(ejectAlgaeCommand);
-
-    Command intakeAlgaeCommand =
-        new StartEndCommand(
-            () -> intake.setAlgaeVoltage(-12), () -> intake.setAlgaeVoltage(0), intake);
-    driverController.rightTrigger().whileTrue(intakeAlgaeCommand);
-
     // Intake coral
     Command intakeCoralCommand =
         new StartEndCommand(
-                () -> intake.setCoralIntakeVoltage(-6),
-                () -> intake.setCoralIntakeVoltage(0),
+                () -> intake.intakeCoral(),
+                () -> intake.stop(),
                 intake)
             .until((() -> intake.isCoralLoaded()));
     driverController.leftTrigger().whileTrue(intakeCoralCommand);
 
+    // Eject coral
     Command ejectCoralCommand =
         new StartEndCommand(
-            () -> intake.setCoralIntakeVoltage(6), () -> intake.setCoralIntakeVoltage(0), intake);
+            () -> intake.ejectCoral(), () -> intake.stop(), intake);
     operatorController.leftBumper().whileTrue(ejectCoralCommand);
+
+    // Intake algae
+    Command intakeAlgaeCommand =
+        new StartEndCommand(
+            () -> intake.intakeAlgae(), () -> intake.stop(), intake)
+            .until((() -> intake.overloaded()));;
+    driverController.rightTrigger().whileTrue(intakeAlgaeCommand);
+
+    // Eject algae
+    Command ejectAlgaeCommand =
+        new StartEndCommand(
+            () -> intake.ejectAlgae(), () -> intake.stop(), intake);
+    driverController.rightBumper().whileTrue(ejectAlgaeCommand);
 
     // Processor state
     Command liftToProcessorCommand =
-        new RunCommand(() -> elevator.setPosition(PROCESSOR_HEIGHT), elevator);
+        new RunCommand(() -> elevator.setElevatorHeight(PROCESSOR_HEIGHT), elevator);
     Command wristToProcessorCommand =
         new RunCommand(() -> wrist.wristAngle(PROCESSOR_ANGLE), wrist);
     ParallelCommandGroup processorCommandGroup =
@@ -199,35 +202,35 @@ public class RobotContainer {
 
     // Source state
     Command liftToSourceCommand =
-        new RunCommand(() -> elevator.setPosition(SOURCE_HEIGHT), elevator);
+        new RunCommand(() -> elevator.setElevatorHeight(SOURCE_HEIGHT), elevator);
     Command wristToSourceCommand = new RunCommand(() -> wrist.wristAngle(SOURCE_ANGLE), wrist);
     ParallelCommandGroup sourceCommandGroup =
         new ParallelCommandGroup(liftToSourceCommand, wristToSourceCommand);
     operatorController.povLeft().onTrue(sourceCommandGroup);
 
     // L1 state
-    Command liftToL1Command = new RunCommand(() -> elevator.setPosition(L1_HEIGHT), elevator);
+    Command liftToL1Command = new RunCommand(() -> elevator.setElevatorHeight(L1_HEIGHT), elevator);
     Command wristToL1Command = new RunCommand(() -> wrist.wristAngle(L1_ANGLE), wrist);
     ParallelCommandGroup l1CommandGroup =
         new ParallelCommandGroup(liftToL1Command, wristToL1Command);
     operatorController.a().onTrue(l1CommandGroup);
 
     // L2 state
-    Command liftToL2Command = new RunCommand(() -> elevator.setPosition(L2_HEIGHT), elevator);
+    Command liftToL2Command = new RunCommand(() -> elevator.setElevatorHeight(L2_HEIGHT), elevator);
     Command wristToL2Command = new RunCommand(() -> wrist.wristAngle(L2_ANGLE), wrist);
     ParallelCommandGroup l2CommandGroup =
         new ParallelCommandGroup(liftToL2Command, wristToL2Command);
     operatorController.b().onTrue(l2CommandGroup);
 
     // L3 state
-    Command liftToL3Command = new RunCommand(() -> elevator.setPosition(L3_HEIGHT), elevator);
+    Command liftToL3Command = new RunCommand(() -> elevator.setElevatorHeight(L3_HEIGHT), elevator);
     Command wristToL3Command = new RunCommand(() -> wrist.wristAngle(L3_ANGLE), wrist);
     ParallelCommandGroup l3CommandGroup =
         new ParallelCommandGroup(liftToL3Command, wristToL3Command);
     operatorController.y().onTrue(l3CommandGroup);
 
     // L4 state
-    Command liftToL4Command = new RunCommand(() -> elevator.setPosition(L4_HEIGHT), elevator);
+    Command liftToL4Command = new RunCommand(() -> elevator.setElevatorHeight(L4_HEIGHT), elevator);
     Command wristToL4Command = new RunCommand(() -> wrist.wristAngle(L4_ANGLE), wrist);
     ParallelCommandGroup l4CommandGroup =
         new ParallelCommandGroup(liftToL4Command, wristToL4Command);
@@ -235,7 +238,7 @@ public class RobotContainer {
 
     // Top algae state
     Command liftToTopAlgaeCommand =
-        new RunCommand(() -> elevator.setPosition(TOP_ALGAE_HEIGHT), elevator);
+        new RunCommand(() -> elevator.setElevatorHeight(TOP_ALGAE_HEIGHT), elevator);
     Command wristToTopAlgaeCommand = new RunCommand(() -> wrist.wristAngle(TOP_ALGAE_ANGLE), wrist);
     ParallelCommandGroup topAlgaeCommandGroup =
         new ParallelCommandGroup(liftToTopAlgaeCommand, wristToTopAlgaeCommand);

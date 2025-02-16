@@ -9,11 +9,13 @@ package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLog;
 
 public class Intake extends SubsystemBase {
-  TalonFX coralIntake;
+  TalonFX intake;
   CANrange canRange;
 
   @AutoLog
@@ -25,7 +27,8 @@ public class Intake extends SubsystemBase {
 
   public Intake() {
     // find actual motor IDs
-    coralIntake = new TalonFX(0, "*");
+    intake = new TalonFX(0, "*");
+    intake.setNeutralMode(NeutralModeValue.Brake); //stop motor quickly
     canRange = new CANrange(1, "*");
   }
 
@@ -34,15 +37,28 @@ public class Intake extends SubsystemBase {
     inputs.coralRange = canRange.getDistance().getValueAsDouble();
   }
 
-  public void setCoralIntakeVoltage(double voltage) {
-    coralIntake.setVoltage(voltage);
+  public void intakeCoral() {
+    intake.setVoltage(10);
   }
-
-  public void setAlgaeVoltage(double voltage) {
-    coralIntake.setVoltage(voltage);
+  public void ejectCoral() {
+    intake.setVoltage(-10);
   }
+  public void intakeAlgae() {
+    intake.setVoltage(10);
+  }
+  public void ejectAlgae() {
+    intake.setVoltage(-10);
+  }
+  public void stop() {
+    intake.stopMotor();
+  }
+  public boolean overloaded() {
 
+    double currentDraw = intake.getStatorCurrent().getValueAsDouble(); // Stator current in amps
+    double threshold = 30.0; // Adjust based on your setup
+    return currentDraw > threshold;
+  }
   public boolean isCoralLoaded() {
-    return canRange.getDistance().getValueAsDouble() < 10;
+    return canRange.getDistance().getValueAsDouble() < 0.1;//meter
   }
 }
