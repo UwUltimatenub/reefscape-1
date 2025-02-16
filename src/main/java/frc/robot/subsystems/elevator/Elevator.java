@@ -41,8 +41,8 @@ public class Elevator extends SubsystemBase {
 
   private final PositionTorqueCurrentFOC positionTorqueCurrentRequest =
       new PositionTorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
-  public static final double minHeight = 0.5;
-  public static final double maxHeight = 1.5;
+  public static final double minHeight = 0;
+  public static final double maxHeight = 60;
 
   public Elevator() {
     talon = new TalonFX(0, "*");
@@ -96,7 +96,7 @@ public class Elevator extends SubsystemBase {
     ElevatorFeedforward feedforward = new ElevatorFeedforward(0.0, 0.8, 0, 0);
     talon.setControl(
         positionTorqueCurrentRequest
-            .withPosition(targetHeight)
+            .withPosition(targetHeight/4.7)//perimeter of pinion gear in centmeter
             .withFeedForward(feedforward.calculate(0)));
   }
 
