@@ -51,17 +51,18 @@ public class RobotContainer {
   private final double L4_HEIGHT = 52.5;
   private final double TOP_ALGAE_HEIGHT = 40;
 
-  private final double PROCESSOR_ANGLE = 0;
-  private final double SOURCE_ANGLE = 0.15;
-  private final double L1_ANGLE = 0.3;
-  private final double L2_ANGLE = 0.225;
-  private final double L3_ANGLE = 0.225;
-  private final double L4_ANGLE = 0.26;
-  private final double TOP_ALGAE_ANGLE = 0;
+  private final double PROCESSOR_ANGLE = Wrist.WRIST_OFFSET.getDegrees() + 0;
+  private final double SOURCE_ANGLE = Wrist.WRIST_OFFSET.getDegrees() + 9;
+  private final double L1_ANGLE = Wrist.WRIST_OFFSET.getDegrees() + 17;
+  private final double L2_ANGLE = Wrist.WRIST_OFFSET.getDegrees() + 13;
+  private final double L3_ANGLE = Wrist.WRIST_OFFSET.getDegrees() + 13;
+  private final double L4_ANGLE = Wrist.WRIST_OFFSET.getDegrees() + 15;
+  private final double TOP_ALGAE_ANGLE = Wrist.WRIST_OFFSET.getDegrees() + 0;
 
   // Controller
   private final CommandXboxController driverController = new CommandXboxController(0);
-  private final CommandXboxController operatorController = new CommandXboxController(1);
+  private final CommandXboxController operatorController = driverController;
+  //private final CommandXboxController operatorController = new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;

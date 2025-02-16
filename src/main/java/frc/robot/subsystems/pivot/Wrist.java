@@ -25,12 +25,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLog;
 
 public class Wrist extends SubsystemBase {
-  public static final double reduction = 3.0;
-  private static final Rotation2d offset = new Rotation2d();
+  public static final double reduction = 18.689; //wrist gearbox gear ration 58/10*58/18
+  public static final Rotation2d WRIST_OFFSET = new Rotation2d(60);//default wrist angle; zero degree arm in horizontal
   private static final int encoderId = 0;
-  public static final Rotation2d minAngle = Rotation2d.fromDegrees(-140.0);
-  public static final Rotation2d maxAngle = Rotation2d.fromDegrees(160.0);
-  private static final double ARM_VELOCITY = 1;
+  public static final Rotation2d minAngle = Rotation2d.fromDegrees(60);
+  public static final Rotation2d maxAngle = Rotation2d.fromDegrees(240.0);
 
   // Hardware
   private final TalonFX talon;
@@ -70,7 +69,7 @@ public class Wrist extends SubsystemBase {
 
     // Configure encoder
     var cancoderConfig = new CANcoderConfiguration();
-    cancoderConfig.MagnetSensor.MagnetOffset = offset.getRotations();
+    cancoderConfig.MagnetSensor.MagnetOffset = WRIST_OFFSET.getRotations();
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     wristEncoder.getConfigurator().apply(cancoderConfig);
 
