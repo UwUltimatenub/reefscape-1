@@ -25,8 +25,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLog;
 
 public class Wrist extends SubsystemBase {
-  public static final double reduction = 18.689; //wrist gearbox gear ration 58/10*58/18
-  public static final Rotation2d WRIST_OFFSET = new Rotation2d(60);//default wrist angle; zero degree arm in horizontal
+  public static final double reduction = 18.689; // wrist gearbox gear ration 58/10*58/18
+  public static final Rotation2d WRIST_OFFSET =
+      new Rotation2d(60); // default wrist angle; zero degree arm in horizontal
   private static final int encoderId = 0;
   public static final Rotation2d minAngle = Rotation2d.fromDegrees(60);
   public static final Rotation2d maxAngle = Rotation2d.fromDegrees(240.0);
@@ -78,7 +79,12 @@ public class Wrist extends SubsystemBase {
 
   public void periodic() {
     pivotInputs.wristAngle = wristEncoder.getAbsolutePosition().getValueAsDouble();
-    System.out.println("Wrist Angle: " + pivotInputs.wristAngle );  
+    System.out.println("Wrist Angle: " + pivotInputs.wristAngle);
+  }
+
+  public void setVoltage(double voltage) {
+    // Set the power to the main motor
+    talon.set(voltage);
   }
 
   public void wristAngle(double targetDegrees) {
@@ -90,6 +96,6 @@ public class Wrist extends SubsystemBase {
     talon.setControl(
         positionTorqueCurrentFOC
             .withPosition(targetAngle)
-            .withFeedForward(feedforward.calculate(targetAngle, 0, 0)));
+            .withFeedForward(feedforward.calculate(targetAngle, 0)));
   }
 }

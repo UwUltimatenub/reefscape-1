@@ -40,8 +40,8 @@ import org.littletonrobotics.junction.Logger;
 public class Drive extends SubsystemBase {
   private static final double DEADBAND = 0.1;
   private static final double MAX_LINEAR_SPEED = Units.feetToMeters(17.2);
-  private static final double TRACK_WIDTH_X = Units.inchesToMeters(31.0);
-  private static final double TRACK_WIDTH_Y = Units.inchesToMeters(27.0);
+  private static final double TRACK_WIDTH_X = Units.inchesToMeters(23.0);
+  private static final double TRACK_WIDTH_Y = Units.inchesToMeters(23.0);
   private static final double DRIVE_BASE_RADIUS =
       Math.hypot(TRACK_WIDTH_X / 2.0, TRACK_WIDTH_Y / 2.0);
   private static final double MAX_ANGULAR_SPEED = MAX_LINEAR_SPEED / DRIVE_BASE_RADIUS;

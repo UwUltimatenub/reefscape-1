@@ -7,8 +7,6 @@
 
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.util.Units;
@@ -21,8 +19,10 @@ public class LimeLight extends SubsystemBase {
   PIDController rotatePid = new PIDController(0.125, 0, 0);
   PIDController xPid = new PIDController(1, 0, 0.005);
   PIDController yPid = new PIDController(0.0605, 0, 0.0055);
-  private final AprilTagFieldLayout APRILTAGFIELDLAYOUT =
-      AprilTagFields.k2025Reefscape.loadAprilTagLayoutField();
+
+  // private final AprilTagFieldLayout APRILTAGFIELDLAYOUT =
+  //     AprilTagFields.k2025Reefscape.loadAprilTagLayoutField();
+
   //  AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
   // meter up from center.
@@ -30,7 +30,7 @@ public class LimeLight extends SubsystemBase {
   public static class LoggableLimeLightIOInputs {
     public double pitch = 0;
     public double yaw = 0;
-    public double distance= 0;
+    public double distance = 0;
   }
 
   private LoggableLimeLightIOInputs limeLightInputs = new LoggableLimeLightIOInputs();

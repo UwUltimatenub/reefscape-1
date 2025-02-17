@@ -62,7 +62,7 @@ public class RobotContainer {
   // Controller
   private final CommandXboxController driverController = new CommandXboxController(0);
   private final CommandXboxController operatorController = driverController;
-  //private final CommandXboxController operatorController = new CommandXboxController(1);
+  // private final CommandXboxController operatorController = new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -165,30 +165,25 @@ public class RobotContainer {
 
     // Intake coral
     Command intakeCoralCommand =
-        new StartEndCommand(
-                () -> intake.intakeCoral(),
-                () -> intake.stop(),
-                intake)
+        new StartEndCommand(() -> intake.intakeCoral(), () -> intake.stop(), intake)
             .until((() -> intake.isCoralLoaded()));
     driverController.leftTrigger().whileTrue(intakeCoralCommand);
 
     // Eject coral
     Command ejectCoralCommand =
-        new StartEndCommand(
-            () -> intake.ejectCoral(), () -> intake.stop(), intake);
+        new StartEndCommand(() -> intake.ejectCoral(), () -> intake.stop(), intake);
     operatorController.leftBumper().whileTrue(ejectCoralCommand);
 
     // Intake algae
     Command intakeAlgaeCommand =
-        new StartEndCommand(
-            () -> intake.intakeAlgae(), () -> intake.stop(), intake)
-            .until((() -> intake.overloaded()));;
+        new StartEndCommand(() -> intake.intakeAlgae(), () -> intake.stop(), intake)
+            .until((() -> intake.overloaded()));
+    ;
     driverController.rightTrigger().whileTrue(intakeAlgaeCommand);
 
     // Eject algae
     Command ejectAlgaeCommand =
-        new StartEndCommand(
-            () -> intake.ejectAlgae(), () -> intake.stop(), intake);
+        new StartEndCommand(() -> intake.ejectAlgae(), () -> intake.stop(), intake);
     driverController.rightBumper().whileTrue(ejectAlgaeCommand);
 
     // Processor state
@@ -247,11 +242,10 @@ public class RobotContainer {
     // Manual lift
     Command manualLift =
         new RunCommand(() -> elevator.setVoltage(-operatorController.getLeftY() * 0.5), elevator);
-    // Command manualWrist =
-    //     new RunCommand(() -> intake.setWristVoltage(operatorController.getRightY() * 0.25),
-    // intake);
-    // ParallelCommandGroup manualCommandGroup = new ParallelCommandGroup(manualLift, manualWrist);
-    operatorController.start().whileTrue(manualLift);
+    Command manualWrist =
+        new RunCommand(() -> wrist.setVoltage(operatorController.getRightY() * 0.25), wrist);
+    ParallelCommandGroup manualCommandGroup = new ParallelCommandGroup(manualLift, manualWrist);
+    operatorController.start().whileTrue(manualCommandGroup);
   }
 
   /**
