@@ -35,6 +35,7 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     inputs.coralRange = canRange.getDistance().getValueAsDouble();
+    System.out.println("Coral Range: " + inputs.coralRange );  
   }
 
   public void intakeCoral() {

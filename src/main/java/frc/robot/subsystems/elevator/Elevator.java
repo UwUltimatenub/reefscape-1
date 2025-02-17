@@ -22,7 +22,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 public class Elevator extends SubsystemBase {
   public static final double ELEVATOR_GEAR_REDUCTION = 5.0;
-  public static final double PINION_PERIMETER = 4.7;//CM
+  public static final double ELEVATOR_PINION_PERIMETER = 4.7;//CM
 
   // Hardware
   private final TalonFX talon;
@@ -32,7 +32,7 @@ public class Elevator extends SubsystemBase {
   public static class ElevatorIOInputs {
     public double motorCurrent = 0;
     public double motorVoltage = 0;
-    public double motorAngle = 0;
+    public double motorPosition = 0;
   }
 
   private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
@@ -72,12 +72,14 @@ public class Elevator extends SubsystemBase {
   // Periodic method called in every cycle (e.g., 20ms)
   @Override
   public void periodic() {
+    inputs.motorPosition = talon.getPosition().getValueAsDouble();
+    System.out.println("Elevator height: " + inputs.motorPosition * ELEVATOR_PINION_PERIMETER );  
     //if elevator height > height1 and wrist angle < angle1, stop elevator motor
   }
 
   public double getElevatorHeight() {
     // Get the position from the encoder
-    return talon.getPosition().getValueAsDouble() * PINION_PERIMETER;
+    return talon.getPosition().getValueAsDouble() * ELEVATOR_PINION_PERIMETER;
   }
 
   public double getVelocity() {
@@ -97,7 +99,7 @@ public class Elevator extends SubsystemBase {
     ElevatorFeedforward feedforward = new ElevatorFeedforward(0.0, 0.8, 0, 0);
     talon.setControl(
         positionTorqueCurrentRequest
-            .withPosition(targetHeight/PINION_PERIMETER)//perimeter of pinion gear in centmeter
+            .withPosition(targetHeight/ELEVATOR_PINION_PERIMETER)//perimeter of pinion gear in centmeter
             .withFeedForward(feedforward.calculate(0)));
   }
 

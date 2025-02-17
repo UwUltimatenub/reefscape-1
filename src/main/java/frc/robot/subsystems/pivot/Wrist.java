@@ -78,6 +78,7 @@ public class Wrist extends SubsystemBase {
 
   public void periodic() {
     pivotInputs.wristAngle = wristEncoder.getAbsolutePosition().getValueAsDouble();
+    System.out.println("Wrist Angle: " + pivotInputs.wristAngle );  
   }
 
   public void wristAngle(double targetDegrees) {
