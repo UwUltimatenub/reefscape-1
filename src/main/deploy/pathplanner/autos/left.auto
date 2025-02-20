@@ -1,12 +1,5 @@
 {
-  "version": 1.0,
-  "startingPose": {
-    "position": {
-      "x": -0.007207226751344836,
-      "y": 7.0
-    },
-    "rotation": 0
-  },
+  "version": "2025.0",
   "command": {
     "type": "sequential",
     "data": {
@@ -14,12 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Drive Straight"
+            "pathName": "left"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "putCoral"
           }
         }
       ]
     }
   },
+  "resetOdom": true,
   "folder": null,
   "choreoAuto": false
 }

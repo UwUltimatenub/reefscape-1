@@ -8,9 +8,18 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
+import com.pathplanner.lib.util.FileVersionException;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,6 +36,11 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.pivot.Wrist;
 import frc.robot.subsystems.vision.LimeLight;
+
+import java.io.IOException;
+import java.util.HashMap;
+
+import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -87,6 +101,8 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+    // Register Named Commands
+        NamedCommands.registerCommand("putCoral", getIntakeCommand(false));
   }
 
   /**
@@ -188,15 +204,6 @@ public class RobotContainer {
     operatorController.rightBumper().whileTrue(manualCommandGroup);
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    return new PathPlannerAuto("Example Auto");
-  }
-
   public Command getIntakeCommand(boolean isIntake) {
     Command command = null;
     // Intake coral/algae
@@ -248,4 +255,15 @@ public class RobotContainer {
 
     return command;
   }
+
+    public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
+        //follow path and then put coral
+        PathPlannerAuto autoRoutine = new PathPlannerAuto("Swivel");
+        return autoRoutine;
+
+        // PathPlannerPath path = PathPlannerPath.fromPathFile("Swivel");
+        // return AutoBuilder.followPath(path).andThen(getIntakeCommand(false));
+    }
+
+
 }
