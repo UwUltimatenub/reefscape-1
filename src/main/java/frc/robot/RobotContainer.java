@@ -150,15 +150,10 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // Intake coral/algae
-    Command intakeCoralCommand =
-        new StartEndCommand(() -> intake.intakeCoral(), () -> intake.stop(), intake)
-            .until((() -> intake.isCoralLoaded() || intake.overloaded()));
-    driverController.leftBumper().whileTrue(intakeCoralCommand);
+    driverController.leftBumper().whileTrue(getIntakeCommand(true));
 
     // Eject coral/algae
-    Command ejectCoralCommand =
-        new StartEndCommand(() -> intake.ejectCoral(), () -> intake.stop(), intake);
-    operatorController.leftTrigger().whileTrue(ejectCoralCommand);
+    operatorController.leftTrigger().whileTrue(getIntakeCommand(false));
 
     // Source state, safty wrist angle to prevent collision
     operatorController.a().onTrue(getStateCommand(SuperStructureState.STATE_SOURCE));
@@ -202,10 +197,33 @@ public class RobotContainer {
     return new PathPlannerAuto("Example Auto");
   }
 
+  public Command getIntakeCommand(boolean isIntake) {
+    Command command = null;
+    // Intake coral/algae
+    if(currentState==SuperStructureState.STATE_SOURCE||currentState==SuperStructureState.STATE_L2
+        ||currentState==SuperStructureState.STATE_L3||currentState==SuperStructureState.STATE_L4){
+            if(isIntake){
+                command = new StartEndCommand(() -> intake.forward(8), () -> intake.stop(), intake)
+                .until((() -> intake.isCoralLoaded() || intake.overloaded()));        
+            }else{
+                command = new StartEndCommand(() -> intake.forward(8), () -> intake.stop(), intake);        
+            }
+        }else  if(currentState==SuperStructureState.STATE_PROCESSOR||currentState==SuperStructureState.STATE_ALGAE_LOW
+        ||currentState==SuperStructureState.STATE_ALGAE_MID||currentState==SuperStructureState.STATE_ALGAE_TOP){
+            if(isIntake){
+                command = new StartEndCommand(() -> intake.backward(8), () -> intake.stop(), intake)
+                .until((() ->  intake.overloaded()));        
+            }else{
+                command = new StartEndCommand(() -> intake.forward(12), () -> intake.stop(), intake);        
+            }
+        }
+    return command;
+  }
+
   public Command getStateCommand(SuperStructureState toState) {
 
     Command command = null;
-    if (currentState == toState) return command;
+    //if (currentState == toState) return command;
 
     if (currentState == SuperStructureState.STATE_SOURCE
         || toState == SuperStructureState.STATE_SOURCE) {

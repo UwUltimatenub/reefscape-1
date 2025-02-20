@@ -37,22 +37,12 @@ public class Intake extends SubsystemBase {
     System.out.println("Coral Range: " + inputs.coralRange);
   }
 
-  public void intakeCoral() {
-    intake.setVoltage(10);
+  public void forward(double volts) {
+    intake.setVoltage(volts);
   }
-
-  public void ejectCoral() {
-    intake.setVoltage(-10);
+  public void backward(double volts) {
+    intake.setVoltage(volts);
   }
-
-  public void intakeAlgae() {
-    intake.setVoltage(10);
-  }
-
-  public void ejectAlgae() {
-    intake.setVoltage(-10);
-  }
-
   public void stop() {
     intake.stopMotor();
   }
