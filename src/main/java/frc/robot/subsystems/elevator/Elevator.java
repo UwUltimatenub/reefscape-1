@@ -11,14 +11,15 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
-import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
   public static final double ELEVATOR_GEAR_REDUCTION = 5.0;
@@ -30,8 +31,7 @@ public class Elevator extends SubsystemBase {
 
   @AutoLog
   public static class ElevatorIOInputs {
-    public double motorCurrent = 0;
-    public double motorVoltage = 0;
+    public boolean motorConnected = true;
     public double motorPosition = 0;
   }
 
@@ -46,8 +46,8 @@ public class Elevator extends SubsystemBase {
   public static final double maxHeight = 60;
 
   public Elevator() {
-    talon = new TalonFX(0, "*");
-    followerTalon = new TalonFX(1, "*");
+    talon = new TalonFX(11, "*");
+    followerTalon = new TalonFX(15, "*");
     followerTalon.setControl(new Follower(talon.getDeviceID(), false));
 
     // Configure motor
@@ -58,10 +58,10 @@ public class Elevator extends SubsystemBase {
     config.TorqueCurrent.PeakReverseTorqueCurrent = -120.0;
     config.CurrentLimits.StatorCurrentLimit = 120.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     talon.getConfigurator().apply(config);
 
-    ParentDevice.optimizeBusUtilizationForAll(talon);
+    // ParentDevice.optimizeBusUtilizationForAll(talon);
   }
 
   public void setVoltage(double voltage) {
@@ -72,8 +72,10 @@ public class Elevator extends SubsystemBase {
   // Periodic method called in every cycle (e.g., 20ms)
   @Override
   public void periodic() {
-    inputs.motorPosition = talon.getPosition().getValueAsDouble();
-    System.out.println("Elevator height: " + inputs.motorPosition * ELEVATOR_PINION_PERIMETER);
+    inputs.motorConnected = talon.isConnected();
+    inputs.motorPosition =
+        talon.getPosition().getValueAsDouble() / 6 * 5.5 * Units.inchesToMeters(1) * 100;
+    Logger.processInputs("Elevator", inputs);
     // if elevator height > height1 and wrist angle < angle1, stop elevator motor
   }
 

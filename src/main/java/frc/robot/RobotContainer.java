@@ -7,19 +7,10 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.FollowPathCommand;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.pathplanner.lib.util.FileVersionException;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
@@ -36,12 +26,8 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.pivot.Wrist;
 import frc.robot.subsystems.vision.LimeLight;
-
 import java.io.IOException;
-import java.util.HashMap;
-
 import org.json.simple.parser.ParseException;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -62,10 +48,11 @@ public class RobotContainer {
   // Controller
   private final CommandXboxController driverController = new CommandXboxController(0);
   private final CommandXboxController operatorController = driverController;
+
   // private final CommandXboxController operatorController = new CommandXboxController(1);
 
   // Dashboard inputs
-  private final LoggedDashboardChooser<Command> autoChooser;
+  //   private final LoggedDashboardChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
@@ -79,30 +66,30 @@ public class RobotContainer {
         new Drive(
             new GyroIOPigeon2(),
             new LimeLight(),
-            new ModuleIOTalonFX(0),
-            new ModuleIOTalonFX(1),
-            new ModuleIOTalonFX(2),
-            new ModuleIOTalonFX(3));
+            new ModuleIOTalonFX(0), // fl
+            new ModuleIOTalonFX(1), // fr
+            new ModuleIOTalonFX(2), // bl
+            new ModuleIOTalonFX(3)); // br
 
-    // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    // // Set up auto routines
+    // autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
-    // Set up SysId routines
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // // Set up SysId routines
+    // autoChooser.addOption(
+    //     "Drive SysId (Quasistatic Forward)",
+    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // autoChooser.addOption(
+    //     "Drive SysId (Quasistatic Reverse)",
+    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // autoChooser.addOption(
+    //     "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // autoChooser.addOption(
+    //     "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
     configureButtonBindings();
     // Register Named Commands
-        NamedCommands.registerCommand("putCoral", getIntakeCommand(false));
+    NamedCommands.registerCommand("putCoral", getIntakeCommand(false));
   }
 
   /**
@@ -207,30 +194,36 @@ public class RobotContainer {
   public Command getIntakeCommand(boolean isIntake) {
     Command command = null;
     // Intake coral/algae
-    if(currentState==SuperStructureState.STATE_SOURCE||currentState==SuperStructureState.STATE_L2
-        ||currentState==SuperStructureState.STATE_L3||currentState==SuperStructureState.STATE_L4){
-            if(isIntake){
-                command = new StartEndCommand(() -> intake.forward(8), () -> intake.stop(), intake)
-                .until((() -> intake.isCoralLoaded() || intake.overloaded()));        
-            }else{
-                command = new StartEndCommand(() -> intake.forward(8), () -> intake.stop(), intake);        
-            }
-        }else  if(currentState==SuperStructureState.STATE_PROCESSOR||currentState==SuperStructureState.STATE_ALGAE_LOW
-        ||currentState==SuperStructureState.STATE_ALGAE_MID||currentState==SuperStructureState.STATE_ALGAE_TOP){
-            if(isIntake){
-                command = new StartEndCommand(() -> intake.backward(8), () -> intake.stop(), intake)
-                .until((() ->  intake.overloaded()));        
-            }else{
-                command = new StartEndCommand(() -> intake.forward(12), () -> intake.stop(), intake);        
-            }
-        }
+    if (currentState == SuperStructureState.STATE_SOURCE
+        || currentState == SuperStructureState.STATE_L2
+        || currentState == SuperStructureState.STATE_L3
+        || currentState == SuperStructureState.STATE_L4) {
+      if (isIntake) {
+        command =
+            new StartEndCommand(() -> intake.forward(8), () -> intake.stop(), intake)
+                .until((() -> intake.isCoralLoaded() || intake.overloaded()));
+      } else {
+        command = new StartEndCommand(() -> intake.forward(8), () -> intake.stop(), intake);
+      }
+    } else if (currentState == SuperStructureState.STATE_PROCESSOR
+        || currentState == SuperStructureState.STATE_ALGAE_LOW
+        || currentState == SuperStructureState.STATE_ALGAE_MID
+        || currentState == SuperStructureState.STATE_ALGAE_TOP) {
+      if (isIntake) {
+        command =
+            new StartEndCommand(() -> intake.backward(8), () -> intake.stop(), intake)
+                .until((() -> intake.overloaded()));
+      } else {
+        command = new StartEndCommand(() -> intake.forward(12), () -> intake.stop(), intake);
+      }
+    }
     return command;
   }
 
   public Command getStateCommand(SuperStructureState toState) {
 
     Command command = null;
-    //if (currentState == toState) return command;
+    // if (currentState == toState) return command;
 
     if (currentState == SuperStructureState.STATE_SOURCE
         || toState == SuperStructureState.STATE_SOURCE) {
@@ -256,14 +249,12 @@ public class RobotContainer {
     return command;
   }
 
-    public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
-        //follow path and then put coral
-        PathPlannerAuto autoRoutine = new PathPlannerAuto("Swivel");
-        return autoRoutine;
+  public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
+    // follow path and then put coral
+    // PathPlannerAuto autoRoutine = new PathPlannerAuto("middle1");
+    return null;
 
-        // PathPlannerPath path = PathPlannerPath.fromPathFile("Swivel");
-        // return AutoBuilder.followPath(path).andThen(getIntakeCommand(false));
-    }
-
-
+    // PathPlannerPath path = PathPlannerPath.fromPathFile("Swivel");
+    // return AutoBuilder.followPath(path).andThen(getIntakeCommand(false));
+  }
 }

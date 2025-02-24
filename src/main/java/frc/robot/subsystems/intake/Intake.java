@@ -26,9 +26,9 @@ public class Intake extends SubsystemBase {
 
   public Intake() {
     // find actual motor IDs
-    intake = new TalonFX(0, "*");
+    intake = new TalonFX(7, "*");
     intake.setNeutralMode(NeutralModeValue.Brake); // stop motor quickly
-    canRange = new CANrange(1, "*");
+    canRange = new CANrange(19, "*");
   }
 
   @Override
@@ -40,9 +40,11 @@ public class Intake extends SubsystemBase {
   public void forward(double volts) {
     intake.setVoltage(volts);
   }
+
   public void backward(double volts) {
     intake.setVoltage(volts);
   }
+
   public void stop() {
     intake.stopMotor();
   }
@@ -55,6 +57,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean isCoralLoaded() {
-    return canRange.getDistance().getValueAsDouble() < 0.1; // meter
+    return canRange.getDistance().getValueAsDouble() < 0.1
+        && canRange.getDistance().getValueAsDouble() != 0; // meter
   }
 }

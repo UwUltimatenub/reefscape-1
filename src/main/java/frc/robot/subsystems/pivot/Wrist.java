@@ -12,7 +12,6 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -23,11 +22,12 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.Logger;
 
 public class Wrist extends SubsystemBase {
   public static final double reduction = 18.689; // wrist gearbox gear ration 58/10*58/18
   public static final Rotation2d WRIST_OFFSET =
-      new Rotation2d(60); // default wrist angle; zero degree arm in horizontal
+      Rotation2d.fromDegrees(60); // default wrist angle; zero degree arm in horizontal
   private static final int encoderId = 0;
   public static final Rotation2d minAngle = Rotation2d.fromDegrees(60);
   public static final Rotation2d maxAngle = Rotation2d.fromDegrees(240.0);
@@ -50,8 +50,8 @@ public class Wrist extends SubsystemBase {
   private final WristIOInputsAutoLogged pivotInputs = new WristIOInputsAutoLogged();
 
   public Wrist() {
-    talon = new TalonFX(0, "*");
-    wristEncoder = new CANcoder(encoderId, "*");
+    talon = new TalonFX(3, "*");
+    wristEncoder = new CANcoder(13, "*");
 
     // Configure  motor
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -60,7 +60,7 @@ public class Wrist extends SubsystemBase {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.Feedback.FeedbackRemoteSensorID = encoderId;
     config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-    config.Feedback.SensorToMechanismRatio = 1.0;
+    config.Feedback.RotorToSensorRatio = 60.0 * 60.0 * 30.0 / (10.0 * 18.0 * 12.0);
     config.TorqueCurrent.PeakForwardTorqueCurrent = 40.0;
     config.TorqueCurrent.PeakReverseTorqueCurrent = -40.0;
     config.CurrentLimits.StatorCurrentLimit = 40.0;
@@ -74,12 +74,14 @@ public class Wrist extends SubsystemBase {
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     wristEncoder.getConfigurator().apply(cancoderConfig);
 
-    ParentDevice.optimizeBusUtilizationForAll(talon, wristEncoder);
+    // ParentDevice.optimizeBusUtilizationForAll(talon, wristEncoder);
   }
 
   public void periodic() {
-    pivotInputs.wristAngle = wristEncoder.getAbsolutePosition().getValueAsDouble();
-    System.out.println("Wrist Angle: " + pivotInputs.wristAngle);
+    pivotInputs.encoderConnected = wristEncoder.isConnected();
+    pivotInputs.motorConnected = talon.isConnected();
+    pivotInputs.wristAngle = 360 * wristEncoder.getAbsolutePosition().getValueAsDouble();
+    Logger.processInputs("Wrist", pivotInputs);
   }
 
   public void setVoltage(double voltage) {
