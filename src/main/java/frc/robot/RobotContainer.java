@@ -7,10 +7,10 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.util.FileVersionException;
+import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,6 +19,9 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.DriveCommands;
+import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
@@ -26,8 +29,7 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.pivot.Wrist;
 import frc.robot.subsystems.vision.LimeLight;
-import java.io.IOException;
-import org.json.simple.parser.ParseException;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -46,15 +48,12 @@ public class RobotContainer {
   private SuperStructureState currentState = SuperStructureState.STATE_SOURCE;
 
   // Controller
-  private final CommandXboxController driverController = new CommandXboxController(0);
-  private final CommandXboxController operatorController = driverController;
-
-  // private final CommandXboxController operatorController = new CommandXboxController(1);
+  private final CommandXboxController controller = new CommandXboxController(0);
 
   // Dashboard inputs
-  //   private final LoggedDashboardChooser<Command> autoChooser;
+  private final LoggedDashboardChooser<Command> autoChooser;
 
-  /** The container for the robot. Contains subsystems, IO devices, and commands. */
+  /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
     // Real robot, instantiate hardware IO implementations
@@ -65,31 +64,32 @@ public class RobotContainer {
     drive =
         new Drive(
             new GyroIOPigeon2(),
-            new LimeLight(),
-            new ModuleIOTalonFX(0), // fl
-            new ModuleIOTalonFX(1), // fr
-            new ModuleIOTalonFX(2), // bl
-            new ModuleIOTalonFX(3)); // br
+            new ModuleIOTalonFX(TunerConstants.FrontLeft),
+            new ModuleIOTalonFX(TunerConstants.FrontRight),
+            new ModuleIOTalonFX(TunerConstants.BackLeft),
+            new ModuleIOTalonFX(TunerConstants.BackRight));
 
-    // // Set up auto routines
-    // autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    // Set up auto routines
+    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
-    // // Set up SysId routines
-    // autoChooser.addOption(
-    //     "Drive SysId (Quasistatic Forward)",
-    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // autoChooser.addOption(
-    //     "Drive SysId (Quasistatic Reverse)",
-    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // autoChooser.addOption(
-    //     "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // autoChooser.addOption(
-    //     "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // Set up SysId routines
+    autoChooser.addOption(
+        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+    autoChooser.addOption(
+        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+    autoChooser.addOption(
+        "Drive SysId (Quasistatic Forward)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Drive SysId (Quasistatic Reverse)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption(
+        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
     configureButtonBindings();
-    // Register Named Commands
-    NamedCommands.registerCommand("putCoral", getIntakeCommand(false));
   }
 
   /**
@@ -99,50 +99,49 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-
-    // Field centric swerve drive
+    // Default command, normal field-relative drive
     drive.setDefaultCommand(
-        Drive.drive(
+        DriveCommands.joystickDrive(
             drive,
-            () -> driverController.getLeftY() * 0.6,
-            () -> driverController.getLeftX() * 0.6,
-            () -> -driverController.getRightX() * 0.65));
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> -controller.getRightX()));
 
-    // Slowed field centric swerve drive
-    // driverController
-    //     .leftBumper()
-    //     .whileTrue(
-    //         Drive.drive(
-    //             drive,
-    //             () -> driverController.getLeftY() * 0.5,
-    //             () -> driverController.getLeftX() * 0.5,
-    //             () -> -driverController.getRightX() * 0.5));
-
-    // Point wheels in x formation to stop
-    driverController.rightTrigger().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    // Point robot to april tag
-    // driverController
+    // Lock to 0° when A button is held
+    // controller
     //     .a()
     //     .whileTrue(
-    //         Drive.drive(
+    //         DriveCommands.joystickDriveAtAngle(
     //             drive,
-    //             () -> driverController.getLeftY(),
-    //             () -> driverController.getLeftX(),
-    //             () -> -vision.autoRotate()));
+    //             () -> -controller.getLeftY(),
+    //             () -> -controller.getLeftX(),
+    //             () -> new Rotation2d()));
+
+    // Point wheels in x formation to stop
+    controller.rightTrigger().onTrue(Commands.runOnce(drive::stopWithX, drive));
+
+    // Point robot to april tag
+    controller
+        .leftStick()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> controller.getLeftY(),
+                () -> controller.getLeftX(),
+                () -> new Rotation2d(Units.degreesToRadians(vision.autoRotate()))));
 
     // // Align robot to april tag
-    // driverController
-    //     .y()
-    //     .whileTrue(
-    //         Drive.drive(
-    //             drive,
-    //             () -> vision.autoTranslateY(),
-    //             () -> vision.autoTranslateX(),
-    //             () -> -vision.autoRotate()));
+    controller
+        .rightStick()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> vision.autoTranslateY(),
+                () -> vision.autoTranslateX(),
+                () -> new Rotation2d(Units.degreesToRadians(vision.autoRotate()))));
 
     // Reset gyro
-    driverController
+    controller
         .start()
         .onTrue(
             Commands.runOnce(
@@ -153,42 +152,42 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // Intake coral/algae
-    driverController.leftBumper().whileTrue(getIntakeCommand(true));
+    controller.leftBumper().whileTrue(getIntakeCommand(true));
 
     // Eject coral/algae
-    operatorController.leftTrigger().whileTrue(getIntakeCommand(false));
+    controller.leftTrigger().whileTrue(getIntakeCommand(false));
 
     // Source state, safty wrist angle to prevent collision
-    operatorController.a().onTrue(getStateCommand(SuperStructureState.STATE_SOURCE));
+    controller.a().onTrue(getStateCommand(SuperStructureState.STATE_SOURCE));
 
     // L2 state
-    operatorController.x().onTrue(getStateCommand(SuperStructureState.STATE_L2));
+    controller.x().onTrue(getStateCommand(SuperStructureState.STATE_L2));
 
     // L3 state
-    operatorController.y().onTrue(getStateCommand(SuperStructureState.STATE_L3));
+    controller.y().onTrue(getStateCommand(SuperStructureState.STATE_L3));
 
     // L4 state
-    operatorController.b().onTrue(getStateCommand(SuperStructureState.STATE_L4));
+    controller.b().onTrue(getStateCommand(SuperStructureState.STATE_L4));
 
     // Processor state
-    operatorController.povDown().onTrue(getStateCommand(SuperStructureState.STATE_PROCESSOR));
+    controller.povDown().onTrue(getStateCommand(SuperStructureState.STATE_PROCESSOR));
 
     // Low Algae state
-    operatorController.povLeft().onTrue(getStateCommand(SuperStructureState.STATE_ALGAE_LOW));
+    controller.povLeft().onTrue(getStateCommand(SuperStructureState.STATE_ALGAE_LOW));
 
     // Mid Algae state
-    operatorController.povUp().onTrue(getStateCommand(SuperStructureState.STATE_ALGAE_MID));
+    controller.povUp().onTrue(getStateCommand(SuperStructureState.STATE_ALGAE_MID));
 
     // Top algae state
-    operatorController.povRight().onTrue(getStateCommand(SuperStructureState.STATE_ALGAE_TOP));
+    controller.povRight().onTrue(getStateCommand(SuperStructureState.STATE_ALGAE_TOP));
 
     // Manual lift
     Command manualLift =
-        new RunCommand(() -> elevator.setVoltage(-operatorController.getLeftY() * 0.5), elevator);
+        new RunCommand(() -> elevator.setVoltage(-controller.getLeftY() * 0.5), elevator);
     Command manualWrist =
-        new RunCommand(() -> wrist.setVoltage(operatorController.getRightY() * 0.25), wrist);
+        new RunCommand(() -> wrist.setVoltage(controller.getRightY() * 0.25), wrist);
     ParallelCommandGroup manualCommandGroup = new ParallelCommandGroup(manualLift, manualWrist);
-    operatorController.rightBumper().whileTrue(manualCommandGroup);
+    controller.rightBumper().whileTrue(manualCommandGroup);
   }
 
   public Command getIntakeCommand(boolean isIntake) {
@@ -249,12 +248,12 @@ public class RobotContainer {
     return command;
   }
 
-  public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
-    // follow path and then put coral
-    // PathPlannerAuto autoRoutine = new PathPlannerAuto("middle1");
-    return null;
-
-    // PathPlannerPath path = PathPlannerPath.fromPathFile("Swivel");
-    // return AutoBuilder.followPath(path).andThen(getIntakeCommand(false));
+  /**
+   * Use this to pass the autonomous command to the main {@link Robot} class.
+   *
+   * @return the command to run in autonomous
+   */
+  public Command getAutonomousCommand() {
+    return autoChooser.get();
   }
 }

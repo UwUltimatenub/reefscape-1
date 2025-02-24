@@ -88,9 +88,8 @@ public class LimeLight extends SubsystemBase {
   }
 
   public double autoRotate() {
-    double correction = rotatePid.calculate(getTx(), 0) * -0.2;
-    System.out.println("R: " + correction);
-    return correction;
+
+    return getTx();
   }
 
   public double autoTranslateX() {

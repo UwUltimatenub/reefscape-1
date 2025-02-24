@@ -12,6 +12,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotController;
+import frc.robot.generated.TunerConstants;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -29,7 +30,6 @@ import java.util.function.DoubleSupplier;
  * time synchronization.
  */
 public class PhoenixOdometryThread extends Thread {
-  public static final double odometryFrequency = 250;
   private final Lock signalsLock =
       new ReentrantLock(); // Prevents conflicts when registering signals
   private BaseStatusSignal[] phoenixSignals = new BaseStatusSignal[0];
@@ -38,7 +38,8 @@ public class PhoenixOdometryThread extends Thread {
   private final List<Queue<Double>> genericQueues = new ArrayList<>();
   private final List<Queue<Double>> timestampQueues = new ArrayList<>();
 
-  private static boolean isCANFD = new CANBus("*").isNetworkFD();
+  private static boolean isCANFD =
+      new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD();
   private static PhoenixOdometryThread instance = null;
 
   public static PhoenixOdometryThread getInstance() {
@@ -112,12 +113,12 @@ public class PhoenixOdometryThread extends Thread {
       signalsLock.lock();
       try {
         if (isCANFD && phoenixSignals.length > 0) {
-          BaseStatusSignal.waitForAll(2.0 / odometryFrequency, phoenixSignals);
+          BaseStatusSignal.waitForAll(2.0 / Drive.ODOMETRY_FREQUENCY, phoenixSignals);
         } else {
           // "waitForAll" does not support blocking on multiple signals with a bus
           // that is not CAN FD, regardless of Pro licensing. No reasoning for this
           // behavior is provided by the documentation.
-          Thread.sleep((long) (1000.0 / odometryFrequency));
+          Thread.sleep((long) (1000.0 / Drive.ODOMETRY_FREQUENCY));
           if (phoenixSignals.length > 0) BaseStatusSignal.refreshAll(phoenixSignals);
         }
       } catch (InterruptedException e) {

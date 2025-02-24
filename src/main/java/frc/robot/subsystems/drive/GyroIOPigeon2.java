@@ -16,11 +16,15 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import frc.robot.generated.TunerConstants;
 import java.util.Queue;
 
 /** IO implementation for Pigeon 2. */
 public class GyroIOPigeon2 implements GyroIO {
-  private final Pigeon2 pigeon = new Pigeon2(1, "*");
+  private final Pigeon2 pigeon =
+      new Pigeon2(
+          TunerConstants.DrivetrainConstants.Pigeon2Id,
+          TunerConstants.DrivetrainConstants.CANBusName);
   private final StatusSignal<Angle> yaw = pigeon.getYaw();
   private final Queue<Double> yawPositionQueue;
   private final Queue<Double> yawTimestampQueue;
@@ -29,7 +33,7 @@ public class GyroIOPigeon2 implements GyroIO {
   public GyroIOPigeon2() {
     pigeon.getConfigurator().apply(new Pigeon2Configuration());
     pigeon.getConfigurator().setYaw(0.0);
-    yaw.setUpdateFrequency(250);
+    yaw.setUpdateFrequency(Drive.ODOMETRY_FREQUENCY);
     yawVelocity.setUpdateFrequency(50.0);
     pigeon.optimizeBusUtilization();
     yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
@@ -38,19 +42,17 @@ public class GyroIOPigeon2 implements GyroIO {
 
   @Override
   public void updateInputs(GyroIOInputs inputs) {
-    inputs.isConnected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
+    inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
     inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
     inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
 
     inputs.odometryYawTimestamps =
         yawTimestampQueue.stream().mapToDouble((Double value) -> value).toArray();
     inputs.odometryYawPositions =
-        yawPositionQueue.stream().map(Rotation2d::fromDegrees).toArray(Rotation2d[]::new);
+        yawPositionQueue.stream()
+            .map((Double value) -> Rotation2d.fromDegrees(value))
+            .toArray(Rotation2d[]::new);
     yawTimestampQueue.clear();
     yawPositionQueue.clear();
-  }
-
-  public void resetGyro() {
-    pigeon.reset();
   }
 }
