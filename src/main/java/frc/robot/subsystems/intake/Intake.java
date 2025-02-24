@@ -12,6 +12,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
   TalonFX intake;
@@ -20,6 +21,7 @@ public class Intake extends SubsystemBase {
   @AutoLog
   public static class IntakeIOInputs {
     public double coralRange = 0.0;
+    public boolean isCoralLoaded = false;
   }
 
   IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
@@ -34,7 +36,8 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     inputs.coralRange = canRange.getDistance().getValueAsDouble();
-    System.out.println("Coral Range: " + inputs.coralRange);
+    inputs.isCoralLoaded = isCoralLoaded();
+    Logger.processInputs("Intake Sensor", inputs);
   }
 
   public void forward(double volts) {

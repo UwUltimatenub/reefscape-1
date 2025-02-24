@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.Logger;
 
 public class LimeLight extends SubsystemBase {
 
@@ -27,13 +28,13 @@ public class LimeLight extends SubsystemBase {
 
   // meter up from center.
   @AutoLog
-  public static class LoggableLimeLightIOInputs {
+  public static class LimeLightIOInputs {
     public double pitch = 0;
     public double yaw = 0;
     public double distance = 0;
   }
 
-  private LoggableLimeLightIOInputs limeLightInputs = new LoggableLimeLightIOInputs();
+  private LimeLightIOInputsAutoLogged limeLightInputs = new LimeLightIOInputsAutoLogged();
 
   private final double CAMERA_HEIGHT = 0.28;
   private final double REEF_TARGET = 0.22;
@@ -45,6 +46,7 @@ public class LimeLight extends SubsystemBase {
     limeLightInputs.pitch = getTy();
     limeLightInputs.yaw = getTx();
     limeLightInputs.distance = getDistance();
+     Logger.processInputs("LimeLight", limeLightInputs);
   }
 
   /** Check if an AprilTag is detected */

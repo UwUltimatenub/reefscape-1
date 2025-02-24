@@ -33,6 +33,7 @@ public class Elevator extends SubsystemBase {
   public static class ElevatorIOInputs {
     public boolean motorConnected = true;
     public double motorPosition = 0;
+    public double elevatorHeight = 0;
   }
 
   private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
@@ -73,8 +74,8 @@ public class Elevator extends SubsystemBase {
   @Override
   public void periodic() {
     inputs.motorConnected = talon.isConnected();
-    inputs.motorPosition =
-        talon.getPosition().getValueAsDouble() / 6 * 5.5 * Units.inchesToMeters(1) * 100;
+    inputs.motorPosition = talon.getPosition().getValueAsDouble();
+    inputs.elevatorHeight = Units.inchesToMeters( inputs.motorPosition * 5.5 / 6 ) * 100;
     Logger.processInputs("Elevator", inputs);
     // if elevator height > height1 and wrist angle < angle1, stop elevator motor
   }
