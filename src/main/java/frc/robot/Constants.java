@@ -28,4 +28,10 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
+
+  public static class CheckDeploy {
+    public static void main(String... args) {
+      //
+    }
+  }
 }

@@ -11,6 +11,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -22,8 +23,8 @@ import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
-  public static final double ELEVATOR_GEAR_REDUCTION = 5.0;
-  public static final double ELEVATOR_PINION_PERIMETER = 4.7; // CM
+  public static final double ELEVATOR_GEAR_REDUCTION = 6.0;
+  public static final double ELEVATOR_SPROCKET_PERIMETER = 5.5; // CM
 
   // Hardware
   private final TalonFX talon;
@@ -44,7 +45,7 @@ public class Elevator extends SubsystemBase {
   private final PositionTorqueCurrentFOC positionTorqueCurrentRequest =
       new PositionTorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
   public static final double minHeight = 0;
-  public static final double maxHeight = 60;
+  public static final double maxHeight = 15;
 
   public Elevator() {
     talon = new TalonFX(11, "*");
@@ -67,7 +68,7 @@ public class Elevator extends SubsystemBase {
 
   public void setVoltage(double voltage) {
     // Set the power to the main motor
-    talon.set(voltage);
+     talon.setControl(new VoltageOut(voltage));
   }
 
   // Periodic method called in every cycle (e.g., 20ms)
@@ -75,14 +76,15 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     inputs.motorConnected = talon.isConnected();
     inputs.motorPosition = talon.getPosition().getValueAsDouble();
-    inputs.elevatorHeight = Units.inchesToMeters( inputs.motorPosition * 5.5 / 6 ) * 100;
+    inputs.elevatorHeight =
+        Units.inchesToMeters(inputs.motorPosition * ELEVATOR_SPROCKET_PERIMETER) * 100;
     Logger.processInputs("Elevator", inputs);
     // if elevator height > height1 and wrist angle < angle1, stop elevator motor
   }
 
   public double getElevatorHeight() {
     // Get the position from the encoder
-    return talon.getPosition().getValueAsDouble() * ELEVATOR_PINION_PERIMETER;
+    return talon.getPosition().getValueAsDouble() * ELEVATOR_SPROCKET_PERIMETER;
   }
 
   public double getVelocity() {
@@ -103,7 +105,7 @@ public class Elevator extends SubsystemBase {
     talon.setControl(
         positionTorqueCurrentRequest
             .withPosition(
-                targetHeight / ELEVATOR_PINION_PERIMETER) // perimeter of pinion gear in centmeter
+                targetHeight / ELEVATOR_SPROCKET_PERIMETER) // perimeter of pinion gear in centmeter
             .withFeedForward(feedforward.calculate(0)));
   }
 

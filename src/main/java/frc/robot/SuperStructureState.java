@@ -7,8 +7,6 @@
 
 package frc.robot;
 
-import frc.robot.subsystems.pivot.Wrist;
-
 public class SuperStructureState {
 
   public static final double SOURCE_HEIGHT = 0;
@@ -19,14 +17,14 @@ public class SuperStructureState {
   public static final double MID_ALGAE_HEIGHT = 10;
   public static final double TOP_ALGAE_HEIGHT = 40;
 
-  public static final double PROCESSOR_ANGLE = Wrist.WRIST_OFFSET.getDegrees() + 0;
-  public static final double SOURCE_ANGLE = Wrist.WRIST_OFFSET.getDegrees() + 9;
+  public static final double SOURCE_ANGLE = 0;
+  public static final double L2_ANGLE = 20;
+  public static final double L3_ANGLE = 20;
+  public static final double L4_ANGLE = 20;
 
-  public static final double L2_ANGLE = Wrist.WRIST_OFFSET.getDegrees() + 13;
-  public static final double L3_ANGLE = Wrist.WRIST_OFFSET.getDegrees() + 13;
-  public static final double L4_ANGLE = Wrist.WRIST_OFFSET.getDegrees() + 15;
-  public static final double LOW_MID_ALGAE_ANGLE = Wrist.WRIST_OFFSET.getDegrees() + 0;
-  public static final double TOP_ALGAE_ANGLE = Wrist.WRIST_OFFSET.getDegrees() + 0;
+  public static final double PROCESSOR_ANGLE = 200;
+  public static final double LOW_MID_ALGAE_ANGLE = 180;
+  public static final double TOP_ALGAE_ANGLE = 180;
 
   public double height;
   public double angle;

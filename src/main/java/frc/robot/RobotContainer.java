@@ -48,7 +48,7 @@ public class RobotContainer {
   private SuperStructureState currentState = SuperStructureState.STATE_SOURCE;
 
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
+  public final CommandXboxController controller = new CommandXboxController(0);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -121,18 +121,18 @@ public class RobotContainer {
     controller.rightTrigger().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Point robot to april tag
-    controller
-        .leftStick()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> controller.getLeftY(),
-                () -> controller.getLeftX(),
-                () -> new Rotation2d(Units.degreesToRadians(vision.autoRotate()))));
+    // controller
+    //     .leftStick()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> controller.getLeftY(),
+    //             () -> controller.getLeftX(),
+    //             () -> new Rotation2d(Units.degreesToRadians(vision.autoRotate()))));
 
     // // Align robot to april tag
     controller
-        .rightStick()
+        .back()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
@@ -161,7 +161,16 @@ public class RobotContainer {
     controller.a().onTrue(getStateCommand(SuperStructureState.STATE_SOURCE));
 
     // L2 state
-    controller.x().onTrue(getStateCommand(SuperStructureState.STATE_L2));
+    Command wristToSafteyCommand =
+        new RunCommand(() -> wrist.wristAngle(SuperStructureState.L2_ANGLE), wrist);
+    Command liftCommand =
+        new RunCommand(() -> elevator.setElevatorHeight(SuperStructureState.L2_HEIGHT), elevator);
+    Command wristCommand =
+        new RunCommand(() -> wrist.wristAngle(SuperStructureState.L2_ANGLE), wrist);
+
+    Command command = wristToSafteyCommand.andThen(liftCommand).andThen(wristCommand);
+    controller.x().onTrue(command);
+
 
     // L3 state
     controller.y().onTrue(getStateCommand(SuperStructureState.STATE_L3));
@@ -183,9 +192,9 @@ public class RobotContainer {
 
     // Manual lift
     Command manualLift =
-        new RunCommand(() -> elevator.setVoltage(-controller.getLeftY() * 0.5), elevator);
+        new RunCommand(() -> elevator.setVoltage(-controller.getLeftY() * 12), elevator);
     Command manualWrist =
-        new RunCommand(() -> wrist.setVoltage(controller.getRightY() * 0.25), wrist);
+        new RunCommand(() -> wrist.setVoltage(controller.getRightY() * 12), wrist);
     ParallelCommandGroup manualCommandGroup = new ParallelCommandGroup(manualLift, manualWrist);
     controller.rightBumper().whileTrue(manualCommandGroup);
   }
@@ -193,29 +202,29 @@ public class RobotContainer {
   public Command getIntakeCommand(boolean isIntake) {
     Command command = null;
     // Intake coral/algae
-    if (currentState == SuperStructureState.STATE_SOURCE
-        || currentState == SuperStructureState.STATE_L2
-        || currentState == SuperStructureState.STATE_L3
-        || currentState == SuperStructureState.STATE_L4) {
-      if (isIntake) {
-        command =
-            new StartEndCommand(() -> intake.forward(8), () -> intake.stop(), intake)
-                .until((() -> intake.isCoralLoaded() || intake.overloaded()));
-      } else {
-        command = new StartEndCommand(() -> intake.forward(8), () -> intake.stop(), intake);
-      }
-    } else if (currentState == SuperStructureState.STATE_PROCESSOR
-        || currentState == SuperStructureState.STATE_ALGAE_LOW
-        || currentState == SuperStructureState.STATE_ALGAE_MID
-        || currentState == SuperStructureState.STATE_ALGAE_TOP) {
-      if (isIntake) {
-        command =
-            new StartEndCommand(() -> intake.backward(8), () -> intake.stop(), intake)
-                .until((() -> intake.overloaded()));
-      } else {
-        command = new StartEndCommand(() -> intake.forward(12), () -> intake.stop(), intake);
-      }
+    // if (currentState == SuperStructureState.STATE_SOURCE
+    //     || currentState == SuperStructureState.STATE_L2
+    //     || currentState == SuperStructureState.STATE_L3
+    //     || currentState == SuperStructureState.STATE_L4) {
+    if (isIntake) {
+      command =
+          new StartEndCommand(() -> intake.forward(8), () -> intake.stop(), intake)
+              .until((() -> intake.isCoralLoaded())); // || intake.overloaded()
+    } else {
+      command = new StartEndCommand(() -> intake.forward(4), () -> intake.stop(), intake);
     }
+    // } else if (currentState == SuperStructureState.STATE_PROCESSOR
+    //     || currentState == SuperStructureState.STATE_ALGAE_LOW
+    //     || currentState == SuperStructureState.STATE_ALGAE_MID
+    //     || currentState == SuperStructureState.STATE_ALGAE_TOP) {
+    //   if (isIntake) {
+    //     command =
+    //         new StartEndCommand(() -> intake.backward(8), () -> intake.stop(), intake)
+    //             .until((() -> intake.overloaded()));
+    //   } else {
+    //     command = new StartEndCommand(() -> intake.forward(12), () -> intake.stop(), intake);
+    //   }
+    // }
     return command;
   }
 

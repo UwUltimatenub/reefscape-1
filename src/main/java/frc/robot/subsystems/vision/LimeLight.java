@@ -46,7 +46,7 @@ public class LimeLight extends SubsystemBase {
     limeLightInputs.pitch = getTy();
     limeLightInputs.yaw = getTx();
     limeLightInputs.distance = getDistance();
-     Logger.processInputs("LimeLight", limeLightInputs);
+    Logger.processInputs("LimeLight", limeLightInputs);
   }
 
   /** Check if an AprilTag is detected */
