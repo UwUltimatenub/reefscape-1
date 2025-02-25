@@ -169,8 +169,7 @@ public class RobotContainer {
         new RunCommand(() -> wrist.wristAngle(SuperStructureState.L2_ANGLE), wrist);
 
     Command command = wristToSafteyCommand.andThen(liftCommand).andThen(wristCommand);
-    controller.x().onTrue(command);
-
+    controller.x().onTrue(new RunCommand(() -> elevator.setElevatorHeight(10), elevator));
 
     // L3 state
     controller.y().onTrue(getStateCommand(SuperStructureState.STATE_L3));
@@ -192,9 +191,8 @@ public class RobotContainer {
 
     // Manual lift
     Command manualLift =
-        new RunCommand(() -> elevator.setVoltage(-controller.getLeftY() * 12), elevator);
-    Command manualWrist =
-        new RunCommand(() -> wrist.setVoltage(controller.getRightY() * 12), wrist);
+        new RunCommand(() -> elevator.setVoltage(-controller.getLeftY() * 2), elevator);
+    Command manualWrist = new RunCommand(() -> wrist.setVoltage(controller.getRightY() * 2), wrist);
     ParallelCommandGroup manualCommandGroup = new ParallelCommandGroup(manualLift, manualWrist);
     controller.rightBumper().whileTrue(manualCommandGroup);
   }
@@ -202,29 +200,29 @@ public class RobotContainer {
   public Command getIntakeCommand(boolean isIntake) {
     Command command = null;
     // Intake coral/algae
-    // if (currentState == SuperStructureState.STATE_SOURCE
-    //     || currentState == SuperStructureState.STATE_L2
-    //     || currentState == SuperStructureState.STATE_L3
-    //     || currentState == SuperStructureState.STATE_L4) {
-    if (isIntake) {
-      command =
-          new StartEndCommand(() -> intake.forward(8), () -> intake.stop(), intake)
-              .until((() -> intake.isCoralLoaded())); // || intake.overloaded()
-    } else {
-      command = new StartEndCommand(() -> intake.forward(4), () -> intake.stop(), intake);
+    if (currentState == SuperStructureState.STATE_SOURCE
+        || currentState == SuperStructureState.STATE_L2
+        || currentState == SuperStructureState.STATE_L3
+        || currentState == SuperStructureState.STATE_L4) {
+      if (isIntake) {
+        command =
+            new StartEndCommand(() -> intake.forward(8), () -> intake.stop(), intake)
+                .until((() -> intake.isCoralLoaded())); // || intake.overloaded()
+      } else {
+        command = new StartEndCommand(() -> intake.forward(4), () -> intake.stop(), intake);
+      }
+    } else if (currentState == SuperStructureState.STATE_PROCESSOR
+        || currentState == SuperStructureState.STATE_ALGAE_LOW
+        || currentState == SuperStructureState.STATE_ALGAE_MID
+        || currentState == SuperStructureState.STATE_ALGAE_TOP) {
+      if (isIntake) {
+        command =
+            new StartEndCommand(() -> intake.backward(8), () -> intake.stop(), intake)
+                .until((() -> intake.overloaded()));
+      } else {
+        command = new StartEndCommand(() -> intake.forward(12), () -> intake.stop(), intake);
+      }
     }
-    // } else if (currentState == SuperStructureState.STATE_PROCESSOR
-    //     || currentState == SuperStructureState.STATE_ALGAE_LOW
-    //     || currentState == SuperStructureState.STATE_ALGAE_MID
-    //     || currentState == SuperStructureState.STATE_ALGAE_TOP) {
-    //   if (isIntake) {
-    //     command =
-    //         new StartEndCommand(() -> intake.backward(8), () -> intake.stop(), intake)
-    //             .until((() -> intake.overloaded()));
-    //   } else {
-    //     command = new StartEndCommand(() -> intake.forward(12), () -> intake.stop(), intake);
-    //   }
-    // }
     return command;
   }
 

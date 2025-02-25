@@ -51,55 +51,54 @@ public class Wrist extends SubsystemBase {
 
   private final WristIOInputsAutoLogged pivotInputs = new WristIOInputsAutoLogged();
 
-    public Wrist() {
-      talon = new TalonFX(3, "*");
-      wristEncoder = new CANcoder(encoderId, "*");
+  public Wrist() {
+    talon = new TalonFX(3, "*");
+    wristEncoder = new CANcoder(encoderId, "*");
 
-      // Configure  motor
-      config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-      config.Slot0 = new Slot0Configs().withKP(0).withKI(0).withKD(0);
-      config.Feedback.RotorToSensorRatio = reduction;
-      config.Feedback.FeedbackRemoteSensorID = encoderId;
-      config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-      config.Feedback.RotorToSensorRatio = 60.0 * 60.0 * 30.0 / (10.0 * 18.0 * 12.0);
-      config.TorqueCurrent.PeakForwardTorqueCurrent = 40.0;
-      config.TorqueCurrent.PeakReverseTorqueCurrent = -40.0;
-      config.CurrentLimits.StatorCurrentLimit = 40.0;
-      config.CurrentLimits.StatorCurrentLimitEnable = true;
-      config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-      talon.getConfigurator().apply(config);
+    // Configure  motor
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.Slot0 = new Slot0Configs().withKP(0).withKI(0).withKD(0);
+    config.Feedback.RotorToSensorRatio = reduction;
+    config.Feedback.FeedbackRemoteSensorID = encoderId;
+    config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+    config.Feedback.RotorToSensorRatio = 60.0 * 60.0 * 30.0 / (10.0 * 18.0 * 12.0);
+    config.TorqueCurrent.PeakForwardTorqueCurrent = 40.0;
+    config.TorqueCurrent.PeakReverseTorqueCurrent = -40.0;
+    config.CurrentLimits.StatorCurrentLimit = 40.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    talon.getConfigurator().apply(config);
 
-      // Configure encoder
-      var cancoderConfig = new CANcoderConfiguration();
-      cancoderConfig.MagnetSensor.MagnetOffset = WRIST_OFFSET.getRotations();
-      cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
-      cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-      wristEncoder.getConfigurator().apply(cancoderConfig);
+    // Configure encoder
+    var cancoderConfig = new CANcoderConfiguration();
+    cancoderConfig.MagnetSensor.MagnetOffset = WRIST_OFFSET.getRotations();
+    cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
+    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+    wristEncoder.getConfigurator().apply(cancoderConfig);
 
-      // ParentDevice.optimizeBusUtilizationForAll(talon, wristEncoder);
-    }
-
-    public void periodic() {
-      pivotInputs.encoderConnected = wristEncoder.isConnected();
-      pivotInputs.motorConnected = talon.isConnected();
-      pivotInputs.wristAngle = 360 * wristEncoder.getAbsolutePosition().getValueAsDouble();
-      Logger.processInputs("Wrist", pivotInputs);
-    }
-
-    public void setVoltage(double voltage) {
-      // Set the power to the main motor
-       talon.setControl(new VoltageOut(voltage));
-    }
-
-    public void wristAngle(double targetDegrees) {
-      // Get target position (in radians)
-      targetDegrees =
-          MathUtil.clamp(targetDegrees, minAngle, maxAngle);
-      // double targetPosition = Math.toRadians(position);
-      ArmFeedforward feedforward = new ArmFeedforward(0.0, 0.577, 0.0);
-      talon.setControl(
-          positionTorqueCurrentFOC
-              .withPosition(targetDegrees/360)
-              .withFeedForward(feedforward.calculate(Units.degreesToRadians(targetDegrees), 0)));
-    }
+    // ParentDevice.optimizeBusUtilizationForAll(talon, wristEncoder);
   }
+
+  public void periodic() {
+    pivotInputs.encoderConnected = wristEncoder.isConnected();
+    pivotInputs.motorConnected = talon.isConnected();
+    pivotInputs.wristAngle = 360 * wristEncoder.getAbsolutePosition().getValueAsDouble();
+    Logger.processInputs("Wrist", pivotInputs);
+  }
+
+  public void setVoltage(double voltage) {
+    // Set the power to the main motor
+    talon.setControl(new VoltageOut(voltage));
+  }
+
+  public void wristAngle(double targetDegrees) {
+    // Get target position (in radians)
+    targetDegrees = MathUtil.clamp(targetDegrees, minAngle, maxAngle);
+    // double targetPosition = Math.toRadians(position);
+    ArmFeedforward feedforward = new ArmFeedforward(0.0, 0.577, 0.0);
+    talon.setControl(
+        positionTorqueCurrentFOC
+            .withPosition(targetDegrees / 360)
+            .withFeedForward(feedforward.calculate(Units.degreesToRadians(targetDegrees), 0)));
+  }
+}

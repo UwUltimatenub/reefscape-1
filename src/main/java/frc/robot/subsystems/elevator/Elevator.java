@@ -51,6 +51,7 @@ public class Elevator extends SubsystemBase {
     talon = new TalonFX(11, "*");
     followerTalon = new TalonFX(15, "*");
     followerTalon.setControl(new Follower(talon.getDeviceID(), false));
+    talon.setNeutralMode(NeutralModeValue.Brake);
 
     // Configure motor
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -68,7 +69,7 @@ public class Elevator extends SubsystemBase {
 
   public void setVoltage(double voltage) {
     // Set the power to the main motor
-     talon.setControl(new VoltageOut(voltage));
+    talon.setControl(new VoltageOut(voltage));
   }
 
   // Periodic method called in every cycle (e.g., 20ms)
