@@ -7,6 +7,8 @@
 
 package frc.robot.subsystems.pivot;
 
+import static frc.robot.util.PhoenixUtil.tryUntilOk;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -23,16 +25,20 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.SuperStructureState;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
 public class Wrist extends SubsystemBase {
   public static final double reduction = 18.689; // wrist gearbox gear ration 58/10*58/18
   public static final Rotation2d WRIST_OFFSET =
-      Rotation2d.fromRotations(-0.0325); // default wrist angle; zero degree arm in horizontal
+      Rotation2d.fromRotations(
+          0.397 - 0.039 - 0.25); // -0.0325 default wrist angle; zero degree arm in horizontal
   private static final int encoderId = 13;
   public static final double minAngle = 0;
   public static final double maxAngle = 200;
+
+  public SuperStructureState currentState = SuperStructureState.STATE_SOURCE;
 
   // Hardware
   private final TalonFX talon;
@@ -57,17 +63,17 @@ public class Wrist extends SubsystemBase {
 
     // Configure  motor
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.Slot0 = new Slot0Configs().withKP(0).withKI(0).withKD(0);
+    config.Slot0 = new Slot0Configs().withKP(100).withKI(0).withKD(0);
     config.Feedback.RotorToSensorRatio = reduction;
     config.Feedback.FeedbackRemoteSensorID = encoderId;
     config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     config.Feedback.RotorToSensorRatio = 60.0 * 60.0 * 30.0 / (10.0 * 18.0 * 12.0);
-    config.TorqueCurrent.PeakForwardTorqueCurrent = 40.0;
-    config.TorqueCurrent.PeakReverseTorqueCurrent = -40.0;
-    config.CurrentLimits.StatorCurrentLimit = 40.0;
+    config.TorqueCurrent.PeakForwardTorqueCurrent = 80.0;
+    config.TorqueCurrent.PeakReverseTorqueCurrent = -80.0;
+    config.CurrentLimits.StatorCurrentLimit = 80.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    talon.getConfigurator().apply(config);
+    tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));
 
     // Configure encoder
     var cancoderConfig = new CANcoderConfiguration();
@@ -91,9 +97,9 @@ public class Wrist extends SubsystemBase {
     talon.setControl(new VoltageOut(voltage));
   }
 
-  public void wristAngle(double targetDegrees) {
+  public void wristAngle(SuperStructureState state) {
     // Get target position (in radians)
-    targetDegrees = MathUtil.clamp(targetDegrees, minAngle, maxAngle);
+    double targetDegrees = MathUtil.clamp(state.angle, minAngle, maxAngle);
     // double targetPosition = Math.toRadians(position);
     ArmFeedforward feedforward = new ArmFeedforward(0.0, 0.577, 0.0);
     talon.setControl(

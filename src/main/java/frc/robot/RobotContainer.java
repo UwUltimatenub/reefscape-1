@@ -10,7 +10,6 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -118,7 +117,7 @@ public class RobotContainer {
     //             () -> new Rotation2d()));
 
     // Point wheels in x formation to stop
-    controller.rightTrigger().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    // controller.rightTrigger().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Point robot to april tag
     // controller
@@ -131,14 +130,14 @@ public class RobotContainer {
     //             () -> new Rotation2d(Units.degreesToRadians(vision.autoRotate()))));
 
     // // Align robot to april tag
-    controller
-        .back()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> vision.autoTranslateY(),
-                () -> vision.autoTranslateX(),
-                () -> new Rotation2d(Units.degreesToRadians(vision.autoRotate()))));
+    // controller
+    //     .back()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> vision.autoTranslateY(),
+    //             () -> vision.autoTranslateX(),
+    //             () -> new Rotation2d(Units.degreesToRadians(vision.autoRotate()))));
 
     // Reset gyro
     controller
@@ -151,25 +150,29 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // Intake coral/algae
+    // Intake coral
     controller.leftBumper().whileTrue(getIntakeCommand(true));
-
-    // Eject coral/algae
+    // Eject coral
     controller.leftTrigger().whileTrue(getIntakeCommand(false));
+
+    // Intake coral
+    controller.rightBumper().whileTrue(getAlgaeIntakeCommand(true));
+    // Eject coral
+    controller.rightTrigger().whileTrue(getAlgaeIntakeCommand(false));
 
     // Source state, safty wrist angle to prevent collision
     controller.a().onTrue(getStateCommand(SuperStructureState.STATE_SOURCE));
 
     // L2 state
-    Command wristToSafteyCommand =
-        new RunCommand(() -> wrist.wristAngle(SuperStructureState.L2_ANGLE), wrist);
-    Command liftCommand =
-        new RunCommand(() -> elevator.setElevatorHeight(SuperStructureState.L2_HEIGHT), elevator);
-    Command wristCommand =
-        new RunCommand(() -> wrist.wristAngle(SuperStructureState.L2_ANGLE), wrist);
 
-    Command command = wristToSafteyCommand.andThen(liftCommand).andThen(wristCommand);
-    controller.x().onTrue(new RunCommand(() -> elevator.setElevatorHeight(10), elevator));
+    controller
+        .x()
+        .onTrue(
+            Commands.run(() -> wrist.wristAngle(SuperStructureState.STATE_L2))
+                .alongWith(
+                    Commands.run(() -> elevator.setElevatorHeight(SuperStructureState.STATE_L2))));
+
+    controller.y().onTrue(getStateCommand(SuperStructureState.STATE_L2));
 
     // L3 state
     controller.y().onTrue(getStateCommand(SuperStructureState.STATE_L3));
@@ -194,35 +197,48 @@ public class RobotContainer {
         new RunCommand(() -> elevator.setVoltage(-controller.getLeftY() * 2), elevator);
     Command manualWrist = new RunCommand(() -> wrist.setVoltage(controller.getRightY() * 2), wrist);
     ParallelCommandGroup manualCommandGroup = new ParallelCommandGroup(manualLift, manualWrist);
-    controller.rightBumper().whileTrue(manualCommandGroup);
+    controller.back().whileTrue(manualCommandGroup);
   }
 
   public Command getIntakeCommand(boolean isIntake) {
     Command command = null;
     // Intake coral/algae
-    if (currentState == SuperStructureState.STATE_SOURCE
-        || currentState == SuperStructureState.STATE_L2
-        || currentState == SuperStructureState.STATE_L3
-        || currentState == SuperStructureState.STATE_L4) {
-      if (isIntake) {
-        command =
-            new StartEndCommand(() -> intake.forward(8), () -> intake.stop(), intake)
-                .until((() -> intake.isCoralLoaded())); // || intake.overloaded()
-      } else {
-        command = new StartEndCommand(() -> intake.forward(4), () -> intake.stop(), intake);
-      }
-    } else if (currentState == SuperStructureState.STATE_PROCESSOR
-        || currentState == SuperStructureState.STATE_ALGAE_LOW
-        || currentState == SuperStructureState.STATE_ALGAE_MID
-        || currentState == SuperStructureState.STATE_ALGAE_TOP) {
-      if (isIntake) {
-        command =
-            new StartEndCommand(() -> intake.backward(8), () -> intake.stop(), intake)
-                .until((() -> intake.overloaded()));
-      } else {
-        command = new StartEndCommand(() -> intake.forward(12), () -> intake.stop(), intake);
-      }
+    // if (currentState == SuperStructureState.STATE_SOURCE
+    //     || currentState == SuperStructureState.STATE_L2
+    //     || currentState == SuperStructureState.STATE_L3
+    //     || currentState == SuperStructureState.STATE_L4) {
+    if (isIntake) {
+      command =
+          new StartEndCommand(() -> intake.forward(8), () -> intake.stop(), intake)
+              .until((() -> intake.isCoralLoaded())); // || intake.overloaded()
+    } else {
+      command = new StartEndCommand(() -> intake.forward(4), () -> intake.stop(), intake);
     }
+    // }
+    // else if (currentState == SuperStructureState.STATE_PROCESSOR
+    //     || currentState == SuperStructureState.STATE_ALGAE_LOW
+    //     || currentState == SuperStructureState.STATE_ALGAE_MID
+    //     || currentState == SuperStructureState.STATE_ALGAE_TOP) {
+    //   if (isIntake) {
+    //     command =
+    //         new StartEndCommand(() -> intake.backward(8), () -> intake.stop(), intake)
+    //             .until((() -> intake.overloaded()));
+    //   } else {
+    //     command = new StartEndCommand(() -> intake.forward(12), () -> intake.stop(), intake);
+    //   }
+    // }
+    return command;
+  }
+
+  public Command getAlgaeIntakeCommand(boolean isIntake) {
+    Command command = null;
+    if (isIntake) {
+      command =
+          new StartEndCommand(() -> intake.forward(-6), () -> intake.stop(), intake);
+    } else {
+      command = new StartEndCommand(() -> intake.forward(12), () -> intake.stop(), intake);
+    }
+    // }
     return command;
   }
 
@@ -231,26 +247,25 @@ public class RobotContainer {
     Command command = null;
     // if (currentState == toState) return command;
 
-    if (currentState == SuperStructureState.STATE_SOURCE
-        || toState == SuperStructureState.STATE_SOURCE) {
-      // To/from Source state, set safty wrist angle to prevent collision
-      Command wristToSafteyCommand =
-          new RunCommand(() -> wrist.wristAngle(SuperStructureState.L2_ANGLE), wrist);
-      Command liftCommand =
-          new RunCommand(() -> elevator.setElevatorHeight(toState.height), elevator);
-      Command wristCommand = new RunCommand(() -> wrist.wristAngle(toState.angle), wrist);
+    // if (currentState == SuperStructureState.STATE_SOURCE
+    //     || toState == SuperStructureState.STATE_SOURCE) {
+    // To/from Source state, set safty wrist angle to prevent collision
+    Command wristToSafteyCommand =
+        new RunCommand(() -> wrist.wristAngle(SuperStructureState.STATE_L2), wrist);
+    Command liftCommand = new RunCommand(() -> elevator.setElevatorHeight(toState), elevator);
+    Command wristCommand = new RunCommand(() -> wrist.wristAngle(toState), wrist);
 
-      command = wristToSafteyCommand.andThen(liftCommand).andThen(wristCommand);
-    } else {
+    command = wristToSafteyCommand.andThen(liftCommand).andThen(wristCommand);
+    // } else {
 
-      // General State, run height and angle concurrently
-      Command liftCommand =
-          new RunCommand(() -> elevator.setElevatorHeight(toState.height), elevator);
-      Command wristCommand = new RunCommand(() -> wrist.wristAngle(toState.angle), wrist);
-      command = new ParallelCommandGroup(liftCommand, wristCommand);
-    }
+    //   // General State, run height and angle concurrently
+    //   Command liftCommand =
+    //       new RunCommand(() -> elevator.setElevatorHeight(toState), elevator);
+    //   Command wristCommand = new RunCommand(() -> wrist.wristAngle(toState), wrist);
+    //   command = new ParallelCommandGroup(liftCommand, wristCommand);
+    // }
 
-    currentState = toState;
+    // currentState = toState;
 
     return command;
   }

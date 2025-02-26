@@ -7,6 +7,8 @@
 
 package frc.robot.subsystems.elevator;
 
+import static frc.robot.util.PhoenixUtil.tryUntilOk;
+
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -19,12 +21,14 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.SuperStructureState;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
   public static final double ELEVATOR_GEAR_REDUCTION = 6.0;
-  public static final double ELEVATOR_SPROCKET_PERIMETER = 5.5; // CM
+  public static final double ELEVATOR_SPROCKET_PERIMETER =
+      Units.inchesToMeters(5.5) * 100; // inches
 
   // Hardware
   private final TalonFX talon;
@@ -54,15 +58,17 @@ public class Elevator extends SubsystemBase {
     talon.setNeutralMode(NeutralModeValue.Brake);
 
     // Configure motor
+    // Configure motor
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.Slot0 = new Slot0Configs().withKP(0).withKI(0).withKD(0);
+
+    config.Slot0 = new Slot0Configs().withKP(50).withKI(0).withKD(0);
     config.Feedback.SensorToMechanismRatio = ELEVATOR_GEAR_REDUCTION;
-    config.TorqueCurrent.PeakForwardTorqueCurrent = 120.0;
-    config.TorqueCurrent.PeakReverseTorqueCurrent = -120.0;
-    config.CurrentLimits.StatorCurrentLimit = 120.0;
+    config.TorqueCurrent.PeakForwardTorqueCurrent = 80.0;
+    config.TorqueCurrent.PeakReverseTorqueCurrent = -80.0;
+    config.CurrentLimits.StatorCurrentLimit = 80.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    talon.getConfigurator().apply(config);
+    tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));
 
     // ParentDevice.optimizeBusUtilizationForAll(talon);
   }
@@ -77,8 +83,7 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     inputs.motorConnected = talon.isConnected();
     inputs.motorPosition = talon.getPosition().getValueAsDouble();
-    inputs.elevatorHeight =
-        Units.inchesToMeters(inputs.motorPosition * ELEVATOR_SPROCKET_PERIMETER) * 100;
+    inputs.elevatorHeight = inputs.motorPosition * ELEVATOR_SPROCKET_PERIMETER;
     Logger.processInputs("Elevator", inputs);
     // if elevator height > height1 and wrist angle < angle1, stop elevator motor
   }
@@ -98,16 +103,21 @@ public class Elevator extends SubsystemBase {
     talon.setPosition(0);
   }
 
-  public void setElevatorHeight(double desireHeightCM) {
+  public void setElevatorHeight(SuperStructureState state) {
+
     // Get target position (in radians)
-    double targetHeight = MathUtil.clamp(desireHeightCM, minHeight, maxHeight);
+    double targetHeight = MathUtil.clamp(state.height, minHeight, maxHeight);
     // Feedforward Model (Tune These Values)
-    ElevatorFeedforward feedforward = new ElevatorFeedforward(0.0, 0.8, 0, 0);
+    ElevatorFeedforward feedforward = new ElevatorFeedforward(0.0, 20, 0, 0);
     talon.setControl(
         positionTorqueCurrentRequest
             .withPosition(
                 targetHeight / ELEVATOR_SPROCKET_PERIMETER) // perimeter of pinion gear in centmeter
             .withFeedForward(feedforward.calculate(0)));
+    // if not working try this...
+    // talon.setControl(new PositionVoltage(targetHeight /
+    // ELEVATOR_SPROCKET_PERIMETER).withFeedForward(ffOutput));
+
   }
 
   public void stop() {

@@ -17,13 +17,13 @@ public class SuperStructureState {
   public static final double MID_ALGAE_HEIGHT = 10;
   public static final double TOP_ALGAE_HEIGHT = 40;
 
-  public static final double SOURCE_ANGLE = 0;
-  public static final double L2_ANGLE = 20;
-  public static final double L3_ANGLE = 20;
-  public static final double L4_ANGLE = 20;
+  public static final double SOURCE_ANGLE = 50;
+  public static final double L2_ANGLE = 75;
+  public static final double L3_ANGLE = 75;
+  public static final double L4_ANGLE = 125;
 
-  public static final double PROCESSOR_ANGLE = 200;
-  public static final double LOW_MID_ALGAE_ANGLE = 180;
+  public static final double PROCESSOR_ANGLE = 210;
+  public static final double LOW_MID_ALGAE_ANGLE = 200;
   public static final double TOP_ALGAE_ANGLE = 180;
 
   public double height;
@@ -41,7 +41,7 @@ public class SuperStructureState {
   public static SuperStructureState STATE_L4 = new SuperStructureState(L4_HEIGHT, L4_ANGLE);
 
   public static SuperStructureState STATE_PROCESSOR =
-      new SuperStructureState(SOURCE_HEIGHT, PROCESSOR_ANGLE);
+      new SuperStructureState(L2_HEIGHT, PROCESSOR_ANGLE);
   public static SuperStructureState STATE_ALGAE_LOW =
       new SuperStructureState(LOW_ALGAE_HEIGHT, LOW_MID_ALGAE_ANGLE);
   public static SuperStructureState STATE_ALGAE_MID =

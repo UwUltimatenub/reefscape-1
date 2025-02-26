@@ -50,10 +50,6 @@ public class Intake extends SubsystemBase {
     intake.setVoltage(volts);
   }
 
-  public void backward(double volts) {
-    intake.setVoltage(volts);
-  }
-
   public void stop() {
     intake.stopMotor();
   }
@@ -61,11 +57,12 @@ public class Intake extends SubsystemBase {
   public boolean overloaded() {
 
     double currentDraw = intake.getStatorCurrent().getValueAsDouble(); // Stator current in amps
-    double threshold = 30.0; // Adjust based on your setup
+    double threshold = 20.0; // Adjust based on your setup
     return currentDraw > threshold;
   }
 
   public boolean isCoralLoaded() {
+
     return canRange.getDistance().getValueAsDouble() < 0.1
         && canRange.getDistance().getValueAsDouble() != 0; // meter
   }
