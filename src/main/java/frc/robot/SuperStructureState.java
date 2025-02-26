@@ -39,6 +39,7 @@ public class SuperStructureState {
   public static SuperStructureState STATE_L2 = new SuperStructureState(L2_HEIGHT, L2_ANGLE);
   public static SuperStructureState STATE_L3 = new SuperStructureState(L3_HEIGHT, L3_ANGLE);
   public static SuperStructureState STATE_L4 = new SuperStructureState(L4_HEIGHT, L4_ANGLE);
+  public static SuperStructureState STATE_SAFTY = new SuperStructureState(LOW_MID_ALGAE_ANGLE, L2_ANGLE);//angle to pass the safty zone
 
   public static SuperStructureState STATE_PROCESSOR =
       new SuperStructureState(L2_HEIGHT, PROCESSOR_ANGLE);

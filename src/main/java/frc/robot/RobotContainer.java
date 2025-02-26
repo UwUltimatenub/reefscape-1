@@ -168,9 +168,9 @@ public class RobotContainer {
     controller
         .x()
         .onTrue(
-            Commands.run(() -> wrist.wristAngle(SuperStructureState.STATE_L2))
-                .alongWith(
-                    Commands.run(() -> elevator.setElevatorHeight(SuperStructureState.STATE_L2))));
+            Commands.run(() -> wrist.wristAngle(SuperStructureState.STATE_L2)).until(wrist.isDone())
+                .andThen(
+                    Commands.run(() -> elevator.setElevatorHeight(SuperStructureState.STATE_L2))).until(elevator.isDone()));
 
     controller.y().onTrue(getStateCommand(SuperStructureState.STATE_L2));
 
@@ -251,11 +251,11 @@ public class RobotContainer {
     //     || toState == SuperStructureState.STATE_SOURCE) {
     // To/from Source state, set safty wrist angle to prevent collision
     Command wristToSafteyCommand =
-        new RunCommand(() -> wrist.wristAngle(SuperStructureState.STATE_L2), wrist);
+        new RunCommand(() -> wrist.wristAngle(SuperStructureState.STATE_SAFTY), wrist);
     Command liftCommand = new RunCommand(() -> elevator.setElevatorHeight(toState), elevator);
     Command wristCommand = new RunCommand(() -> wrist.wristAngle(toState), wrist);
 
-    command = wristToSafteyCommand.andThen(liftCommand).andThen(wristCommand);
+    command = wristToSafteyCommand.until(wrist.isDone()).andThen(liftCommand).until(elevator.isDone()).andThen(wristCommand).until(wrist.isDone());
     // } else {
 
     //   // General State, run height and angle concurrently

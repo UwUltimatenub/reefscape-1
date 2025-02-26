@@ -9,6 +9,8 @@ package frc.robot.subsystems.pivot;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -42,7 +44,7 @@ public class Wrist extends SubsystemBase {
 
   // Hardware
   private final TalonFX talon;
-  private final CANcoder wristEncoder;
+  private final CANcoder wristEncoder; 
   // Config
   private final TalonFXConfiguration config = new TalonFXConfiguration();
   private final PositionTorqueCurrentFOC positionTorqueCurrentFOC =
@@ -98,13 +100,31 @@ public class Wrist extends SubsystemBase {
   }
 
   public void wristAngle(SuperStructureState state) {
+    double angle = state.angle;
+    //calculate safty angle 
+    if(state == SuperStructureState.STATE_SAFTY){
+      if(currentState== SuperStructureState.STATE_SOURCE || currentState==SuperStructureState.STATE_L2
+      ||currentState== SuperStructureState.STATE_L3 || currentState==SuperStructureState.STATE_L4){
+        angle = state.angle;//safty angle for coral
+      }else{
+        angle = state.height;//safty angle for algae
+      }
+    }
     // Get target position (in radians)
-    double targetDegrees = MathUtil.clamp(state.angle, minAngle, maxAngle);
+    double targetDegrees = MathUtil.clamp(angle, minAngle, maxAngle);
     // double targetPosition = Math.toRadians(position);
     ArmFeedforward feedforward = new ArmFeedforward(0.0, 0.577, 0.0);
     talon.setControl(
         positionTorqueCurrentFOC
             .withPosition(targetDegrees / 360)
             .withFeedForward(feedforward.calculate(Units.degreesToRadians(targetDegrees), 0)));
+
+    currentState = state ;
   }
+
+public BooleanSupplier isDone() {
+    boolean flag=  Math.abs(currentState.angle - pivotInputs.wristAngle) < 2  ;
+    return () -> flag ;
+    //throw new UnsupportedOperationException("Unimplemented method 'isDone'");
+}
 }

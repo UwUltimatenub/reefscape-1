@@ -9,6 +9,8 @@ package frc.robot.subsystems.elevator;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -29,6 +31,8 @@ public class Elevator extends SubsystemBase {
   public static final double ELEVATOR_GEAR_REDUCTION = 6.0;
   public static final double ELEVATOR_SPROCKET_PERIMETER =
       Units.inchesToMeters(5.5) * 100; // inches
+  
+  public SuperStructureState currentState = SuperStructureState.STATE_SOURCE;
 
   // Hardware
   private final TalonFX talon;
@@ -117,7 +121,7 @@ public class Elevator extends SubsystemBase {
     // if not working try this...
     // talon.setControl(new PositionVoltage(targetHeight /
     // ELEVATOR_SPROCKET_PERIMETER).withFeedForward(ffOutput));
-
+    currentState = state ;
   }
 
   public void stop() {
@@ -128,5 +132,10 @@ public class Elevator extends SubsystemBase {
     new Thread(
             () -> talon.setNeutralMode(enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast))
         .start();
+  }
+
+  public BooleanSupplier isDone() {
+    boolean flag= Math.abs(currentState.height - inputs.elevatorHeight) < 2 ;
+    return () -> flag ;
   }
 }
