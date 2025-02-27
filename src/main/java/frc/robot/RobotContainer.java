@@ -41,9 +41,9 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final LimeLight vision;
-  private final Intake intake;
-  private final Wrist wrist;
-  private final Elevator elevator;
+  public final Intake intake;
+  public final Wrist wrist;
+  public final Elevator elevator;
 
   private SuperStructureState currentState = SuperStructureState.STATE_SOURCE;
 
@@ -171,7 +171,8 @@ public class RobotContainer {
     // .until(elevator.isDone()));
 
     // L3 state
-    controller.y().onTrue(getStateCommand(SuperStructureState.STATE_L2));
+    // controller.y().onTrue(getStateCommand(SuperStructureState.STATE_L2));
+    controller.y().onTrue(new SetWristAndElevator(wrist, elevator, SuperStructureState.STATE_L3));
 
     // L4 state
     controller.b().onTrue(getStateCommand(SuperStructureState.STATE_L4));

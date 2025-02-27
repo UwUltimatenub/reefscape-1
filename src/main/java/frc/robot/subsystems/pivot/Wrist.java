@@ -38,6 +38,8 @@ public class Wrist extends SubsystemBase {
   private static final int encoderId = 13;
   public static final double minAngle = 0;
   public static final double maxAngle = 200;
+  double targetDegrees = SuperStructureState.SOURCE_ANGLE;
+  ArmFeedforward feedforward = new ArmFeedforward(0.0, 0.2, 0.0); // 0.577
 
   public SuperStructureState currentState = SuperStructureState.STATE_SOURCE;
 
@@ -92,6 +94,10 @@ public class Wrist extends SubsystemBase {
     pivotInputs.motorConnected = talon.isConnected();
     pivotInputs.wristAngle = 360 * wristEncoder.getAbsolutePosition().getValueAsDouble();
     pivotInputs.currentStateAngle = currentState.angle;
+    talon.setControl(
+        positionTorqueCurrentFOC
+            .withPosition(targetDegrees / 360)
+            .withFeedForward(feedforward.calculate(Units.degreesToRadians(targetDegrees), 0)));
     Logger.processInputs("Wrist", pivotInputs);
   }
 
@@ -114,13 +120,8 @@ public class Wrist extends SubsystemBase {
       }
     }
     // Get target position (in radians)
-    double targetDegrees = MathUtil.clamp(angle, minAngle, maxAngle);
+    targetDegrees = MathUtil.clamp(angle, minAngle, maxAngle);
     // double targetPosition = Math.toRadians(position);
-    ArmFeedforward feedforward = new ArmFeedforward(0.0, 0.2, 0.0); // 0.577
-    talon.setControl(
-        positionTorqueCurrentFOC
-            .withPosition(targetDegrees / 360)
-            .withFeedForward(feedforward.calculate(Units.degreesToRadians(targetDegrees), 0)));
 
     currentState = state;
   }

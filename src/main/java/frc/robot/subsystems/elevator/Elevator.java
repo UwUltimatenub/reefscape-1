@@ -32,6 +32,8 @@ public class Elevator extends SubsystemBase {
       Units.inchesToMeters(5.5) * 100; // inches
 
   public SuperStructureState currentState = SuperStructureState.STATE_SOURCE;
+  double targetHeight = SuperStructureState.SOURCE_HEIGHT;
+  ElevatorFeedforward feedforward = new ElevatorFeedforward(0.0, 20, 0, 0);
 
   // Hardware
   private final TalonFX talon;
@@ -87,6 +89,12 @@ public class Elevator extends SubsystemBase {
     inputs.motorConnected = talon.isConnected();
     inputs.motorPosition = talon.getPosition().getValueAsDouble();
     inputs.elevatorHeight = inputs.motorPosition * ELEVATOR_SPROCKET_PERIMETER;
+    talon.setControl(
+        positionTorqueCurrentRequest
+            .withPosition(
+                targetHeight / ELEVATOR_SPROCKET_PERIMETER) // perimeter of pinion gear in centmeter
+            .withFeedForward(feedforward.calculate(0)));
+
     Logger.processInputs("Elevator", inputs);
     // if elevator height > height1 and wrist angle < angle1, stop elevator motor
   }
@@ -109,14 +117,8 @@ public class Elevator extends SubsystemBase {
   public void setElevatorHeight(SuperStructureState state) {
 
     // Get target position (in radians)
-    double targetHeight = MathUtil.clamp(state.height, minHeight, maxHeight);
+    targetHeight = MathUtil.clamp(state.height, minHeight, maxHeight);
     // Feedforward Model (Tune These Values)
-    ElevatorFeedforward feedforward = new ElevatorFeedforward(0.0, 20, 0, 0);
-    talon.setControl(
-        positionTorqueCurrentRequest
-            .withPosition(
-                targetHeight / ELEVATOR_SPROCKET_PERIMETER) // perimeter of pinion gear in centmeter
-            .withFeedForward(feedforward.calculate(0)));
     // if not working try this...
     // talon.setControl(new PositionVoltage(targetHeight /
     // ELEVATOR_SPROCKET_PERIMETER).withFeedForward(ffOutput));
