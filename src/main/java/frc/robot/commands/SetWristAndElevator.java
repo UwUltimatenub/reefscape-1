@@ -85,14 +85,14 @@ public class SetWristAndElevator extends Command {
     // double targetPosition = Math.toRadians(position);
     if (!isSafe) {
       // calculate safty angle
-      robot.wrist.wristAngle(safeAngle);
+      robot.wrist.setWristAngle(safeAngle);
       if (robot.wrist.isDone().getAsBoolean()) {
         isSafe = true;
       }
     } else {
       robot.elevator.setElevatorHeight(state.height);
       if (robot.elevator.isDone().getAsBoolean()) {
-        robot.wrist.wristAngle(state.angle);
+        robot.wrist.setWristAngle(state.angle);
         if (robot.wrist.isDone().getAsBoolean()) {
           robot.currentState = state;
           isFinished = true;

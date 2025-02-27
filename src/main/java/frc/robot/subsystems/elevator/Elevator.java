@@ -9,17 +9,19 @@ package frc.robot.subsystems.elevator;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.SuperStructureState;
 import java.util.function.BooleanSupplier;
@@ -30,13 +32,18 @@ public class Elevator extends SubsystemBase {
   public static final double ELEVATOR_GEAR_REDUCTION = 6.0;
   public static final double ELEVATOR_SPROCKET_PERIMETER =
       Units.inchesToMeters(5.5) * 100; // inches
+  private static final double POS_SWITCH_THRESHOLD = 2;
+  public static final double minHeight = 0;
+  public static final double maxHeight = 20;
 
   double targetHeight = SuperStructureState.SOURCE_HEIGHT;
-  ElevatorFeedforward feedforward = new ElevatorFeedforward(0.0, 20, 0, 0);
 
   // Hardware
   private final TalonFX talon;
   private final TalonFX followerTalon;
+
+  PositionVoltage pPos = new PositionVoltage(0);
+  MotionMagicVoltage pMmPos = new MotionMagicVoltage(0);
 
   @AutoLog
   public static class ElevatorIOInputs {
@@ -48,32 +55,46 @@ public class Elevator extends SubsystemBase {
 
   private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
 
-  // Config
-  private final TalonFXConfiguration config = new TalonFXConfiguration();
-
-  private final PositionTorqueCurrentFOC positionTorqueCurrentRequest =
-      new PositionTorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
-  public static final double minHeight = 0;
-  public static final double maxHeight = 20;
-
   public Elevator() {
     talon = new TalonFX(11, "*");
     followerTalon = new TalonFX(15, "*");
     followerTalon.setControl(new Follower(talon.getDeviceID(), false));
-    talon.setNeutralMode(NeutralModeValue.Brake);
 
     // Configure motor
-    // Configure motor
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    TalonFXConfiguration armTalonConfig = new TalonFXConfiguration();
+    armTalonConfig.CurrentLimits.SupplyCurrentLimit = 50.0;
+    armTalonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    armTalonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    armTalonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    armTalonConfig.Feedback.RotorToSensorRatio = 1; // ELEVATOR_GEAR_REDUCTION
 
-    config.Slot0 = new Slot0Configs().withKP(50).withKI(0).withKD(0);
-    config.Feedback.SensorToMechanismRatio = ELEVATOR_GEAR_REDUCTION;
-    config.TorqueCurrent.PeakForwardTorqueCurrent = 80.0;
-    config.TorqueCurrent.PeakReverseTorqueCurrent = -80.0;
-    config.CurrentLimits.StatorCurrentLimit = 80.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));
+    armTalonConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
+    // Hold the ARM
+    armTalonConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+    armTalonConfig.Slot0.kG = 0.35; // to hold the arm weight
+    armTalonConfig.Slot0.kP = 60; // 100; // adjust PID
+    armTalonConfig.Slot0.kI = 0;
+    armTalonConfig.Slot0.kD = 0.02;
+    armTalonConfig.Slot0.kS = 0;
+    armTalonConfig.Slot0.kV = 0;
+    armTalonConfig.Slot0.kA = 0;
+
+    // Move the arm
+    armTalonConfig.Slot1.GravityType = GravityTypeValue.Elevator_Static;
+    armTalonConfig.Slot1.kG = 0.35; // to hold the arm weight
+    armTalonConfig.Slot1.kP = 60; // 100; // adjust PID
+    armTalonConfig.Slot1.kI = 0;
+    armTalonConfig.Slot1.kD = 0;
+    armTalonConfig.Slot1.kS = 0;
+    armTalonConfig.Slot1.kV = 8; // 8.3; // move velocity
+    armTalonConfig.Slot1.kA = 0.2; // 0.2; // move accerleration
+
+    armTalonConfig.MotionMagic.MotionMagicCruiseVelocity = 1.0; // 0.5;
+    armTalonConfig.MotionMagic.MotionMagicAcceleration = 2; // 1.0;
+    armTalonConfig.MotionMagic.MotionMagicJerk = 10; // 10;
+
+    // Set up armTalonConfig
+    tryUntilOk(5, () -> talon.getConfigurator().apply(armTalonConfig, 0.25));
 
     // ParentDevice.optimizeBusUtilizationForAll(talon);
   }
@@ -89,25 +110,29 @@ public class Elevator extends SubsystemBase {
     inputs.motorConnected = talon.isConnected();
     inputs.motorPosition = talon.getPosition().getValueAsDouble();
     inputs.targetHeight = targetHeight;
-    inputs.elevatorHeight = inputs.motorPosition * ELEVATOR_SPROCKET_PERIMETER;
-    talon.setControl(
-        positionTorqueCurrentRequest
-            .withPosition(
-                targetHeight / ELEVATOR_SPROCKET_PERIMETER) // perimeter of pinion gear in centmeter
-            .withFeedForward(feedforward.calculate(0)));
+    inputs.elevatorHeight =
+        inputs.motorPosition * ELEVATOR_SPROCKET_PERIMETER / ELEVATOR_GEAR_REDUCTION;
 
     Logger.processInputs("Elevator", inputs);
-    // if elevator height > height1 and wrist angle < angle1, stop elevator motor
-  }
 
-  public double getElevatorHeight() {
-    // Get the position from the encoder
-    return talon.getPosition().getValueAsDouble() * ELEVATOR_SPROCKET_PERIMETER;
-  }
+    if (Math.abs(targetHeight - inputs.elevatorHeight) < POS_SWITCH_THRESHOLD) {
+      if (targetHeight == SuperStructureState.SOURCE_HEIGHT
+          && Math.abs(targetHeight - inputs.elevatorHeight) < 0.5) { // degree
+        talon.setControl(new NeutralOut());
+      } else {
+        talon.setControl(
+            pPos.withPosition(
+                targetHeight / ELEVATOR_SPROCKET_PERIMETER * ELEVATOR_GEAR_REDUCTION));
+      }
+    } else {
+      talon.setControl(
+          pMmPos.withPosition(
+              targetHeight / ELEVATOR_SPROCKET_PERIMETER * ELEVATOR_GEAR_REDUCTION));
+    }
 
-  public double getVelocity() {
-    // Get the velocity from the encoder
-    return talon.getVelocity().getValueAsDouble();
+    if (DriverStation.isDisabled()) {
+      talon.setControl(new NeutralOut());
+    }
   }
 
   public void resetPosition() {
@@ -117,22 +142,7 @@ public class Elevator extends SubsystemBase {
 
   public void setElevatorHeight(double setPointHeight) {
 
-    // Get target position (in radians)
     targetHeight = MathUtil.clamp(setPointHeight, minHeight, maxHeight);
-    // Feedforward Model (Tune These Values)
-    // if not working try this...
-    // talon.setControl(new PositionVoltage(targetHeight /
-    // ELEVATOR_SPROCKET_PERIMETER).withFeedForward(ffOutput));
-  }
-
-  public void stop() {
-    talon.stopMotor();
-  }
-
-  public void setBrakeMode(boolean enabled) {
-    new Thread(
-            () -> talon.setNeutralMode(enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast))
-        .start();
   }
 
   public BooleanSupplier isDone() {
