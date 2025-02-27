@@ -31,7 +31,6 @@ public class Elevator extends SubsystemBase {
   public static final double ELEVATOR_SPROCKET_PERIMETER =
       Units.inchesToMeters(5.5) * 100; // inches
 
-  public SuperStructureState currentState = SuperStructureState.STATE_SOURCE;
   double targetHeight = SuperStructureState.SOURCE_HEIGHT;
   ElevatorFeedforward feedforward = new ElevatorFeedforward(0.0, 20, 0, 0);
 
@@ -43,6 +42,7 @@ public class Elevator extends SubsystemBase {
   public static class ElevatorIOInputs {
     public boolean motorConnected = true;
     public double motorPosition = 0;
+    public double targetHeight = 0;
     public double elevatorHeight = 0;
   }
 
@@ -54,7 +54,7 @@ public class Elevator extends SubsystemBase {
   private final PositionTorqueCurrentFOC positionTorqueCurrentRequest =
       new PositionTorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
   public static final double minHeight = 0;
-  public static final double maxHeight = 15;
+  public static final double maxHeight = 20;
 
   public Elevator() {
     talon = new TalonFX(11, "*");
@@ -88,6 +88,7 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     inputs.motorConnected = talon.isConnected();
     inputs.motorPosition = talon.getPosition().getValueAsDouble();
+    inputs.targetHeight = targetHeight;
     inputs.elevatorHeight = inputs.motorPosition * ELEVATOR_SPROCKET_PERIMETER;
     talon.setControl(
         positionTorqueCurrentRequest
@@ -114,15 +115,14 @@ public class Elevator extends SubsystemBase {
     talon.setPosition(0);
   }
 
-  public void setElevatorHeight(SuperStructureState state) {
+  public void setElevatorHeight(double setPointHeight) {
 
     // Get target position (in radians)
-    targetHeight = MathUtil.clamp(state.height, minHeight, maxHeight);
+    targetHeight = MathUtil.clamp(setPointHeight, minHeight, maxHeight);
     // Feedforward Model (Tune These Values)
     // if not working try this...
     // talon.setControl(new PositionVoltage(targetHeight /
     // ELEVATOR_SPROCKET_PERIMETER).withFeedForward(ffOutput));
-    currentState = state;
   }
 
   public void stop() {
@@ -136,7 +136,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public BooleanSupplier isDone() {
-    boolean flag = Math.abs(currentState.height - inputs.elevatorHeight) < 2;
+    boolean flag = Math.abs(targetHeight - inputs.elevatorHeight) < 2;
     return () -> flag;
   }
 }

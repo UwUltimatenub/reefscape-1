@@ -8,24 +8,69 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.RobotContainer;
 import frc.robot.SuperStructureState;
-import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.pivot.Wrist;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class SetWristAndElevator extends Command {
 
-  Elevator elevator;
-  Wrist wrist;
+  RobotContainer robot;
   SuperStructureState state;
+  boolean isSafe = false;
+  double safeAngle = 0;
+  boolean isFinished = false;
 
   /** Creates a new SetWristAndElevator. */
-  public SetWristAndElevator(Wrist wrist, Elevator elevator, SuperStructureState state) {
-    addRequirements(wrist, elevator);
+  public SetWristAndElevator(RobotContainer robot, int level) {
+    addRequirements(robot.wrist, robot.elevator);
 
-    this.wrist = wrist;
-    this.elevator = elevator;
-    this.state = state;
+    this.robot = robot;
+    if (robot.intake.isCoralLoaded()) {
+      switch (level) {
+        case 1:
+          state = SuperStructureState.STATE_L1;
+          break;
+        case 2:
+          state = SuperStructureState.STATE_L2;
+          break;
+        case 3:
+          state = SuperStructureState.STATE_L3;
+          break;
+        case 4:
+          state = SuperStructureState.STATE_L4;
+          break;
+        default:
+          state = SuperStructureState.STATE_SOURCE;
+          break;
+      }
+    } else {
+      switch (level) {
+        case 1:
+          state = SuperStructureState.STATE_PROCESSOR;
+          break;
+        case 2:
+          state = SuperStructureState.STATE_ALGAE_LOW;
+          break;
+        case 3:
+          state = SuperStructureState.STATE_ALGAE_MID;
+          break;
+        case 4:
+          state = SuperStructureState.STATE_ALGAE_TOP;
+          break;
+        default:
+          state = SuperStructureState.STATE_SOURCE;
+          break;
+      }
+    }
+    if (robot.currentState == SuperStructureState.STATE_SOURCE
+        || robot.currentState == SuperStructureState.STATE_L2
+        || robot.currentState == SuperStructureState.STATE_L3
+        || robot.currentState == SuperStructureState.STATE_L4) {
+      safeAngle = SuperStructureState.STATE_SAFTY.angle; // safty angle for coral
+    } else {
+      safeAngle = SuperStructureState.STATE_SAFTY.height; // safty angle for algae
+    }
+
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -36,9 +81,23 @@ public class SetWristAndElevator extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    wrist.wristAngle(state);
-    if (wrist.isDone().getAsBoolean()) {
-      elevator.setElevatorHeight(state);
+
+    // double targetPosition = Math.toRadians(position);
+    if (!isSafe) {
+      // calculate safty angle
+      robot.wrist.wristAngle(safeAngle);
+      if (robot.wrist.isDone().getAsBoolean()) {
+        isSafe = true;
+      }
+    } else {
+      robot.elevator.setElevatorHeight(state.height);
+      if (robot.elevator.isDone().getAsBoolean()) {
+        robot.wrist.wristAngle(state.angle);
+        if (robot.wrist.isDone().getAsBoolean()) {
+          robot.currentState = state;
+          isFinished = true;
+        }
+      }
     }
   }
 
@@ -50,5 +109,7 @@ public class SetWristAndElevator extends Command {
   @Override
   public boolean isFinished() {
     return false;
+    // return isFinished;
+
   }
 }

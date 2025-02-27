@@ -41,8 +41,6 @@ public class Wrist extends SubsystemBase {
   double targetDegrees = SuperStructureState.SOURCE_ANGLE;
   ArmFeedforward feedforward = new ArmFeedforward(0.0, 0.2, 0.0); // 0.577
 
-  public SuperStructureState currentState = SuperStructureState.STATE_SOURCE;
-
   // Hardware
   private final TalonFX talon;
   private final CANcoder wristEncoder;
@@ -55,8 +53,8 @@ public class Wrist extends SubsystemBase {
   public static class WristIOInputs {
     public boolean motorConnected = true;
     public boolean encoderConnected = false;
+    public double targetAngle = 0.0;
     public double wristAngle = 0.0;
-    public double currentStateAngle = 0.0;
   }
 
   private final WristIOInputsAutoLogged pivotInputs = new WristIOInputsAutoLogged();
@@ -92,8 +90,8 @@ public class Wrist extends SubsystemBase {
   public void periodic() {
     pivotInputs.encoderConnected = wristEncoder.isConnected();
     pivotInputs.motorConnected = talon.isConnected();
+    pivotInputs.targetAngle = targetDegrees;
     pivotInputs.wristAngle = 360 * wristEncoder.getAbsolutePosition().getValueAsDouble();
-    pivotInputs.currentStateAngle = currentState.angle;
     talon.setControl(
         positionTorqueCurrentFOC
             .withPosition(targetDegrees / 360)
@@ -106,30 +104,12 @@ public class Wrist extends SubsystemBase {
     talon.setControl(new VoltageOut(voltage));
   }
 
-  public void wristAngle(SuperStructureState state) {
-    double angle = state.angle;
-    // calculate safty angle
-    if (state == SuperStructureState.STATE_SAFTY) {
-      if (currentState == SuperStructureState.STATE_SOURCE
-          || currentState == SuperStructureState.STATE_L2
-          || currentState == SuperStructureState.STATE_L3
-          || currentState == SuperStructureState.STATE_L4) {
-        angle = state.angle; // safty angle for coral
-      } else {
-        angle = state.height; // safty angle for algae
-      }
-    }
-    // Get target position (in radians)
-    targetDegrees = MathUtil.clamp(angle, minAngle, maxAngle);
-    // double targetPosition = Math.toRadians(position);
-
-    currentState = state;
+  public void wristAngle(double setPointAngle) {
+    targetDegrees = MathUtil.clamp(setPointAngle, minAngle, maxAngle);
   }
 
   public BooleanSupplier isDone() {
-    boolean flag = Math.abs(currentState.angle - pivotInputs.wristAngle) < 5;
-    System.out.println(flag);
+    boolean flag = Math.abs(targetDegrees - pivotInputs.wristAngle) < 5;
     return () -> flag;
-    // throw new UnsupportedOperationException("Unimplemented method 'isDone'");
   }
 }
