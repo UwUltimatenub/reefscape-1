@@ -9,8 +9,6 @@ package frc.robot.subsystems.pivot;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
-import java.util.function.BooleanSupplier;
-
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -28,6 +26,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.SuperStructureState;
+import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
@@ -44,7 +43,7 @@ public class Wrist extends SubsystemBase {
 
   // Hardware
   private final TalonFX talon;
-  private final CANcoder wristEncoder; 
+  private final CANcoder wristEncoder;
   // Config
   private final TalonFXConfiguration config = new TalonFXConfiguration();
   private final PositionTorqueCurrentFOC positionTorqueCurrentFOC =
@@ -55,6 +54,7 @@ public class Wrist extends SubsystemBase {
     public boolean motorConnected = true;
     public boolean encoderConnected = false;
     public double wristAngle = 0.0;
+    public double currentStateAngle = 0.0;
   }
 
   private final WristIOInputsAutoLogged pivotInputs = new WristIOInputsAutoLogged();
@@ -65,7 +65,7 @@ public class Wrist extends SubsystemBase {
 
     // Configure  motor
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.Slot0 = new Slot0Configs().withKP(100).withKI(0).withKD(0);
+    config.Slot0 = new Slot0Configs().withKP(140).withKI(1).withKD(0.001);
     config.Feedback.RotorToSensorRatio = reduction;
     config.Feedback.FeedbackRemoteSensorID = encoderId;
     config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
@@ -91,6 +91,7 @@ public class Wrist extends SubsystemBase {
     pivotInputs.encoderConnected = wristEncoder.isConnected();
     pivotInputs.motorConnected = talon.isConnected();
     pivotInputs.wristAngle = 360 * wristEncoder.getAbsolutePosition().getValueAsDouble();
+    pivotInputs.currentStateAngle = currentState.angle;
     Logger.processInputs("Wrist", pivotInputs);
   }
 
@@ -101,30 +102,33 @@ public class Wrist extends SubsystemBase {
 
   public void wristAngle(SuperStructureState state) {
     double angle = state.angle;
-    //calculate safty angle 
-    if(state == SuperStructureState.STATE_SAFTY){
-      if(currentState== SuperStructureState.STATE_SOURCE || currentState==SuperStructureState.STATE_L2
-      ||currentState== SuperStructureState.STATE_L3 || currentState==SuperStructureState.STATE_L4){
-        angle = state.angle;//safty angle for coral
-      }else{
-        angle = state.height;//safty angle for algae
+    // calculate safty angle
+    if (state == SuperStructureState.STATE_SAFTY) {
+      if (currentState == SuperStructureState.STATE_SOURCE
+          || currentState == SuperStructureState.STATE_L2
+          || currentState == SuperStructureState.STATE_L3
+          || currentState == SuperStructureState.STATE_L4) {
+        angle = state.angle; // safty angle for coral
+      } else {
+        angle = state.height; // safty angle for algae
       }
     }
     // Get target position (in radians)
     double targetDegrees = MathUtil.clamp(angle, minAngle, maxAngle);
     // double targetPosition = Math.toRadians(position);
-    ArmFeedforward feedforward = new ArmFeedforward(0.0, 0.577, 0.0);
+    ArmFeedforward feedforward = new ArmFeedforward(0.0, 0.2, 0.0); // 0.577
     talon.setControl(
         positionTorqueCurrentFOC
             .withPosition(targetDegrees / 360)
             .withFeedForward(feedforward.calculate(Units.degreesToRadians(targetDegrees), 0)));
 
-    currentState = state ;
+    currentState = state;
   }
 
-public BooleanSupplier isDone() {
-    boolean flag=  Math.abs(currentState.angle - pivotInputs.wristAngle) < 2  ;
-    return () -> flag ;
-    //throw new UnsupportedOperationException("Unimplemented method 'isDone'");
-}
+  public BooleanSupplier isDone() {
+    boolean flag = Math.abs(currentState.angle - pivotInputs.wristAngle) < 5;
+    System.out.println(flag);
+    return () -> flag;
+    // throw new UnsupportedOperationException("Unimplemented method 'isDone'");
+  }
 }

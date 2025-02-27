@@ -9,8 +9,6 @@ package frc.robot.subsystems.elevator;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
-import java.util.function.BooleanSupplier;
-
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -24,6 +22,7 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.SuperStructureState;
+import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
@@ -31,7 +30,7 @@ public class Elevator extends SubsystemBase {
   public static final double ELEVATOR_GEAR_REDUCTION = 6.0;
   public static final double ELEVATOR_SPROCKET_PERIMETER =
       Units.inchesToMeters(5.5) * 100; // inches
-  
+
   public SuperStructureState currentState = SuperStructureState.STATE_SOURCE;
 
   // Hardware
@@ -121,7 +120,7 @@ public class Elevator extends SubsystemBase {
     // if not working try this...
     // talon.setControl(new PositionVoltage(targetHeight /
     // ELEVATOR_SPROCKET_PERIMETER).withFeedForward(ffOutput));
-    currentState = state ;
+    currentState = state;
   }
 
   public void stop() {
@@ -135,7 +134,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public BooleanSupplier isDone() {
-    boolean flag= Math.abs(currentState.height - inputs.elevatorHeight) < 2 ;
-    return () -> flag ;
+    boolean flag = Math.abs(currentState.height - inputs.elevatorHeight) < 2;
+    return () -> flag;
   }
 }

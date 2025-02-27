@@ -13,6 +13,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.SuperStructureState;
+import frc.robot.subsystems.elevator.Elevator;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
@@ -26,9 +28,11 @@ public class Intake extends SubsystemBase {
     public boolean isCoralLoaded = false;
   }
 
+  private Elevator elevator = null;
   IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
 
-  public Intake() {
+  public Intake(Elevator elevator1) {
+    this.elevator = elevator1;
     // find actual motor IDs
     intake = new TalonFX(7, "*");
     TalonFXConfiguration config = new TalonFXConfiguration();
@@ -46,7 +50,24 @@ public class Intake extends SubsystemBase {
     Logger.processInputs("Intake Sensor", inputs);
   }
 
-  public void forward(double volts) {
+  public void intake(boolean isIntake) {
+    double volts = 0;
+    if (elevator.currentState == SuperStructureState.STATE_SOURCE
+        || elevator.currentState == SuperStructureState.STATE_L2
+        || elevator.currentState == SuperStructureState.STATE_L3
+        || elevator.currentState == SuperStructureState.STATE_L4) {
+      if (isIntake) {
+        volts = 8;
+      } else {
+        volts = 4;
+      }
+    } else {
+      if (isIntake) {
+        volts = -6;
+      } else {
+        volts = 12;
+      }
+    }
     intake.setVoltage(volts);
   }
 
@@ -65,5 +86,18 @@ public class Intake extends SubsystemBase {
 
     return canRange.getDistance().getValueAsDouble() < 0.1
         && canRange.getDistance().getValueAsDouble() != 0; // meter
+  }
+
+  public boolean isDone() {
+    boolean flag = false;
+    if (elevator.currentState == SuperStructureState.STATE_SOURCE
+        || elevator.currentState == SuperStructureState.STATE_L2
+        || elevator.currentState == SuperStructureState.STATE_L3
+        || elevator.currentState == SuperStructureState.STATE_L4) {
+      flag = isCoralLoaded();
+    } else {
+      flag = overloaded();
+    }
+    return flag;
   }
 }
