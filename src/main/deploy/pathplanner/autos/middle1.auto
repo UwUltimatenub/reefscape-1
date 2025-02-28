@@ -13,7 +13,13 @@
         {
           "type": "named",
           "data": {
-            "name": "putCoral"
+            "name": "setL2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "eject"
           }
         }
       ]

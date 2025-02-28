@@ -63,6 +63,7 @@ public class SetWristAndElevator extends Command {
       }
     }
     if (robot.currentState == SuperStructureState.STATE_SOURCE
+        || robot.currentState == SuperStructureState.STATE_L1
         || robot.currentState == SuperStructureState.STATE_L2
         || robot.currentState == SuperStructureState.STATE_L3
         || robot.currentState == SuperStructureState.STATE_L4) {

@@ -8,6 +8,8 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -91,7 +93,17 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
-  }
+
+    NamedCommands.registerCommand("setSource", new SetWristAndElevator(this, 0));
+    NamedCommands.registerCommand("setL1", new SetWristAndElevator(this, 1));
+    NamedCommands.registerCommand("setL2", new SetWristAndElevator(this, 2));
+    NamedCommands.registerCommand("setL3", new SetWristAndElevator(this, 3));
+    NamedCommands.registerCommand("setL4", new SetWristAndElevator(this, 4));
+
+    NamedCommands.registerCommand("intake", new IntakeCommand(this, true));
+    NamedCommands.registerCommand("eject", new IntakeCommand(this, false));
+
+}
 
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
