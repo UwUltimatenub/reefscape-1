@@ -43,12 +43,12 @@ public class Wrist extends SubsystemBase {
   public static final double reduction =
       50; // wrist gearbox gear ration 60.0 * 60.0 * 30.0 / (10.0 * 18.0 * 12.0)
   public static final double WRIST_OFFSET =
-      0.397 - 0.039 - 0.25; // -0.0325 default wrist angle; zero degree arm in
+      0.098; // -0.0325 default wrist angle; zero degree arm in
   // horizontal
   private static final int encoderId = 13;
   public static final double minAngle = 50;
   public static final double maxAngle = 200;
-  private static final double PIVOT_POS_SWITCH_THRESHOLD = 5;
+  private static final double PIVOT_POS_SWITCH_THRESHOLD = 2;
 
   double targetDegrees = SuperStructureState.SOURCE_ANGLE;
 
@@ -70,7 +70,7 @@ public class Wrist extends SubsystemBase {
     var cancoderConfig = new CANcoderConfiguration();
     cancoderConfig.MagnetSensor.MagnetOffset = WRIST_OFFSET;
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
-    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     wristEncoder.getConfigurator().apply(cancoderConfig, 1);
 
     // Configure motor
@@ -81,34 +81,39 @@ public class Wrist extends SubsystemBase {
     armTalonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     armTalonConfig.Feedback.FeedbackRemoteSensorID = encoderId;
     armTalonConfig.Feedback.FeedbackSensorSource =
-        FeedbackSensorSourceValue.SyncCANcoder; // FusedCANcoder
+        FeedbackSensorSourceValue.FusedCANcoder; // FusedCCANcoder
     armTalonConfig.Feedback.SensorToMechanismRatio = 1.0;
     armTalonConfig.Feedback.RotorToSensorRatio = reduction;
 
     armTalonConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
     // Hold the ARM
-    armTalonConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-    armTalonConfig.Slot0.kG = 0.35; // to hold the arm weight
-    armTalonConfig.Slot0.kP = 60; // 100; // adjust PID
-    armTalonConfig.Slot0.kI = 0;
-    armTalonConfig.Slot0.kD = 0.02;
-    armTalonConfig.Slot0.kS = 0;
-    armTalonConfig.Slot0.kV = 0;
-    armTalonConfig.Slot0.kA = 0;
+    armTalonConfig.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
+    armTalonConfig.Slot1.kG = 0.35; // 0.35; // to hold the arm weight
+    armTalonConfig.Slot1.kP = 20; // 60; // 60; // 100; // adjust PID
+    armTalonConfig.Slot1.kI = 0;
+    armTalonConfig.Slot1.kD = 0; // 0.02;
+    armTalonConfig.Slot1.kS = 0;
+    armTalonConfig.Slot1.kV = 0;
+    armTalonConfig.Slot1.kA = 0;
 
     // Move the arm
-    armTalonConfig.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
-    armTalonConfig.Slot1.kG = 0.35; // to hold the arm weight
-    armTalonConfig.Slot1.kP = 60; // 100; // adjust PID
-    armTalonConfig.Slot1.kI = 0;
-    armTalonConfig.Slot1.kD = 0;
-    armTalonConfig.Slot1.kS = 0;
-    armTalonConfig.Slot1.kV = 8; // 8.3; // move velocity
-    armTalonConfig.Slot1.kA = 0.2; // 0.2; // move accerleration
+    armTalonConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+    armTalonConfig.Slot0.kG = 0.35; // 0.35; // to hold the arm weight
+    armTalonConfig.Slot0.kP = 20; // 60; // 100; // adjust PID
+    armTalonConfig.Slot0.kI = 0;
+    armTalonConfig.Slot0.kD = 0.01;
+    armTalonConfig.Slot0.kS = 0;
+    armTalonConfig.Slot0.kV = 5; // 8.3; // move velocity
+    armTalonConfig.Slot0.kA = 0.2; // 0.2; // move accerleration
 
-    armTalonConfig.MotionMagic.MotionMagicCruiseVelocity = 1.0; // 0.5;
-    armTalonConfig.MotionMagic.MotionMagicAcceleration = 2; // 1.0;
-    armTalonConfig.MotionMagic.MotionMagicJerk = 10; // 10;
+    armTalonConfig.MotionMagic.MotionMagicCruiseVelocity = 5; // 1.0; // 0.5;
+    armTalonConfig.MotionMagic.MotionMagicAcceleration = 0.8; // 2; // 1.0;
+    armTalonConfig.MotionMagic.MotionMagicJerk = 0; // 10; // 10;
+
+    pMmPos.Slot = 0;
+    pMmPos.EnableFOC = true;
+    pPos.Slot = 1;
+    pPos.EnableFOC = true;
 
     // Set up armTalonConfig
     tryUntilOk(5, () -> talon.getConfigurator().apply(armTalonConfig, 0.25));
@@ -149,7 +154,7 @@ public class Wrist extends SubsystemBase {
   }
 
   public BooleanSupplier isDone() {
-    boolean flag = Math.abs(targetDegrees - pivotInputs.currentAngle) < 5;
+    boolean flag = Math.abs(targetDegrees - pivotInputs.currentAngle) < 3;
     return () -> flag;
   }
 }

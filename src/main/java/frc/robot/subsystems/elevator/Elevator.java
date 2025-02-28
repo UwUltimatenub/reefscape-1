@@ -34,7 +34,7 @@ public class Elevator extends SubsystemBase {
       Units.inchesToMeters(5.5) * 100; // inches
   private static final double POS_SWITCH_THRESHOLD = 2;
   public static final double minHeight = 0;
-  public static final double maxHeight = 20;
+  public static final double maxHeight = 40;
 
   double targetHeight = SuperStructureState.SOURCE_HEIGHT;
 
@@ -67,32 +67,37 @@ public class Elevator extends SubsystemBase {
     armTalonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     armTalonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     armTalonConfig.Feedback.RotorToSensorRatio = 1; // ELEVATOR_GEAR_REDUCTION
+    armTalonConfig.Feedback.SensorToMechanismRatio = ELEVATOR_GEAR_REDUCTION;
 
     armTalonConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
     // Hold the ARM
-    armTalonConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
-    armTalonConfig.Slot0.kG = 0.35; // to hold the arm weight
-    armTalonConfig.Slot0.kP = 60; // 100; // adjust PID
-    armTalonConfig.Slot0.kI = 0;
-    armTalonConfig.Slot0.kD = 0.02;
-    armTalonConfig.Slot0.kS = 0;
-    armTalonConfig.Slot0.kV = 0;
-    armTalonConfig.Slot0.kA = 0;
+    armTalonConfig.Slot1.GravityType = GravityTypeValue.Elevator_Static;
+    armTalonConfig.Slot1.kG = 0.3; // 0.35; // 0.35; // to hold the arm weight
+    armTalonConfig.Slot1.kP = 10; // 40; // 60; // 60; // 100; // adjust PID
+    armTalonConfig.Slot1.kI = 0;
+    armTalonConfig.Slot1.kD = 0; // 0.02;
+    armTalonConfig.Slot1.kS = 0;
+    armTalonConfig.Slot1.kV = 0;
+    armTalonConfig.Slot1.kA = 0;
 
     // Move the arm
-    armTalonConfig.Slot1.GravityType = GravityTypeValue.Elevator_Static;
-    armTalonConfig.Slot1.kG = 0.35; // to hold the arm weight
-    armTalonConfig.Slot1.kP = 60; // 100; // adjust PID
-    armTalonConfig.Slot1.kI = 0;
-    armTalonConfig.Slot1.kD = 0;
-    armTalonConfig.Slot1.kS = 0;
-    armTalonConfig.Slot1.kV = 8; // 8.3; // move velocity
-    armTalonConfig.Slot1.kA = 0.2; // 0.2; // move accerleration
+    armTalonConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+    armTalonConfig.Slot0.kG = 0.3; // 0.35; // 0.35; // to hold the arm weight
+    armTalonConfig.Slot0.kP = 35; // 40; // 60; // 100; // adjust PID
+    armTalonConfig.Slot0.kI = 0;
+    armTalonConfig.Slot0.kD = 0;
+    armTalonConfig.Slot0.kS = 0;
+    armTalonConfig.Slot0.kV = 8; // 10; // 8.3; // move velocity
+    armTalonConfig.Slot0.kA = 0.2; // 0.2; // move accerleration
 
-    armTalonConfig.MotionMagic.MotionMagicCruiseVelocity = 1.0; // 0.5;
-    armTalonConfig.MotionMagic.MotionMagicAcceleration = 2; // 1.0;
-    armTalonConfig.MotionMagic.MotionMagicJerk = 10; // 10;
+    armTalonConfig.MotionMagic.MotionMagicCruiseVelocity = 50; // 1.0; // 0.5;
+    armTalonConfig.MotionMagic.MotionMagicAcceleration = 2; // 2; // 1.0;
+    armTalonConfig.MotionMagic.MotionMagicJerk = 0; // 10; // 10;
 
+    pMmPos.Slot = 0;
+    pMmPos.EnableFOC = true;
+    pPos.Slot = 1;
+    pPos.EnableFOC = true;
     // Set up armTalonConfig
     tryUntilOk(5, () -> talon.getConfigurator().apply(armTalonConfig, 0.25));
 
@@ -110,25 +115,22 @@ public class Elevator extends SubsystemBase {
     inputs.motorConnected = talon.isConnected();
     inputs.motorPosition = talon.getPosition().getValueAsDouble();
     inputs.targetHeight = targetHeight;
-    inputs.elevatorHeight =
-        inputs.motorPosition * ELEVATOR_SPROCKET_PERIMETER / ELEVATOR_GEAR_REDUCTION;
+    inputs.elevatorHeight = inputs.motorPosition * ELEVATOR_SPROCKET_PERIMETER;
 
     Logger.processInputs("Elevator", inputs);
 
-    if (Math.abs(targetHeight - inputs.elevatorHeight) < POS_SWITCH_THRESHOLD) {
-      if (targetHeight == SuperStructureState.SOURCE_HEIGHT
-          && Math.abs(targetHeight - inputs.elevatorHeight) < 0.5) { // degree
-        talon.setControl(new NeutralOut());
-      } else {
-        talon.setControl(
-            pPos.withPosition(
-                targetHeight / ELEVATOR_SPROCKET_PERIMETER * ELEVATOR_GEAR_REDUCTION));
-      }
-    } else {
-      talon.setControl(
-          pMmPos.withPosition(
-              targetHeight / ELEVATOR_SPROCKET_PERIMETER * ELEVATOR_GEAR_REDUCTION));
-    }
+    // if (Math.abs(targetHeight - inputs.elevatorHeight) < POS_SWITCH_THRESHOLD) {
+    //   if (targetHeight == SuperStructureState.SOURCE_HEIGHT
+    //       && Math.abs(targetHeight - inputs.elevatorHeight) < 0.5) { // degree
+    //     talon.setControl(new NeutralOut());
+    //   } else {
+    //     talon.setControl(
+    //         pPos.withPosition(
+    //             targetHeight / ELEVATOR_SPROCKET_PERIMETER * ELEVATOR_GEAR_REDUCTION));
+    //   }
+    // } else {
+    talon.setControl(pMmPos.withPosition(targetHeight / ELEVATOR_SPROCKET_PERIMETER));
+    // }
 
     if (DriverStation.isDisabled()) {
       talon.setControl(new NeutralOut());

@@ -165,14 +165,26 @@ public class RobotContainer {
 
     // level 1 state, depend on is coral loaded
     controller.povDown().onTrue(new SetWristAndElevator(this, 1));
+    // controller
+    //     .povDown()
+    //     .onTrue(
+    //         // Commands.run(() ->
+    // elevator.setElevatorHeight(SuperStructureState.STATE_L2.height)));
+    //         Commands.run(() -> elevator.setElevatorHeight(10)));
 
     // level 2 state, depend on is coral loaded
     controller.povLeft().onTrue(new SetWristAndElevator(this, 2));
-
-    // level 3 state, depend on is coral loaded
-    controller.povUp().onTrue(new SetWristAndElevator(this, 3));
+    // controller.povLeft().onTrue(Commands.run(() -> wrist.setWristAngle(75)));
+    // // level 3 state, depend on is coral loaded
+    // controller
+    //     .povUp()
+    //     .onTrue(
+    //         // Commands.run(() ->
+    // elevator.setElevatorHeight(SuperStructureState.STATE_L2.height)));
+    //         Commands.run(() -> elevator.setElevatorHeight(5)));
 
     // level 4 state, depend on is coral loaded
+    controller.povUp().onTrue(new SetWristAndElevator(this, 3));
     controller.povRight().onTrue(new SetWristAndElevator(this, 4));
 
     // Manual lift
