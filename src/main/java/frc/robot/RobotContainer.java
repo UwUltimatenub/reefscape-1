@@ -50,6 +50,7 @@ public class RobotContainer {
 
   // Controller
   public final CommandXboxController controller = new CommandXboxController(0);
+  public final CommandXboxController controller2 = new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -162,22 +163,22 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // Intake coral
-    controller
+    controller2
         .leftBumper()
         .whileTrue(
-            new StartEndCommand(() -> intake.intake(12), () -> intake.stop(), intake)
+            new StartEndCommand(() -> intake.intake(8), () -> intake.stop(), intake)
                 .until((() -> intake.isCoralLoaded())));
     // Eject coral
-    controller
+    controller2
         .leftTrigger()
         .whileTrue(new StartEndCommand(() -> intake.intake(4), () -> intake.stop(), intake));
 
-    // Intake coral
-    controller
+    // Intake algae
+    controller2
         .rightBumper()
         .whileTrue(new StartEndCommand(() -> intake.intake(-6), () -> intake.stop(), intake));
-    // Eject coral
-    controller
+    // Eject algae
+    controller2
         .rightTrigger()
         .whileTrue(new StartEndCommand(() -> intake.intake(12), () -> intake.stop(), intake));
 
@@ -185,10 +186,10 @@ public class RobotContainer {
     wrist.setDefaultCommand(Commands.run(() -> {}, wrist));
 
     // Source State
-    controller.a().onTrue(new SetWristAndElevator(this, 0));
+    controller2.a().onTrue(new SetWristAndElevator(this, 0));
 
     // level 1 state, depend on is coral loaded
-    controller.povDown().onTrue(new SetWristAndElevator(this, 1));
+    controller2.povDown().onTrue(new SetWristAndElevator(this, 1));
     // controller
     //     .povDown()
     //     .onTrue(
@@ -197,7 +198,7 @@ public class RobotContainer {
     //         Commands.run(() -> elevator.setElevatorHeight(10)));
 
     // level 2 state, depend on is coral loaded
-    controller.povLeft().onTrue(new SetWristAndElevator(this, 2));
+    controller2.povLeft().onTrue(new SetWristAndElevator(this, 2));
     // controller.povLeft().onTrue(Commands.run(() -> wrist.setWristAngle(75)));
     // // level 3 state, depend on is coral loaded
     // controller
@@ -208,8 +209,8 @@ public class RobotContainer {
     //         Commands.run(() -> elevator.setElevatorHeight(5)));
 
     // level 4 state, depend on is coral loaded
-    controller.povUp().onTrue(new SetWristAndElevator(this, 3));
-    controller.povRight().onTrue(new SetWristAndElevator(this, 4));
+    controller2.povUp().onTrue(new SetWristAndElevator(this, 3));
+    controller2.povRight().onTrue(new SetWristAndElevator(this, 4));
 
     // Manual lift
     // Command manualLift =

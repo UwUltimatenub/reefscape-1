@@ -9,7 +9,7 @@ package frc.robot;
 
 public class SuperStructureState {
 
-  public static final double SOURCE_HEIGHT = 0.5;
+  public static final double SOURCE_HEIGHT = 0.25;
   public static final double SOURCE_ANGLE = 50;
 
   public static final double L1_HEIGHT = 5;
@@ -22,18 +22,18 @@ public class SuperStructureState {
   public static final double L3_ANGLE = 75;
   public static final double L4_ANGLE = 125;
 
-  public static final double PROCESSOR_HEIGHT = 10;
+  public static final double PROCESSOR_HEIGHT = 5;
   public static final double LOW_ALGAE_HEIGHT = 25;
-  public static final double MID_ALGAE_HEIGHT = 38;
-  public static final double TOP_ALGAE_HEIGHT = 75;
+  public static final double MID_ALGAE_HEIGHT = 45;
+  public static final double TOP_ALGAE_HEIGHT = 81.5;
 
-  public static final double PROCESSOR_ANGLE = 210;
+  public static final double PROCESSOR_ANGLE = 225;
   public static final double LOW_ALGAE_ANGLE = 220;
   public static final double MID_ALGAE_ANGLE = 220;
-  public static final double TOP_ALGAE_ANGLE = 180;
+  public static final double TOP_ALGAE_ANGLE = 105;
 
   // angle to pass the safty zone
-  public static SuperStructureState STATE_SAFTY = new SuperStructureState("Safety", 200, 75);
+  public static SuperStructureState STATE_SAFTY = new SuperStructureState("Safety", 180, 75);
   public static SuperStructureState STATE_SOURCE =
       new SuperStructureState("Source", SOURCE_HEIGHT, SOURCE_ANGLE);
 

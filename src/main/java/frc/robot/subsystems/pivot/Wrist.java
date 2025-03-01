@@ -47,7 +47,7 @@ public class Wrist extends SubsystemBase {
   // horizontal
   private static final int encoderId = 13;
   public static final double minAngle = 50;
-  public static final double maxAngle = 200;
+  public static final double maxAngle = 240;
   private static final double PIVOT_POS_SWITCH_THRESHOLD = 2;
 
   double targetDegrees = SuperStructureState.SOURCE_ANGLE;

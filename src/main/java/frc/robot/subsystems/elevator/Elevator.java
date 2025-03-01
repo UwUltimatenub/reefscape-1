@@ -34,7 +34,7 @@ public class Elevator extends SubsystemBase {
       Units.inchesToMeters(5.5) * 100; // inches
   private static final double POS_SWITCH_THRESHOLD = 2;
   public static final double minHeight = 0;
-  public static final double maxHeight = 80;
+  public static final double maxHeight = 81.5;
 
   double targetHeight = SuperStructureState.SOURCE_HEIGHT;
 
