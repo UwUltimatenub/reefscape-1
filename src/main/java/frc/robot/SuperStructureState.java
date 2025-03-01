@@ -13,9 +13,9 @@ public class SuperStructureState {
   public static final double SOURCE_ANGLE = 50;
 
   public static final double L1_HEIGHT = 5;
-  public static final double L2_HEIGHT = 10;
-  public static final double L3_HEIGHT = 21.5;
-  public static final double L4_HEIGHT = 30.5;
+  public static final double L2_HEIGHT = 12;
+  public static final double L3_HEIGHT = 33;
+  public static final double L4_HEIGHT = 72;
 
   public static final double L1_ANGLE = 55;
   public static final double L2_ANGLE = 75;
@@ -23,13 +23,13 @@ public class SuperStructureState {
   public static final double L4_ANGLE = 125;
 
   public static final double PROCESSOR_HEIGHT = 10;
-  public static final double LOW_ALGAE_HEIGHT = 20;
-  public static final double MID_ALGAE_HEIGHT = 30;
-  public static final double TOP_ALGAE_HEIGHT = 40;
+  public static final double LOW_ALGAE_HEIGHT = 26;
+  public static final double MID_ALGAE_HEIGHT = 40;
+  public static final double TOP_ALGAE_HEIGHT = 75;
 
   public static final double PROCESSOR_ANGLE = 210;
-  public static final double LOW_ALGAE_ANGLE = 200;
-  public static final double MID_ALGAE_ANGLE = 200;
+  public static final double LOW_ALGAE_ANGLE = 240;
+  public static final double MID_ALGAE_ANGLE = 240;
   public static final double TOP_ALGAE_ANGLE = 180;
 
   // angle to pass the safty zone

@@ -165,7 +165,7 @@ public class RobotContainer {
     controller
         .leftBumper()
         .whileTrue(
-            new StartEndCommand(() -> intake.intake(8), () -> intake.stop(), intake)
+            new StartEndCommand(() -> intake.intake(12), () -> intake.stop(), intake)
                 .until((() -> intake.isCoralLoaded())));
     // Eject coral
     controller
