@@ -15,7 +15,7 @@ import frc.robot.SuperStructureState;
 public class IntakeCommand extends Command {
 
   RobotContainer robot;
-  boolean isCoralIntake = true;
+  boolean isCoral = true;
   boolean isIntake = false;
   double volts = 0;
 
@@ -29,14 +29,14 @@ public class IntakeCommand extends Command {
         || robot.currentState == SuperStructureState.STATE_L2
         || robot.currentState == SuperStructureState.STATE_L3
         || robot.currentState == SuperStructureState.STATE_L4) {
-      isCoralIntake = true;
+      isCoral = true;
       if (isIntake) {
         volts = 8;
       } else {
         volts = 4;
       }
     } else {
-      isCoralIntake = false;
+      isCoral = false;
       if (isIntake) {
         volts = -6;
       } else {
@@ -67,7 +67,7 @@ public class IntakeCommand extends Command {
   @Override
   public boolean isFinished() {
 
-    return isCoralIntake && robot.intake.isCoralLoaded();
+    return isCoral && robot.intake.isCoralLoaded();
     // return isFinished;
 
   }

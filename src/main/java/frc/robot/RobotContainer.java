@@ -9,7 +9,6 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -17,8 +16,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
@@ -63,7 +61,7 @@ public class RobotContainer {
     vision = new LimeLight();
     wrist = new Wrist();
     elevator = new Elevator();
-    intake = new Intake(elevator);
+    intake = new Intake();
     drive =
         new Drive(
             new GyroIOPigeon2(),
@@ -102,8 +100,7 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("intake", new IntakeCommand(this, true));
     NamedCommands.registerCommand("eject", new IntakeCommand(this, false));
-
-}
+  }
 
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
@@ -164,10 +161,25 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // Intake coral/Algae
-    controller.leftBumper().whileTrue(new IntakeCommand(this, true));
-    // Eject coral/Algae
-    controller.leftTrigger().whileTrue(new IntakeCommand(this, false));
+    // Intake coral
+    controller
+        .leftBumper()
+        .whileTrue(
+            new StartEndCommand(() -> intake.intake(8), () -> intake.stop(), intake)
+                .until((() -> intake.isCoralLoaded())));
+    // Eject coral
+    controller
+        .leftTrigger()
+        .whileTrue(new StartEndCommand(() -> intake.intake(4), () -> intake.stop(), intake));
+
+    // Intake coral
+    controller
+        .rightBumper()
+        .whileTrue(new StartEndCommand(() -> intake.intake(-6), () -> intake.stop(), intake));
+    // Eject coral
+    controller
+        .rightTrigger()
+        .whileTrue(new StartEndCommand(() -> intake.intake(12), () -> intake.stop(), intake));
 
     elevator.setDefaultCommand(Commands.run(() -> {}, elevator));
     wrist.setDefaultCommand(Commands.run(() -> {}, wrist));
@@ -200,11 +212,12 @@ public class RobotContainer {
     controller.povRight().onTrue(new SetWristAndElevator(this, 4));
 
     // Manual lift
-    Command manualLift =
-        new RunCommand(() -> elevator.setVoltage(-controller.getLeftY() * 2), elevator);
-    Command manualWrist = new RunCommand(() -> wrist.setVoltage(controller.getRightY() * 2), wrist);
-    ParallelCommandGroup manualCommandGroup = new ParallelCommandGroup(manualLift, manualWrist);
-    controller.rightBumper().whileTrue(manualCommandGroup);
+    // Command manualLift =
+    //     new RunCommand(() -> elevator.setVoltage(-controller.getLeftY() * 2), elevator);
+    // Command manualWrist = new RunCommand(() -> wrist.setVoltage(controller.getRightY() * 2),
+    // wrist);
+    // ParallelCommandGroup manualCommandGroup = new ParallelCommandGroup(manualLift, manualWrist);
+    // controller.rightBumper().whileTrue(manualCommandGroup);
   }
 
   /**

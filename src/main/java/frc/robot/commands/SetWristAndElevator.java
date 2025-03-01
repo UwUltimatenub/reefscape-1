@@ -16,15 +16,27 @@ public class SetWristAndElevator extends Command {
 
   RobotContainer robot;
   SuperStructureState state;
-  boolean isSafe = false;
   double safeAngle = 0;
+  boolean isSafe = false;
   boolean isFinished = false;
+  int level = 0;
 
   /** Creates a new SetWristAndElevator. */
   public SetWristAndElevator(RobotContainer robot, int level) {
-    addRequirements(robot.wrist, robot.elevator);
+    addRequirements(robot.wrist, robot.elevator, robot.intake);
 
     this.robot = robot;
+    this.level = level;
+
+    // Use addRequirements() here to declare subsystem dependencies.
+  }
+
+  // Called when the command is initially scheduled.
+  @Override
+  public void initialize() {
+    isSafe = false;
+    isFinished = false;
+
     if (robot.intake.isCoralLoaded()) {
       switch (level) {
         case 1:
@@ -71,13 +83,7 @@ public class SetWristAndElevator extends Command {
     } else {
       safeAngle = SuperStructureState.STATE_SAFTY.height; // safty angle for algae
     }
-
-    // Use addRequirements() here to declare subsystem dependencies.
   }
-
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -96,6 +102,7 @@ public class SetWristAndElevator extends Command {
         robot.wrist.setWristAngle(state.angle);
         if (robot.wrist.isDone().getAsBoolean()) {
           robot.currentState = state;
+          System.out.println("current state=" + state.name);
           isFinished = true;
         }
       }

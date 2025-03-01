@@ -13,7 +13,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.elevator.Elevator;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
@@ -27,11 +26,10 @@ public class Intake extends SubsystemBase {
     public boolean isCoralLoaded = false;
   }
 
-  private Elevator elevator = null;
   IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
 
-  public Intake(Elevator elevator1) {
-    this.elevator = elevator1;
+  public Intake() {
+
     // find actual motor IDs
     intake = new TalonFX(7, "*");
     TalonFXConfiguration config = new TalonFXConfiguration();
