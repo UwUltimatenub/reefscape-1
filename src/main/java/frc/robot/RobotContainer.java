@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -213,13 +215,12 @@ public class RobotContainer {
     controller2.povRight().onTrue(new SetWristAndElevator(this, 4));
 
     // Manual lift
-    // Command manualLift =
-    //     new RunCommand(() -> elevator.setVoltage(-controller.getLeftY() * 2), elevator);
-    // Command manualWrist = new RunCommand(() -> wrist.setVoltage(controller.getRightY() * 2),
-    // wrist);
-    // ParallelCommandGroup manualCommandGroup = new ParallelCommandGroup(manualLift, manualWrist);
-    // controller.rightBumper().whileTrue(manualCommandGroup);
-  }
+//     Command manualLift =
+//         new RunCommand(() -> elevator.setVoltage(-controller.getLeftY() * 2), elevator);
+//     Command manualWrist = new RunCommand(() -> wrist.setVoltage(controller.getRightY() * 2), wrist);
+//     ParallelCommandGroup manualCommandGroup = new ParallelCommandGroup(manualLift, manualWrist);
+//     controller2.b().whileTrue(manualCommandGroup);
+//   }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

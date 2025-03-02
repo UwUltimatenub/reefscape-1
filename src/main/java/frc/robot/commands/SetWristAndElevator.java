@@ -19,6 +19,8 @@ public class SetWristAndElevator extends Command {
   double safeAngle = 0;
   boolean isSafe = false;
   boolean isFinished = false;
+  boolean isNoCoralToSource = false;
+
   int level = 0;
 
   /** Creates a new SetWristAndElevator. */
@@ -36,6 +38,7 @@ public class SetWristAndElevator extends Command {
   public void initialize() {
     isSafe = false;
     isFinished = false;
+    isNoCoralToSource = false;
 
     if (robot.intake.isCoralLoaded()) {
       switch (level) {
@@ -71,6 +74,7 @@ public class SetWristAndElevator extends Command {
           break;
         default:
           state = SuperStructureState.STATE_SOURCE;
+          isNoCoralToSource = true;
           break;
       }
     }
@@ -79,9 +83,17 @@ public class SetWristAndElevator extends Command {
         || robot.currentState == SuperStructureState.STATE_L2
         || robot.currentState == SuperStructureState.STATE_L3
         || robot.currentState == SuperStructureState.STATE_L4) {
-      safeAngle = SuperStructureState.STATE_SAFTY.angle; // safty angle for coral
+      // doing coral, set safty angle for coral
+      safeAngle = SuperStructureState.STATE_SAFTY.angle;
     } else {
-      safeAngle = SuperStructureState.STATE_SAFTY.height; // safty angle for algae
+      // doing algae, set safty angle for algae
+      if (robot.currentState == SuperStructureState.STATE_ALGAE_TOP) {
+        safeAngle = SuperStructureState.STATE_SAFTY.angle; // safty angle for coral
+      } else if (state == SuperStructureState.STATE_SOURCE) {
+        safeAngle = SuperStructureState.STATE_SAFTY.angle; // safty angle for algae
+      } else {
+        isSafe = true;
+      }
     }
   }
 
@@ -91,6 +103,10 @@ public class SetWristAndElevator extends Command {
 
     // double targetPosition = Math.toRadians(position);
     if (!isSafe) {
+      // no coral to source, eject algae
+      if (isNoCoralToSource) {
+        robot.intake.intake(8);
+      }
       // calculate safty angle
       robot.wrist.setWristAngle(safeAngle);
       if (robot.wrist.isDone().getAsBoolean()) {
@@ -99,6 +115,10 @@ public class SetWristAndElevator extends Command {
     } else {
       robot.elevator.setElevatorHeight(state.height);
       if (robot.elevator.isDone().getAsBoolean()) {
+        // no coral to source, eject algae, end
+        if (isNoCoralToSource) {
+          robot.intake.intake(0);
+        }
         robot.wrist.setWristAngle(state.angle);
         if (robot.wrist.isDone().getAsBoolean()) {
           robot.currentState = state;
