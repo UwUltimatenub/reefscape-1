@@ -22,7 +22,7 @@ public class Intake extends SubsystemBase {
   TalonFX intake;
   CANrange canRange;
 
-  Debouncer db = new Debouncer(0.03, DebounceType.kRising);
+  Debouncer db = new Debouncer(0.02, DebounceType.kRising);
 
   @AutoLog
   public static class IntakeIOInputs {
@@ -68,8 +68,6 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean isCoralLoaded() {
-    return db.calculate(
-        canRange.getDistance().getValueAsDouble() < 0.1
-            && canRange.getDistance().getValueAsDouble() != 0);
+    return db.calculate(canRange.getIsDetected().getValue());
   }
 }
