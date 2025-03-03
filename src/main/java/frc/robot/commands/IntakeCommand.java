@@ -18,12 +18,21 @@ public class IntakeCommand extends Command {
   boolean isCoral = true;
   boolean isIntake = false;
   double volts = 0;
+  SuperStructureState currentState;
 
   /** Creates a new SetWristAndElevator. */
   public IntakeCommand(RobotContainer robot, boolean isIntake) {
     addRequirements(robot.intake);
-
+    this.isIntake = isIntake;
     this.robot = robot;
+
+    // Use addRequirements() here to declare subsystem dependencies.
+  }
+
+  // Called when the command is initially scheduled.
+  @Override
+  public void initialize() {
+
     if (robot.currentState == SuperStructureState.STATE_SOURCE
         || robot.currentState == SuperStructureState.STATE_L1
         || robot.currentState == SuperStructureState.STATE_L2
@@ -43,12 +52,7 @@ public class IntakeCommand extends Command {
         volts = 12;
       }
     }
-    // Use addRequirements() here to declare subsystem dependencies.
   }
-
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -61,13 +65,15 @@ public class IntakeCommand extends Command {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    robot.intake.stop();
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
 
-    return isCoral && robot.intake.isCoralLoaded();
+    return isCoral && robot.intake.isCoralLoaded() && isIntake;
     // return isFinished;
 
   }

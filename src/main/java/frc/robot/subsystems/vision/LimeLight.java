@@ -36,8 +36,8 @@ public class LimeLight extends SubsystemBase {
 
   private LimeLightIOInputsAutoLogged limeLightInputs = new LimeLightIOInputsAutoLogged();
 
-  private final double CAMERA_HEIGHT = 0.28;
-  private final double REEF_TARGET = 0.22;
+  private final double CAMERA_HEIGHT = 0.20;
+  private final double REEF_HEIGHT = 0.30;
   private final double CAMERA_PITCH = 0;
 
   public LimeLight() {}
@@ -81,22 +81,23 @@ public class LimeLight extends SubsystemBase {
 
   //
   public double getDistance() {
-    double ty = getTy();
-    double angleRadian = Units.degreesToRadians(CAMERA_PITCH + ty);
+    double pitch = getTy();
+    double angleRadian = Units.degreesToRadians(CAMERA_PITCH + pitch);
 
-    if (Math.abs(angleRadian) < 1e-6) return Double.MAX_VALUE; // Prevent unreliable distances
+    if (Math.abs(angleRadian) < 2 * 3.14 / 360)
+      return Double.MAX_VALUE; // Prevent unreliable distances
 
-    return (REEF_TARGET - CAMERA_HEIGHT) / Math.tan(angleRadian);
+    return (REEF_HEIGHT - CAMERA_HEIGHT) / Math.tan(angleRadian);
   }
 
   public double autoRotate() {
 
-    return getTx();
+    return -getTx() * 3;
   }
 
   public double autoTranslateX() {
     double correction =
-        -xPid.calculate(getDistance() * Math.sin(Units.degreesToRadians(getTx())), 0);
+        -xPid.calculate(getDistance() * Math.sin(Units.degreesToRadians(-getTx())), 0);
     System.out.println("X: " + correction);
     if (hasTarget()) {
       return correction;
@@ -107,7 +108,7 @@ public class LimeLight extends SubsystemBase {
 
   public double autoTranslateY() {
     double correction =
-        -yPid.calculate(getDistance() * Math.cos(Units.degreesToRadians(getTx())), 10);
+        -yPid.calculate(getDistance() * Math.cos(Units.degreesToRadians(-getTx())), 10);
     System.out.println("Y: " + correction);
     if (hasTarget()) {
       return correction;

@@ -16,9 +16,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
@@ -52,7 +49,7 @@ public class RobotContainer {
 
   // Controller
   public final CommandXboxController controller = new CommandXboxController(0);
-  public final CommandXboxController controller2 = new CommandXboxController(1);
+  public final CommandXboxController controller2 = controller; // new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -120,32 +117,22 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    // Lock to 0° when A button is held
-    controller
-        .x()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> new Rotation2d()));
-
     // Point wheels in x formation to stop
     //  controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Point robot to april tag
-    // controller
-    //     .leftStick()
-    //     .whileTrue(
-    //         DriveCommands.joystickDriveAtAngle(
-    //             drive,
-    //             () -> controller.getLeftY(),
-    //             () -> controller.getLeftX(),
-    //             () -> new Rotation2d(Units.degreesToRadians(vision.autoRotate()))));
+    controller
+        .rightTrigger()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> controller.getLeftY(),
+                () -> controller.getLeftX(),
+                () -> new Rotation2d(Units.degreesToRadians(vision.autoRotate()))));
 
     // Align robot to april tag
     controller
-        .b()
+        .rightBumper()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
@@ -165,24 +152,9 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // Intake coral
-    controller2
-        .leftBumper()
-        .whileTrue(
-            new StartEndCommand(() -> intake.intake(8), () -> intake.stop(), intake)
-                .until((() -> intake.isCoralLoaded())));
+    controller2.leftBumper().whileTrue(new IntakeCommand(this, true));
     // Eject coral
-    controller2
-        .leftTrigger()
-        .whileTrue(new StartEndCommand(() -> intake.intake(4), () -> intake.stop(), intake));
-
-    // Intake algae
-    controller2
-        .rightBumper()
-        .whileTrue(new StartEndCommand(() -> intake.intake(-6), () -> intake.stop(), intake));
-    // Eject algae
-    controller2
-        .rightTrigger()
-        .whileTrue(new StartEndCommand(() -> intake.intake(12), () -> intake.stop(), intake));
+    controller2.leftTrigger().whileTrue(new IntakeCommand(this, false));
 
     elevator.setDefaultCommand(Commands.run(() -> {}, elevator));
     wrist.setDefaultCommand(Commands.run(() -> {}, wrist));
@@ -192,35 +164,23 @@ public class RobotContainer {
 
     // level 1 state, depend on is coral loaded
     controller2.povDown().onTrue(new SetWristAndElevator(this, 1));
-    // controller
-    //     .povDown()
-    //     .onTrue(
-    //         // Commands.run(() ->
-    // elevator.setElevatorHeight(SuperStructureState.STATE_L2.height)));
-    //         Commands.run(() -> elevator.setElevatorHeight(10)));
 
     // level 2 state, depend on is coral loaded
     controller2.povLeft().onTrue(new SetWristAndElevator(this, 2));
-    // controller.povLeft().onTrue(Commands.run(() -> wrist.setWristAngle(75)));
-    // // level 3 state, depend on is coral loaded
-    // controller
-    //     .povUp()
-    //     .onTrue(
-    //         // Commands.run(() ->
-    // elevator.setElevatorHeight(SuperStructureState.STATE_L2.height)));
-    //         Commands.run(() -> elevator.setElevatorHeight(5)));
 
     // level 4 state, depend on is coral loaded
     controller2.povUp().onTrue(new SetWristAndElevator(this, 3));
     controller2.povRight().onTrue(new SetWristAndElevator(this, 4));
 
     // Manual lift
-//     Command manualLift =
-//         new RunCommand(() -> elevator.setVoltage(-controller.getLeftY() * 2), elevator);
-//     Command manualWrist = new RunCommand(() -> wrist.setVoltage(controller.getRightY() * 2), wrist);
-//     ParallelCommandGroup manualCommandGroup = new ParallelCommandGroup(manualLift, manualWrist);
-//     controller2.b().whileTrue(manualCommandGroup);
-//   }
+    //     Command manualLift =
+    //         new RunCommand(() -> elevator.setVoltage(-controller.getLeftY() * 2), elevator);
+    //     Command manualWrist = new RunCommand(() -> wrist.setVoltage(controller.getRightY() * 2),
+    // wrist);
+    //     ParallelCommandGroup manualCommandGroup = new ParallelCommandGroup(manualLift,
+    // manualWrist);
+    //     controller2.b().whileTrue(manualCommandGroup);
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
