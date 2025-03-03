@@ -171,9 +171,9 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // Intake coral
+    // Intake coral/algae
     controller2.leftBumper().onTrue(new IntakeCommand(this, true));
-    // Eject coral
+    // Eject coral/algae
     controller2.leftTrigger().whileTrue(new IntakeCommand(this, false));
 
     elevator.setDefaultCommand(Commands.run(() -> {}, elevator));
@@ -181,10 +181,12 @@ public class RobotContainer {
 
     // Source State
     controller2.a().onTrue(new SetWristAndElevator(this, 0));
-    controller2.x().onTrue(new RunCommand(() -> wrist.setWristAngle(SuperStructureState.L2_ANGLE)));
-    controller2
-        .b()
-        .onTrue(new RunCommand(() -> wrist.setWristAngle(SuperStructureState.SOURCE_ANGLE)));
+
+    //testing
+    // controller2.x().onTrue(new RunCommand(() -> wrist.setWristAngle(SuperStructureState.L2_ANGLE)));
+    // controller2
+    //     .b()
+    //     .onTrue(new RunCommand(() -> wrist.setWristAngle(SuperStructureState.SOURCE_ANGLE)));
 
     // level 1 state, depend on is coral loaded
     controller2.povDown().onTrue(new SetWristAndElevator(this, 1));

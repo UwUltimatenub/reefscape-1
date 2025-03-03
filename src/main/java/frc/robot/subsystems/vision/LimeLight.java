@@ -32,6 +32,8 @@ public class LimeLight extends SubsystemBase {
     public double pitch = 0;
     public double yaw = 0;
     public double distance = 0;
+    public double xcorrection = 0;
+    public double ycorrection = 0;
   }
 
   private LimeLightIOInputsAutoLogged limeLightInputs = new LimeLightIOInputsAutoLogged();
@@ -96,22 +98,20 @@ public class LimeLight extends SubsystemBase {
   }
 
   public double autoTranslateX() {
-    double correction =
-        -xPid.calculate(getDistance() * Math.sin(Units.degreesToRadians(-getTx())), 0);
-    System.out.println("X: " + correction);
+    limeLightInputs.xcorrection =
+        xPid.calculate(getDistance() * Math.sin(Units.degreesToRadians(-getTx())), 0);
     if (hasTarget()) {
-      return correction;
+      return limeLightInputs.xcorrection;
     } else {
       return 0;
     }
   }
 
   public double autoTranslateY() {
-    double correction =
-        -yPid.calculate(getDistance() * Math.cos(Units.degreesToRadians(-getTx())), 10);
-    System.out.println("Y: " + correction);
+    limeLightInputs.ycorrection =
+        yPid.calculate(getDistance() * Math.abs(Math.cos(Units.degreesToRadians(getTx()))), 0);
     if (hasTarget()) {
-      return correction;
+      return limeLightInputs.ycorrection;
     } else {
       return 0;
     }
