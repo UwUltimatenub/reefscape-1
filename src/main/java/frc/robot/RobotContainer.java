@@ -172,7 +172,7 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // Intake coral
-    controller2.leftBumper().whileTrue(new IntakeCommand(this, true));
+    controller2.leftBumper().onTrue(new IntakeCommand(this, true));
     // Eject coral
     controller2.leftTrigger().whileTrue(new IntakeCommand(this, false));
 
