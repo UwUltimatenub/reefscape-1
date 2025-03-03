@@ -15,7 +15,6 @@ import frc.robot.SuperStructureState;
 public class SetWristAndElevator extends Command {
 
   RobotContainer robot;
-  SuperStructureState state;
   double safeAngle = 0;
   boolean isSafe = false;
   boolean isFinished = false;
@@ -43,37 +42,37 @@ public class SetWristAndElevator extends Command {
     if (robot.intake.isCoralLoaded()) {
       switch (level) {
         case 1:
-          state = SuperStructureState.STATE_L1;
+          robot.targetState = SuperStructureState.STATE_L1;
           break;
         case 2:
-          state = SuperStructureState.STATE_L2;
+          robot.targetState = SuperStructureState.STATE_L2;
           break;
         case 3:
-          state = SuperStructureState.STATE_L3;
+          robot.targetState = SuperStructureState.STATE_L3;
           break;
         case 4:
-          state = SuperStructureState.STATE_L4;
+          robot.targetState = SuperStructureState.STATE_L4;
           break;
         default:
-          state = SuperStructureState.STATE_SOURCE;
+          robot.targetState = SuperStructureState.STATE_SOURCE;
           break;
       }
     } else {
       switch (level) {
         case 1:
-          state = SuperStructureState.STATE_PROCESSOR;
+          robot.targetState = SuperStructureState.STATE_PROCESSOR;
           break;
         case 2:
-          state = SuperStructureState.STATE_ALGAE_LOW;
+          robot.targetState = SuperStructureState.STATE_ALGAE_LOW;
           break;
         case 3:
-          state = SuperStructureState.STATE_ALGAE_MID;
+          robot.targetState = SuperStructureState.STATE_ALGAE_MID;
           break;
         case 4:
-          state = SuperStructureState.STATE_ALGAE_TOP;
+          robot.targetState = SuperStructureState.STATE_ALGAE_TOP;
           break;
         default:
-          state = SuperStructureState.STATE_SOURCE;
+          robot.targetState = SuperStructureState.STATE_SOURCE;
           isNoCoralToSource = true;
           break;
       }
@@ -89,7 +88,7 @@ public class SetWristAndElevator extends Command {
       // doing algae, set safty angle for algae
       if (robot.currentState == SuperStructureState.STATE_ALGAE_TOP) {
         safeAngle = SuperStructureState.STATE_SAFTY.angle; // safty angle for coral
-      } else if (state == SuperStructureState.STATE_SOURCE) {
+      } else if (robot.targetState == SuperStructureState.STATE_SOURCE) {
         safeAngle = SuperStructureState.STATE_SAFTY.angle; // safty angle for algae
       } else {
         isSafe = true;
@@ -113,16 +112,16 @@ public class SetWristAndElevator extends Command {
         isSafe = true;
       }
     } else {
-      robot.elevator.setElevatorHeight(state.height);
+      robot.elevator.setElevatorHeight(robot.targetState.height);
       if (robot.elevator.isDone().getAsBoolean()) {
         // no coral to source, eject algae, end
         if (isNoCoralToSource) {
           robot.intake.intake(0);
         }
-        robot.wrist.setWristAngle(state.angle);
+        robot.wrist.setWristAngle(targetState.angle);
         if (robot.wrist.isDone().getAsBoolean()) {
-          robot.currentState = state;
-          System.out.println("current state=" + state.name);
+          robot.currentState = targetState;
+          System.out.println("current state=" + targetState.name);
           isFinished = true;
         }
       }

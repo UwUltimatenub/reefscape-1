@@ -12,6 +12,8 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -47,6 +49,7 @@ public class RobotContainer {
   public final Elevator elevator;
 
   public SuperStructureState currentState = SuperStructureState.STATE_SOURCE;
+  public SuperStructureState targetState = SuperStructureState.STATE_SOURCE;
 
   // Controller
   public final CommandXboxController controller = new CommandXboxController(0);
@@ -102,7 +105,23 @@ public class RobotContainer {
     NamedCommands.registerCommand("intake", new IntakeCommand(this, true));
     NamedCommands.registerCommand("eject", new IntakeCommand(this, false));
   }
-
+  // map joystick input to curved output
+  // less sensitive at the low range, very sensentive at high range
+  private double regulate(double input) {
+    double output = Math.signum(input) * input * input ;
+    if(targetState == SuperStructureState.STATE_ALGAE_TOP || targetState == SuperStructureState.STATE_L4){
+        output = output /2 ;
+    } else if(targetState == SuperStructureState.STATE_ALGAE_MID || targetState == SuperStructureState.STATE_ALGAE_LOW 
+            || targetState == SuperStructureState.STATE_L2 || targetState == SuperStructureState.STATE_L3){
+        output = output /1.5 ;
+    }else{
+        output = output / 1;
+    }
+    // if (DriverStation.getAlliance().get() == Alliance.Red) {
+    //   output = -input;
+    // }
+    return output;
+  }
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
@@ -114,9 +133,9 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            () -> regulate(-controller.getLeftY()),
+            () -> regulate(-controller.getLeftX()),
+            () -> regulate(-controller.getRightX())));
 
     // Point wheels in x formation to stop
     //  controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
@@ -127,8 +146,8 @@ public class RobotContainer {
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
-                () -> controller.getLeftY(),
-                () -> controller.getLeftX(),
+                () -> regulate(-controller.getLeftY()),
+                () -> regulate(-controller.getLeftX()),
                 () -> new Rotation2d(Units.degreesToRadians(vision.autoRotate()))));
 
     // Align robot to april tag
