@@ -128,16 +128,16 @@ public class Wrist extends SubsystemBase {
     pivotInputs.currentAngle = 360 * wristEncoder.getAbsolutePosition().getValueAsDouble();
     Logger.processInputs("Wrist", pivotInputs);
 
-    if (Math.abs(targetDegrees - pivotInputs.currentAngle) < PIVOT_POS_SWITCH_THRESHOLD) {
-      if (targetDegrees == SuperStructureState.SOURCE_ANGLE
-          && Math.abs(targetDegrees - pivotInputs.currentAngle) < 1) { // degree
-        talon.setControl(new NeutralOut());
-      } else {
-        talon.setControl(pPos.withPosition(Units.degreesToRotations(targetDegrees)));
-      }
-    } else {
-      talon.setControl(pMmPos.withPosition(Units.degreesToRotations(targetDegrees)));
-    }
+    // if (Math.abs(targetDegrees - pivotInputs.currentAngle) < PIVOT_POS_SWITCH_THRESHOLD) {
+    //   if (targetDegrees == SuperStructureState.SOURCE_ANGLE
+    //       && Math.abs(targetDegrees - pivotInputs.currentAngle) < 1) { // degree
+    //     talon.setControl(new NeutralOut());
+    //   } else {
+    //     talon.setControl(pPos.withPosition(Units.degreesToRotations(targetDegrees)));
+    //   }
+    // } else {
+    talon.setControl(pMmPos.withPosition(Units.degreesToRotations(targetDegrees)));
+    // }
 
     if (DriverStation.isDisabled()) {
       talon.setControl(new NeutralOut());

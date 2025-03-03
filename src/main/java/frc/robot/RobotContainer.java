@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
@@ -161,6 +162,10 @@ public class RobotContainer {
 
     // Source State
     controller2.a().onTrue(new SetWristAndElevator(this, 0));
+    controller2.x().onTrue(new RunCommand(() -> wrist.setWristAngle(SuperStructureState.L2_ANGLE)));
+    controller2
+        .b()
+        .onTrue(new RunCommand(() -> wrist.setWristAngle(SuperStructureState.SOURCE_ANGLE)));
 
     // level 1 state, depend on is coral loaded
     controller2.povDown().onTrue(new SetWristAndElevator(this, 1));
