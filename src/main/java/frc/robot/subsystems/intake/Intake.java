@@ -15,12 +15,14 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.IntakeCommand;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
   TalonFX intake;
   CANrange canRange;
+  int intakeStatus = 0;
 
   Debouncer db = new Debouncer(0.02, DebounceType.kRising);
 
@@ -28,6 +30,7 @@ public class Intake extends SubsystemBase {
   public static class IntakeIOInputs {
     public double coralRange = 0.0;
     public boolean isCoralLoaded = false;
+    public int intakeStatus = 0;
   }
 
   IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
@@ -48,23 +51,35 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     inputs.coralRange = canRange.getDistance().getValueAsDouble();
     inputs.isCoralLoaded = isCoralLoaded();
+    inputs.intakeStatus = intakeStatus;
     Logger.processInputs("Intake Sensor", inputs);
   }
 
-  public void intake(double volts) {
-
-    intake.setVoltage(volts);
-  }
-
-  public void stop() {
-    intake.stopMotor();
-  }
-
-  public boolean overloaded() {
-
-    double currentDraw = intake.getStatorCurrent().getValueAsDouble(); // Stator current in amps
-    double threshold = 20.0; // Adjust based on your setup
-    return currentDraw > threshold;
+  public void intake(int intakeStatus) {
+    double volts = 0;
+    this.intakeStatus = intakeStatus;
+    switch (intakeStatus) {
+      case IntakeCommand.Intake_Stopped:
+        volts = 0;
+        break;
+      case IntakeCommand.Intake_Coral:
+        volts = 8;
+        break;
+      case IntakeCommand.Eject_Coral:
+        volts = 4;
+        break;
+      case IntakeCommand.Intake_Algae:
+        volts = -6;
+        break;
+      case IntakeCommand.Eject_Algae:
+        volts = 12;
+        break;
+    }
+    if (volts == 0) {
+      intake.stopMotor();
+    } else {
+      intake.setVoltage(volts);
+    }
   }
 
   public boolean isCoralLoaded() {

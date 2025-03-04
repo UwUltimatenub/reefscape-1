@@ -14,10 +14,16 @@ import frc.robot.SuperStructureState;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class IntakeCommand extends Command {
 
+  public static final int Intake_Stopped = 0;
+  public static final int Intake_Coral = 1;
+  public static final int Eject_Coral = 2;
+  public static final int Intake_Algae = 3;
+  public static final int Eject_Algae = 4;
+  public int intakeStatus = Intake_Stopped;
+
   RobotContainer robot;
   boolean isCoral = true;
   boolean isIntake = false;
-  double volts = 0;
   SuperStructureState currentState;
 
   /** Creates a new SetWristAndElevator. */
@@ -40,16 +46,17 @@ public class IntakeCommand extends Command {
         || robot.currentState == SuperStructureState.STATE_L4) {
       isCoral = true;
       if (isIntake) {
-        volts = 8;
+        intakeStatus = Intake_Coral;
+
       } else {
-        volts = 4;
+        intakeStatus = Eject_Coral;
       }
     } else {
       isCoral = false;
       if (isIntake) {
-        volts = -6;
+        intakeStatus = Intake_Algae;
       } else {
-        volts = 12;
+        intakeStatus = Eject_Algae;
       }
     }
   }
@@ -58,7 +65,7 @@ public class IntakeCommand extends Command {
   @Override
   public void execute() {
 
-    robot.intake.intake(volts);
+    robot.intake.intake(intakeStatus);
     // double targetPosition = Math.toRadians(position);
 
   }
@@ -67,7 +74,7 @@ public class IntakeCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     // if(!isIntake){
-    robot.intake.stop();
+    robot.intake.intake(Intake_Stopped);
     // }
   }
 
