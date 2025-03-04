@@ -118,7 +118,9 @@ public class RobotContainer {
       output = output / 1.5;
     } else {
       // processor and source, move normal speed
-      output = output / 1;
+      if(intake.intakeStatus == IntakeCommand.Intake_Coral){
+        output = output /1.5;
+      }
     }
     // if (DriverStation.getAlliance().get() == Alliance.Red) {
     // output = -input;

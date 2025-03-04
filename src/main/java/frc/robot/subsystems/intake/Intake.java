@@ -22,7 +22,7 @@ import org.littletonrobotics.junction.Logger;
 public class Intake extends SubsystemBase {
   TalonFX intake;
   CANrange canRange;
-  int intakeStatus = 0;
+  public int intakeStatus = 0;
 
   Debouncer db = new Debouncer(0.02, DebounceType.kRising);
 
