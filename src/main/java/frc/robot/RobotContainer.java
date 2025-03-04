@@ -39,7 +39,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private final Drive drive;
+  public final Drive drive;
   private final LimeLight vision;
   public final Intake intake;
   public final Wrist wrist;
@@ -50,7 +50,7 @@ public class RobotContainer {
 
   // Controller
   public final CommandXboxController controller = new CommandXboxController(0);
-  public final CommandXboxController controller2 = new CommandXboxController(1);
+  public final CommandXboxController controller2 = controller; // new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -118,8 +118,8 @@ public class RobotContainer {
       output = output / 1.5;
     } else {
       // processor and source, move normal speed
-      if(intake.intakeStatus == IntakeCommand.Intake_Coral){
-        output = output /1.5;
+      if (intake.intakeStatus == IntakeCommand.Intake_Coral) {
+        output = output / 1.5;
       }
     }
     // if (DriverStation.getAlliance().get() == Alliance.Red) {

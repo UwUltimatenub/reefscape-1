@@ -94,7 +94,7 @@ public class LimeLight extends SubsystemBase {
 
   public double autoRotate() {
 
-    return -getTx() * 3;
+    return -getTx() * 3.5;
   }
 
   public double autoTranslateX() {
@@ -109,7 +109,7 @@ public class LimeLight extends SubsystemBase {
 
   public double autoTranslateY() {
     limeLightInputs.ycorrection =
-        yPid.calculate(getDistance() * Math.abs(Math.cos(Units.degreesToRadians(getTx()))), 0);
+        yPid.calculate(-getDistance() * Math.abs(Math.cos(Units.degreesToRadians(getTx()))), 0);
     if (hasTarget()) {
       return limeLightInputs.ycorrection;
     } else {

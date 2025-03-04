@@ -83,16 +83,16 @@ public class Elevator extends SubsystemBase {
     // Move the arm
     armTalonConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
     armTalonConfig.Slot0.kG = 0.3; // 0.35; // 0.35; // to hold the arm weight
-    armTalonConfig.Slot0.kP = 35; // 40; // 60; // 100; // adjust PID
+    armTalonConfig.Slot0.kP = 50; // 40; // 60; // 100; // adjust PID
     armTalonConfig.Slot0.kI = 0;
     armTalonConfig.Slot0.kD = 0;
     armTalonConfig.Slot0.kS = 0;
     armTalonConfig.Slot0.kV = 8; // 10; // 8.3; // move velocity
     armTalonConfig.Slot0.kA = 0.2; // 0.2; // move accerleration
 
-    armTalonConfig.MotionMagic.MotionMagicCruiseVelocity = 50; // 1.0; // 0.5;
-    armTalonConfig.MotionMagic.MotionMagicAcceleration = 2; // 2; // 1.0;
-    armTalonConfig.MotionMagic.MotionMagicJerk = 0; // 10; // 10;
+    armTalonConfig.MotionMagic.MotionMagicCruiseVelocity = 60; // 1.0; // 0.5;
+    armTalonConfig.MotionMagic.MotionMagicAcceleration = 3; // 2; // 1.0;
+    armTalonConfig.MotionMagic.MotionMagicJerk = 30; // 10; // 10;
 
     pMmPos.Slot = 0;
     pMmPos.EnableFOC = true;

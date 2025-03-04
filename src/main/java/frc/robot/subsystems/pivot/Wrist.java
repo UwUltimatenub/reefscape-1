@@ -86,29 +86,20 @@ public class Wrist extends SubsystemBase {
     armTalonConfig.Feedback.RotorToSensorRatio = reduction;
 
     armTalonConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
-    // Hold the ARM
-    armTalonConfig.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
-    armTalonConfig.Slot1.kG = 0.35; // 0.35; // to hold the arm weight
-    armTalonConfig.Slot1.kP = 20; // 60; // 60; // 100; // adjust PID
-    armTalonConfig.Slot1.kI = 0;
-    armTalonConfig.Slot1.kD = 0; // 0.02;
-    armTalonConfig.Slot1.kS = 0;
-    armTalonConfig.Slot1.kV = 0;
-    armTalonConfig.Slot1.kA = 0;
 
     // Move the arm
     armTalonConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
     armTalonConfig.Slot0.kG = 0.35; // 0.35; // to hold the arm weight
-    armTalonConfig.Slot0.kP = 20; // 60; // 100; // adjust PID
+    armTalonConfig.Slot0.kP = 40; // 60; // 100; // adjust PID
     armTalonConfig.Slot0.kI = 0;
     armTalonConfig.Slot0.kD = 0.01;
     armTalonConfig.Slot0.kS = 0;
     armTalonConfig.Slot0.kV = 5; // 8.3; // move velocity
     armTalonConfig.Slot0.kA = 0.15; // 0.2; // move accerleration
 
-    armTalonConfig.MotionMagic.MotionMagicCruiseVelocity = 5; // 1.0; // 0.5;
-    armTalonConfig.MotionMagic.MotionMagicAcceleration = 0.8; // 2; // 1.0;
-    armTalonConfig.MotionMagic.MotionMagicJerk = 0; // 10; // 10;
+    armTalonConfig.MotionMagic.MotionMagicCruiseVelocity = 8; // 1.0; // 0.5;
+    armTalonConfig.MotionMagic.MotionMagicAcceleration = 2; // 2; // 1.0;
+    armTalonConfig.MotionMagic.MotionMagicJerk = 20; // 10; // 10;
 
     pMmPos.Slot = 0;
     pMmPos.EnableFOC = true;
