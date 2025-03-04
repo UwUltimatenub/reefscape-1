@@ -118,10 +118,10 @@ public class SetWristAndElevator extends Command {
         if (isNoCoralToSource) {
           robot.intake.intake(0);
         }
-        robot.wrist.setWristAngle(targetState.angle);
+        robot.wrist.setWristAngle(robot.targetState.angle);
         if (robot.wrist.isDone().getAsBoolean()) {
-          robot.currentState = targetState;
-          System.out.println("current state=" + targetState.name);
+          robot.currentState = robot.targetState;
+          System.out.println("current state=" + robot.targetState.name);
           isFinished = true;
         }
       }
