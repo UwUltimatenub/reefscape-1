@@ -50,7 +50,7 @@ public class RobotContainer {
 
   // Controller
   public final CommandXboxController controller = new CommandXboxController(0);
-  public final CommandXboxController controller2 = controller; // new CommandXboxController(1);
+  public final CommandXboxController controller2 = new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -137,7 +137,7 @@ public class RobotContainer {
             drive,
             () -> regulate(-controller.getLeftY()),
             () -> regulate(-controller.getLeftX()),
-            () -> regulate(-controller.getRightX() / 1.2)));
+            () -> regulate(-controller.getRightX())));
 
     // Point wheels in x formation to stop
     //  controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
