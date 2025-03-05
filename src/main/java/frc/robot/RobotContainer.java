@@ -213,7 +213,7 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     return autoChooser
         .get()
-        .andThen(new SetWristAndElevator(this, 2))
+        .andThen(new SetWristAndElevator(this, 4))
         .andThen(new IntakeCommand(this, false));
   }
 }
