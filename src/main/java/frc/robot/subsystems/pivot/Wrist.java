@@ -90,16 +90,16 @@ public class Wrist extends SubsystemBase {
     // Move the arm
     armTalonConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
     armTalonConfig.Slot0.kG = 0.35; // 0.35; // to hold the arm weight
-    armTalonConfig.Slot0.kP = 40; // 60; // 100; // adjust PID
+    armTalonConfig.Slot0.kP = 35; // 60; // 100; // adjust PID
     armTalonConfig.Slot0.kI = 0;
-    armTalonConfig.Slot0.kD = 0.01;
+    armTalonConfig.Slot0.kD = 0.1;
     armTalonConfig.Slot0.kS = 0;
     armTalonConfig.Slot0.kV = 5; // 8.3; // move velocity
     armTalonConfig.Slot0.kA = 0.15; // 0.2; // move accerleration
 
     armTalonConfig.MotionMagic.MotionMagicCruiseVelocity = 8; // 1.0; // 0.5;
-    armTalonConfig.MotionMagic.MotionMagicAcceleration = 2; // 2; // 1.0;
-    armTalonConfig.MotionMagic.MotionMagicJerk = 20; // 10; // 10;
+    armTalonConfig.MotionMagic.MotionMagicAcceleration = 1.5; // 2; // 1.0;
+    armTalonConfig.MotionMagic.MotionMagicJerk = 15; // 10; // 10;
 
     pMmPos.Slot = 0;
     pMmPos.EnableFOC = true;

@@ -108,14 +108,14 @@ public class RobotContainer {
   private double regulate(double input) {
     double output = Math.signum(input) * input * input;
     if (targetState == SuperStructureState.STATE_ALGAE_TOP
-        || currentState == SuperStructureState.STATE_ALGAE_TOP) {
-      output = output / 2;
+        || currentState == SuperStructureState.STATE_ALGAE_TOP
+        || targetState == SuperStructureState.STATE_L4) {
+      output = output / 2.5;
     } else if (targetState == SuperStructureState.STATE_ALGAE_MID
         || targetState == SuperStructureState.STATE_ALGAE_LOW
         || targetState == SuperStructureState.STATE_L2
-        || targetState == SuperStructureState.STATE_L3
-        || targetState == SuperStructureState.STATE_L4) {
-      output = output / 1.5;
+        || targetState == SuperStructureState.STATE_L3) {
+      output = output / 1.8;
     } else {
       // processor and source, move normal speed
       if (intake.intakeStatus == IntakeCommand.Intake_Coral) {
@@ -151,7 +151,7 @@ public class RobotContainer {
             drive,
             () -> regulate(-controller.getLeftY()),
             () -> regulate(-controller.getLeftX()),
-            () -> regulate(-controller.getRightX())));
+            () -> regulate(-controller.getRightX() / 1.2)));
 
     // Intake coral/algae
     controller2.leftBumper().whileTrue(new IntakeCommand(this, true));
