@@ -211,9 +211,21 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser
-        .get()
-        .andThen(new SetWristAndElevator(this, 4))
-        .andThen(new IntakeCommand(this, false));
+    String autoName = autoChooser.get().getName();
+    Command autoCommand = null;
+    switch (autoName) {
+      case "left_auto":
+        autoCommand =
+            autoChooser
+                .get()
+                .andThen(new SetWristAndElevator(this, 4))
+                .andThen(new IntakeCommand(this, false))
+                .andThen(new SetWristAndElevator(this, 0));
+        break;
+
+      default:
+        break;
+    }
+    return autoCommand;
   }
 }
