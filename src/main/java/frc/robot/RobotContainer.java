@@ -109,13 +109,14 @@ public class RobotContainer {
     double output = Math.signum(input) * input * input;
     if (targetState == SuperStructureState.STATE_ALGAE_TOP
         || currentState == SuperStructureState.STATE_ALGAE_TOP
-        || targetState == SuperStructureState.STATE_L4) {
-      output = output / 2.5;
+        || targetState == SuperStructureState.STATE_L4
+        || currentState == SuperStructureState.STATE_L4) {
+      output = output / 1.75;
     } else if (targetState == SuperStructureState.STATE_ALGAE_MID
         || targetState == SuperStructureState.STATE_ALGAE_LOW
         || targetState == SuperStructureState.STATE_L2
         || targetState == SuperStructureState.STATE_L3) {
-      output = output / 1.8;
+      output = output / 1.6;
     } else {
       // processor and source, move normal speed
       if (intake.intakeStatus == IntakeCommand.Intake_Coral) {
@@ -210,6 +211,9 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.get();
+    return autoChooser
+        .get()
+        .andThen(new SetWristAndElevator(this, 2))
+        .andThen(new IntakeCommand(this, false));
   }
 }
