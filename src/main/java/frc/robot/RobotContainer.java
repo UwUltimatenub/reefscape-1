@@ -116,7 +116,7 @@ public class RobotContainer {
         || targetState == SuperStructureState.STATE_ALGAE_LOW
         || targetState == SuperStructureState.STATE_L2
         || targetState == SuperStructureState.STATE_L3) {
-      output = output / 1.6;
+      output = output / 1.4;
     } else {
       // processor and source, move normal speed
       if (intake.intakeStatus == IntakeCommand.Intake_Coral) {
