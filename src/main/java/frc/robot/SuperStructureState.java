@@ -10,7 +10,7 @@ package frc.robot;
 public class SuperStructureState {
 
   public static final double SOURCE_HEIGHT = 0.25;
-  public static final double SOURCE_ANGLE = 50;
+  public static final double SOURCE_ANGLE = 46;
 
   public static final double L1_HEIGHT = 5;
   public static final double L2_HEIGHT = 12;

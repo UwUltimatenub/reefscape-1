@@ -46,7 +46,7 @@ public class Wrist extends SubsystemBase {
       0.098; // -0.0325 default wrist angle; zero degree arm in
   // horizontal
   private static final int encoderId = 13;
-  public static final double minAngle = 50;
+  public static final double minAngle = 45;
   public static final double maxAngle = 240;
   private static final double PIVOT_POS_SWITCH_THRESHOLD = 2;
 

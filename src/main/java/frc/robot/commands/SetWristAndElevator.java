@@ -77,7 +77,9 @@ public class SetWristAndElevator extends Command {
           break;
       }
     }
-    if (robot.currentState == SuperStructureState.STATE_SOURCE
+    if (robot.currentState == robot.targetState) {
+      isSafe = true;
+    } else if (robot.currentState == SuperStructureState.STATE_SOURCE
         || robot.currentState == SuperStructureState.STATE_L1
         || robot.currentState == SuperStructureState.STATE_L2
         || robot.currentState == SuperStructureState.STATE_L3
@@ -104,7 +106,7 @@ public class SetWristAndElevator extends Command {
     if (!isSafe) {
       // no coral to source, eject algae
       if (isNoCoralToSource) {
-        robot.intake.intake(8);
+        robot.intake.intake(IntakeCommand.Eject_Algae);
       }
       // calculate safty angle
       robot.wrist.setWristAngle(safeAngle);
