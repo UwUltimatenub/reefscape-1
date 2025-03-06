@@ -85,7 +85,6 @@ public class IntakeCommand extends Command {
   @Override
   public boolean isFinished() {
 
-    Timer m_timer = new Timer();
     return isCoral && isIntake && robot.intake.isCoralLoaded()
         || !isIntake && m_timer.hasElapsed(1);
     // return isFinished;

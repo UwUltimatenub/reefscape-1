@@ -110,12 +110,13 @@ public class RobotContainer {
     if (targetState == SuperStructureState.STATE_ALGAE_TOP
         || currentState == SuperStructureState.STATE_ALGAE_TOP
         || targetState == SuperStructureState.STATE_L4
-        || currentState == SuperStructureState.STATE_L4) {
+       ) {
       output = output / 1.75;
     } else if (targetState == SuperStructureState.STATE_ALGAE_MID
         || targetState == SuperStructureState.STATE_ALGAE_LOW
         || targetState == SuperStructureState.STATE_L2
-        || targetState == SuperStructureState.STATE_L3) {
+        || targetState == SuperStructureState.STATE_L3
+        || currentState == SuperStructureState.STATE_L4) {
       output = output / 1.4;
     } else {
       // processor and source, move normal speed
