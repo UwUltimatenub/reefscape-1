@@ -109,8 +109,7 @@ public class RobotContainer {
     double output = Math.signum(input) * input * input;
     if (targetState == SuperStructureState.STATE_ALGAE_TOP
         || currentState == SuperStructureState.STATE_ALGAE_TOP
-        || targetState == SuperStructureState.STATE_L4
-       ) {
+        || targetState == SuperStructureState.STATE_L4) {
       output = output / 1.75;
     } else if (targetState == SuperStructureState.STATE_ALGAE_MID
         || targetState == SuperStructureState.STATE_ALGAE_LOW
@@ -153,7 +152,7 @@ public class RobotContainer {
             drive,
             () -> regulate(-controller.getLeftY()),
             () -> regulate(-controller.getLeftX()),
-            () -> regulate(-controller.getRightX() / 1.2)));
+            () -> regulate(-controller.getRightX() / 1.1)));
 
     // Intake coral/algae
     controller2.leftBumper().whileTrue(new IntakeCommand(this, true));

@@ -7,6 +7,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.SuperStructureState;
@@ -19,6 +20,7 @@ public class SetWristAndElevator extends Command {
   boolean isSafe = false;
   boolean isFinished = false;
   boolean isNoCoralToSource = false;
+  Timer m_timer = new Timer();
 
   int level = 0;
 
@@ -35,6 +37,7 @@ public class SetWristAndElevator extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    m_timer.restart();
     isSafe = false;
     isFinished = false;
     isNoCoralToSource = false;
@@ -137,7 +140,7 @@ public class SetWristAndElevator extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return isFinished;
+    return isFinished || m_timer.hasElapsed(5);
     // return isFinished;
 
   }

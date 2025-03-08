@@ -33,7 +33,7 @@ public class SuperStructureState {
   public static final double TOP_ALGAE_ANGLE = 105;
 
   // angle to pass the safty zone
-  public static SuperStructureState STATE_SAFTY = new SuperStructureState("Safety", 180, 75);
+  public static SuperStructureState STATE_SAFTY = new SuperStructureState("Safety", 180, 85);
   public static SuperStructureState STATE_SOURCE =
       new SuperStructureState("Source", SOURCE_HEIGHT, SOURCE_ANGLE);
 
