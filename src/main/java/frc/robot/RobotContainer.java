@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.SetWristAndElevator;
@@ -72,7 +71,6 @@ public class RobotContainer {
             new ModuleIOTalonFX(TunerConstants.BackLeft),
             new ModuleIOTalonFX(TunerConstants.BackRight));
 
-
     NamedCommands.registerCommand("setSource", new SetWristAndElevator(this, 0).withTimeout(5));
     NamedCommands.registerCommand("setL1", new SetWristAndElevator(this, 1).withTimeout(5));
     NamedCommands.registerCommand("setL2", new SetWristAndElevator(this, 2).withTimeout(5));
@@ -81,7 +79,7 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("intake", new IntakeCommand(this, true).withTimeout(5));
     NamedCommands.registerCommand("eject", new IntakeCommand(this, false).withTimeout(5));
-        
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 

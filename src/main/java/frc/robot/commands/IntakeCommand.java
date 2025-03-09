@@ -7,7 +7,6 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.SuperStructureState;
@@ -84,7 +83,7 @@ public class IntakeCommand extends Command {
   public boolean isFinished() {
 
     return isCoral && isIntake && robot.intake.isCoralLoaded();
-      // return isFinished;
+    // return isFinished;
 
   }
 }
