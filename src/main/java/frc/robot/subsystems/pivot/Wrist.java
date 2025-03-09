@@ -145,7 +145,7 @@ public class Wrist extends SubsystemBase {
   }
 
   public BooleanSupplier isDone() {
-    boolean flag = Math.abs(targetDegrees - pivotInputs.currentAngle) < 3;
+    boolean flag = Math.abs(targetDegrees - pivotInputs.currentAngle) < 2;
     return () -> flag;
   }
 }

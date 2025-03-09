@@ -20,7 +20,6 @@ public class SetWristAndElevator extends Command {
   boolean isSafe = false;
   boolean isFinished = false;
   boolean isNoCoralToSource = false;
-  Timer m_timer = new Timer();
 
   int level = 0;
 
@@ -37,7 +36,6 @@ public class SetWristAndElevator extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_timer.restart();
     isSafe = false;
     isFinished = false;
     isNoCoralToSource = false;
@@ -96,7 +94,7 @@ public class SetWristAndElevator extends Command {
       } else if (robot.targetState == SuperStructureState.STATE_SOURCE) {
         safeAngle = SuperStructureState.STATE_SAFTY.angle; // safty angle for algae
       } else {
-        isSafe = true;
+        safeAngle = SuperStructureState.STATE_SAFTY.height; // safty angle for algae
       }
     }
   }
@@ -140,8 +138,6 @@ public class SetWristAndElevator extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return isFinished || m_timer.hasElapsed(5);
-    // return isFinished;
-
+    return isFinished;
   }
 }

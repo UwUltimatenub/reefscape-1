@@ -15,6 +15,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -71,36 +72,21 @@ public class RobotContainer {
             new ModuleIOTalonFX(TunerConstants.BackLeft),
             new ModuleIOTalonFX(TunerConstants.BackRight));
 
+
+    NamedCommands.registerCommand("setSource", new SetWristAndElevator(this, 0).withTimeout(5));
+    NamedCommands.registerCommand("setL1", new SetWristAndElevator(this, 1).withTimeout(5));
+    NamedCommands.registerCommand("setL2", new SetWristAndElevator(this, 2).withTimeout(5));
+    NamedCommands.registerCommand("setL3", new SetWristAndElevator(this, 3).withTimeout(5));
+    NamedCommands.registerCommand("setL4", new SetWristAndElevator(this, 4).withTimeout(5));
+
+    NamedCommands.registerCommand("intake", new IntakeCommand(this, true).withTimeout(5));
+    NamedCommands.registerCommand("eject", new IntakeCommand(this, false).withTimeout(5));
+        
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
-    // Set up SysId routines
-    autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
     // Configure the button bindings
     configureButtonBindings();
-
-    NamedCommands.registerCommand("setSource", new SetWristAndElevator(this, 0));
-    NamedCommands.registerCommand("setL1", new SetWristAndElevator(this, 1));
-    NamedCommands.registerCommand("setL2", new SetWristAndElevator(this, 2));
-    NamedCommands.registerCommand("setL3", new SetWristAndElevator(this, 3));
-    NamedCommands.registerCommand("setL4", new SetWristAndElevator(this, 4));
-
-    NamedCommands.registerCommand("intake", new IntakeCommand(this, true));
-    NamedCommands.registerCommand("eject", new IntakeCommand(this, false));
   }
 
   // map joystick input to curved output
@@ -160,15 +146,35 @@ public class RobotContainer {
     controller2.rightBumper().whileTrue(new IntakeCommand(this, false));
 
     // Source State
-    controller2.a().onTrue(new SetWristAndElevator(this, 0));
+    controller2
+        .a()
+        .onTrue(
+            new SetWristAndElevator(this, 0)
+                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
     // level 1 state, depend on is coral loaded
-    controller2.povDown().onTrue(new SetWristAndElevator(this, 1));
+    controller2
+        .povDown()
+        .onTrue(
+            new SetWristAndElevator(this, 1)
+                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
     // level 2 state, depend on is coral loaded
-    controller2.povLeft().onTrue(new SetWristAndElevator(this, 2));
+    controller2
+        .povLeft()
+        .onTrue(
+            new SetWristAndElevator(this, 2)
+                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
     // level 3 state, depend on is coral loaded
-    controller2.povUp().onTrue(new SetWristAndElevator(this, 3));
+    controller2
+        .povUp()
+        .onTrue(
+            new SetWristAndElevator(this, 3)
+                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
     // level 4 state, depend on is coral loaded
-    controller2.povRight().onTrue(new SetWristAndElevator(this, 4));
+    controller2
+        .povRight()
+        .onTrue(
+            new SetWristAndElevator(this, 4)
+                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
 
     // testing
     // controller2.x().onTrue(new RunCommand(() ->

@@ -26,7 +26,6 @@ public class IntakeCommand extends Command {
   boolean isCoral = true;
   boolean isIntake = false;
   SuperStructureState currentState;
-  Timer m_timer = new Timer();
 
   /** Creates a new SetWristAndElevator. */
   public IntakeCommand(RobotContainer robot, boolean isIntake) {
@@ -41,7 +40,6 @@ public class IntakeCommand extends Command {
   @Override
   public void initialize() {
 
-    m_timer.restart();
     if (robot.currentState == SuperStructureState.STATE_SOURCE
         || robot.currentState == SuperStructureState.STATE_L1
         || robot.currentState == SuperStructureState.STATE_L2
@@ -85,9 +83,8 @@ public class IntakeCommand extends Command {
   @Override
   public boolean isFinished() {
 
-    return isCoral && isIntake && robot.intake.isCoralLoaded()
-        || !isIntake && m_timer.hasElapsed(1);
-    // return isFinished;
+    return isCoral && isIntake && robot.intake.isCoralLoaded();
+      // return isFinished;
 
   }
 }
