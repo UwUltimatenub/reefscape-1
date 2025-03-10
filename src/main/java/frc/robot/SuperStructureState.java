@@ -20,7 +20,7 @@ public class SuperStructureState {
   public static final double L1_ANGLE = 55;
   public static final double L2_ANGLE = 75;
   public static final double L3_ANGLE = 75;
-  public static final double L4_ANGLE = 115;
+  public static final double L4_ANGLE = 90;
 
   public static final double PROCESSOR_HEIGHT = 5;
   public static final double LOW_ALGAE_HEIGHT = 25;
@@ -37,19 +37,19 @@ public class SuperStructureState {
   public static SuperStructureState STATE_SOURCE =
       new SuperStructureState("Source", SOURCE_HEIGHT, SOURCE_ANGLE);
 
-  public static SuperStructureState STATE_L1 = new SuperStructureState("CL1", L1_HEIGHT, L1_ANGLE);
-  public static SuperStructureState STATE_L2 = new SuperStructureState("CL2", L2_HEIGHT, L2_ANGLE);
-  public static SuperStructureState STATE_L3 = new SuperStructureState("CL3", L3_HEIGHT, L3_ANGLE);
-  public static SuperStructureState STATE_L4 = new SuperStructureState("CL4", L4_HEIGHT, L4_ANGLE);
+  public static SuperStructureState STATE_L1 = new SuperStructureState("Coral:L1", L1_HEIGHT, L1_ANGLE);
+  public static SuperStructureState STATE_L2 = new SuperStructureState("Coral:L2", L2_HEIGHT, L2_ANGLE);
+  public static SuperStructureState STATE_L3 = new SuperStructureState("Coral:L3", L3_HEIGHT, L3_ANGLE);
+  public static SuperStructureState STATE_L4 = new SuperStructureState("Coral:L4", L4_HEIGHT, L4_ANGLE);
 
   public static SuperStructureState STATE_PROCESSOR =
-      new SuperStructureState("PROCESSOR", PROCESSOR_HEIGHT, PROCESSOR_ANGLE);
+      new SuperStructureState("Algae:PROCESSOR", PROCESSOR_HEIGHT, PROCESSOR_ANGLE);
   public static SuperStructureState STATE_ALGAE_LOW =
-      new SuperStructureState("AL2", LOW_ALGAE_HEIGHT, LOW_ALGAE_ANGLE);
+      new SuperStructureState("Algae:L2", LOW_ALGAE_HEIGHT, LOW_ALGAE_ANGLE);
   public static SuperStructureState STATE_ALGAE_MID =
-      new SuperStructureState("AL3", MID_ALGAE_HEIGHT, MID_ALGAE_ANGLE);
+      new SuperStructureState("Algae:L3", MID_ALGAE_HEIGHT, MID_ALGAE_ANGLE);
   public static SuperStructureState STATE_ALGAE_TOP =
-      new SuperStructureState("AL4", TOP_ALGAE_HEIGHT, TOP_ALGAE_ANGLE);
+      new SuperStructureState("Algae:L4", TOP_ALGAE_HEIGHT, TOP_ALGAE_ANGLE);
 
   public double height;
   public double angle;
