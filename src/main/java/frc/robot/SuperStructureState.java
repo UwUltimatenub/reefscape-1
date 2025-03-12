@@ -47,13 +47,13 @@ public class SuperStructureState {
       new SuperStructureState("Coral:L4", L4_HEIGHT, L4_ANGLE);
 
   public static SuperStructureState STATE_PROCESSOR =
-      new SuperStructureState("Algae:PROCESSOR", PROCESSOR_HEIGHT, PROCESSOR_ANGLE);
+      new SuperStructureState("Processor", PROCESSOR_HEIGHT, PROCESSOR_ANGLE);
   public static SuperStructureState STATE_ALGAE_LOW =
       new SuperStructureState("Algae:L2", LOW_ALGAE_HEIGHT, LOW_ALGAE_ANGLE);
   public static SuperStructureState STATE_ALGAE_MID =
       new SuperStructureState("Algae:L3", MID_ALGAE_HEIGHT, MID_ALGAE_ANGLE);
   public static SuperStructureState STATE_ALGAE_TOP =
-      new SuperStructureState("Algae:L4", TOP_ALGAE_HEIGHT, TOP_ALGAE_ANGLE);
+      new SuperStructureState("Barge", TOP_ALGAE_HEIGHT, TOP_ALGAE_ANGLE);
 
   public double height;
   public double angle;

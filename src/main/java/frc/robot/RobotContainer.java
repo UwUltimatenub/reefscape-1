@@ -150,8 +150,7 @@ public class RobotContainer {
         .a()
         .onTrue(
             new SetWristAndElevator(this, 0)
-                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
-        .and(() -> currentState != SuperStructureState.STATE_SOURCE);
+                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
     // level 1 state, depend on is coral loaded
     controller2
         .povDown()

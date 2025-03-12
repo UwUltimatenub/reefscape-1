@@ -15,21 +15,15 @@ import frc.robot.SuperStructureState;
 public class SetWristAndElevator extends Command {
 
   RobotContainer robot;
-  double safeAngle = 0;
+  int level = 0;
+  // reset at scheduling
   boolean isSafe = false;
   boolean isFinished = false;
-  boolean isNoCoralToSource = false;
 
-  int level = 0;
-
-  /** Creates a new SetWristAndElevator. */
   public SetWristAndElevator(RobotContainer robot, int level) {
     addRequirements(robot.wrist, robot.elevator, robot.intake);
-
     this.robot = robot;
     this.level = level;
-
-    // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
@@ -37,7 +31,6 @@ public class SetWristAndElevator extends Command {
   public void initialize() {
     isSafe = false;
     isFinished = false;
-    isNoCoralToSource = false;
 
     if (robot.intake.isCoralLoaded()) {
       switch (level) {
@@ -73,41 +66,24 @@ public class SetWristAndElevator extends Command {
           break;
         default:
           robot.targetState = SuperStructureState.STATE_SOURCE;
-          isNoCoralToSource = true;
           break;
       }
     }
-    // if (robot.currentState == robot.targetState) {
-    // isSafe = true;
-    // } else if (robot.currentState == SuperStructureState.STATE_SOURCE
-    // || robot.currentState == SuperStructureState.STATE_L1
-    // || robot.currentState == SuperStructureState.STATE_L2
-    // || robot.currentState == SuperStructureState.STATE_L3
-    // || robot.currentState == SuperStructureState.STATE_L4) {
-    // // doing coral, set safty angle for coral
-    // safeAngle = SuperStructureState.STATE_SAFTY.angle;
-    // } else {
-    // // doing algae, set safty angle for algae
-    // if (robot.currentState == SuperStructureState.STATE_ALGAE_TOP) {
-    // safeAngle = SuperStructureState.STATE_SAFTY.angle; // safty angle for coral
-    // } else if (robot.targetState == SuperStructureState.STATE_SOURCE) {
-    // safeAngle = SuperStructureState.STATE_SAFTY.angle; // safty angle for algae
-    // } else {
-    // safeAngle = SuperStructureState.STATE_SAFTY.height; // safty angle for algae
-    // }
-    // }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
 
-    if (robot.targetState == SuperStructureState.STATE_SOURCE) {
-      if (robot.currentState == SuperStructureState.STATE_SOURCE) {
-        isFinished = true;
-      } else if (robot.currentState.name.startsWith("Coral")) {
+    if (!isValidTargetState()) {
+      // if not valid target state, do nothing;
+      isFinished = true;
+
+    } else if (robot.targetState == SuperStructureState.STATE_SOURCE) {
+      if (robot.currentState.name.startsWith("Coral")) {
+        // from coral level to source
         // set elevator
-        // set wrist
+        // then set wrist
         robot.elevator.setElevatorHeight(robot.targetState.height);
         if (robot.elevator.isDone().getAsBoolean()) {
           robot.wrist.setWristAngle(robot.targetState.angle);
@@ -117,33 +93,31 @@ public class SetWristAndElevator extends Command {
           }
         }
       } else {
-        // set safety
-        // set elevator
-        // set wrist
-        // if (robot.currentState==SuperStructureState.STATE_L2){
-        //   isSafe = true;
-        // }
-        if (!isSafe) {
-          // no coral to source, eject algae
-          if (isNoCoralToSource) {
-            robot.intake.intake(IntakeCommand.Eject_Algae);
-          }
-          // calculate safty angle
+        if (robot.currentState == SuperStructureState.STATE_ALGAE_TOP
+            || robot.currentState == SuperStructureState.STATE_ALGAE_MID
+            || robot.currentState == SuperStructureState.STATE_ALGAE_LOW) {
+          // from top/mid/low algae to source, eject algae
+          robot.intake.intake(IntakeCommand.Eject_Algae);
+          // switch to safty angle
           robot.wrist.setWristAngle(SuperStructureState.STATE_SAFTY.angle);
-          if (robot.wrist.isDone().getAsBoolean()) {
-            isSafe = true;
-          }
-        } else {
+          // along with set elevator height
           robot.elevator.setElevatorHeight(robot.targetState.height);
           if (robot.elevator.isDone().getAsBoolean()) {
-            // no coral to source, eject algae, end
-            if (isNoCoralToSource) {
-              robot.intake.intake(0);
-            }
+            // eject algae, end
+            robot.intake.intake(0);
+            // reset wrist angle
             robot.wrist.setWristAngle(robot.targetState.angle);
             if (robot.wrist.isDone().getAsBoolean()) {
               robot.currentState = robot.targetState;
-              System.out.println("current state=" + robot.targetState.name);
+              isFinished = true;
+            }
+
+          } else if (robot.currentState == SuperStructureState.STATE_PROCESSOR) {
+            // from processor to source
+            robot.elevator.setElevatorHeight(robot.targetState.height);
+            robot.wrist.setWristAngle(robot.targetState.angle);
+            if (robot.wrist.isDone().getAsBoolean()) {
+              robot.currentState = robot.targetState;
               isFinished = true;
             }
           }
@@ -154,32 +128,75 @@ public class SetWristAndElevator extends Command {
         || robot.targetState == SuperStructureState.STATE_L3
         || robot.targetState == SuperStructureState.STATE_L4) {
       // set wrist
-      // set elevator
+      // along with set elevator
       robot.wrist.setWristAngle(robot.targetState.angle);
-      // if (robot.wrist.isDone().getAsBoolean()) {
       robot.elevator.setElevatorHeight(robot.targetState.height);
       if (robot.elevator.isDone().getAsBoolean()) {
         robot.currentState = robot.targetState;
-        System.out.println("current state=" + robot.targetState.name);
         isFinished = true;
       }
-      // }
     } else if (robot.targetState == SuperStructureState.STATE_PROCESSOR
         || robot.targetState == SuperStructureState.STATE_ALGAE_LOW
         || robot.targetState == SuperStructureState.STATE_ALGAE_MID
         || robot.targetState == SuperStructureState.STATE_ALGAE_TOP) {
       // set wrist
-      // set elevator
+      // along with set elevator
       robot.wrist.setWristAngle(robot.targetState.angle);
-      // if (robot.wrist.isDone().getAsBoolean()) {
       robot.elevator.setElevatorHeight(robot.targetState.height);
       if (robot.elevator.isDone().getAsBoolean()) {
         robot.currentState = robot.targetState;
-        System.out.println("current state=" + robot.targetState.name);
         isFinished = true;
       }
-      // }
+    } else {
+      isFinished = true;
     }
+    System.out.println("current state=" + robot.currentState.name);
+  }
+
+  private boolean isValidTargetState() {
+    boolean valid = false;
+    if (robot.currentState == robot.targetState) {
+      // the same level, do nothing
+      valid = false;
+    } else if (robot.currentState == SuperStructureState.STATE_SOURCE
+        && robot.intake.isCoralLoaded()
+        && robot.targetState.name.startsWith("Coral")) {
+      // source after intake coral, go to coral level
+      valid = true;
+    } else if (robot.currentState == SuperStructureState.STATE_SOURCE
+        && !robot.intake.isCoralLoaded()
+        && (robot.targetState.name.startsWith("Algae")
+            || robot.targetState.name.startsWith("Processor"))) {
+      // source without coral, go to algae level/processor
+      valid = true;
+    } else if (robot.currentState.name.startsWith("Coral")
+        && robot.intake.isCoralLoaded()
+        && robot.targetState.name.startsWith("Coral")) {
+      // with coral, coral level can swith to another coral level
+      valid = true;
+    } else if (robot.currentState.name.startsWith("Coral")
+        && !robot.intake.isCoralLoaded()
+        && (robot.targetState.name.startsWith("Algae")
+            || robot.targetState.name.startsWith("Source"))) {
+      // without coral, coral level can swith to algae intake level or back to source
+      valid = true;
+    } else if (robot.currentState.name.startsWith("Algae")
+        && (robot.targetState.name.startsWith("Barge")
+            || robot.targetState.name.startsWith("Processor")
+            || robot.targetState.name.startsWith("Source"))) {
+      // algae level can swith to algae/barge/processor
+      valid = true;
+    } else if (robot.currentState.name.startsWith("Barge")
+        && robot.targetState.name.startsWith("Source")) {
+      // barge to source
+      valid = true;
+    } else if (robot.currentState.name.startsWith("Processor")
+        && (robot.targetState.name.startsWith("Source")
+            || robot.targetState.name.startsWith("Algae"))) {
+      // processor to source/algae
+      valid = true;
+    }
+    return valid;
   }
 
   // Called once the command ends or is interrupted.
