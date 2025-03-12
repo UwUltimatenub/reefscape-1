@@ -94,12 +94,12 @@ public class Wrist extends SubsystemBase {
     armTalonConfig.Slot0.kI = 0;
     armTalonConfig.Slot0.kD = 0.1;
     armTalonConfig.Slot0.kS = 0;
-    armTalonConfig.Slot0.kV = 5; // 8.3; // move velocity
-    armTalonConfig.Slot0.kA = 0.15; // 0.2; // move accerleration
+    armTalonConfig.Slot0.kV = 0.17; // 8.3; // move velocity
+    armTalonConfig.Slot0.kA = 0; // 0.2; // move accerleration
 
-    armTalonConfig.MotionMagic.MotionMagicCruiseVelocity = 8; // 1.0; // 0.5;
-    armTalonConfig.MotionMagic.MotionMagicAcceleration = 1.5; // 2; // 1.0;
-    armTalonConfig.MotionMagic.MotionMagicJerk = 15; // 10; // 10;
+    armTalonConfig.MotionMagic.MotionMagicCruiseVelocity = 20; // 1.0; // 0.5;
+    armTalonConfig.MotionMagic.MotionMagicAcceleration = 8; // 2; // 1.0;
+    armTalonConfig.MotionMagic.MotionMagicJerk = 80; // 10; // 10;
 
     pMmPos.Slot = 0;
     pMmPos.EnableFOC = true;

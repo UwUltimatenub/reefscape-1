@@ -9,13 +9,13 @@ package frc.robot;
 
 public class SuperStructureState {
 
-  public static final double SOURCE_HEIGHT = 0.25;
-  public static final double SOURCE_ANGLE = 46;
+  public static final double SOURCE_HEIGHT = 0.5;
+  public static final double SOURCE_ANGLE = 48;
 
   public static final double L1_HEIGHT = 5;
   public static final double L2_HEIGHT = 12;
   public static final double L3_HEIGHT = 33;
-  public static final double L4_HEIGHT = 72;
+  public static final double L4_HEIGHT = 68;
 
   public static final double L1_ANGLE = 55;
   public static final double L2_ANGLE = 75;
@@ -37,10 +37,14 @@ public class SuperStructureState {
   public static SuperStructureState STATE_SOURCE =
       new SuperStructureState("Source", SOURCE_HEIGHT, SOURCE_ANGLE);
 
-  public static SuperStructureState STATE_L1 = new SuperStructureState("Coral:L1", L1_HEIGHT, L1_ANGLE);
-  public static SuperStructureState STATE_L2 = new SuperStructureState("Coral:L2", L2_HEIGHT, L2_ANGLE);
-  public static SuperStructureState STATE_L3 = new SuperStructureState("Coral:L3", L3_HEIGHT, L3_ANGLE);
-  public static SuperStructureState STATE_L4 = new SuperStructureState("Coral:L4", L4_HEIGHT, L4_ANGLE);
+  public static SuperStructureState STATE_L1 =
+      new SuperStructureState("Coral:L1", L1_HEIGHT, L1_ANGLE);
+  public static SuperStructureState STATE_L2 =
+      new SuperStructureState("Coral:L2", L2_HEIGHT, L2_ANGLE);
+  public static SuperStructureState STATE_L3 =
+      new SuperStructureState("Coral:L3", L3_HEIGHT, L3_ANGLE);
+  public static SuperStructureState STATE_L4 =
+      new SuperStructureState("Coral:L4", L4_HEIGHT, L4_ANGLE);
 
   public static SuperStructureState STATE_PROCESSOR =
       new SuperStructureState("Algae:PROCESSOR", PROCESSOR_HEIGHT, PROCESSOR_ANGLE);

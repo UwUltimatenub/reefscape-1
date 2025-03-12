@@ -32,12 +32,9 @@ import frc.robot.subsystems.vision.LimeLight;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in
- * the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of
- * the robot (including
+ * This class is where the bulk of the robot should be declared. Since Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
@@ -58,9 +55,7 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
+  /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
     // Real robot, instantiate hardware IO implementations
@@ -68,12 +63,13 @@ public class RobotContainer {
     wrist = new Wrist();
     elevator = new Elevator();
     intake = new Intake();
-    drive = new Drive(
-        new GyroIOPigeon2(),
-        new ModuleIOTalonFX(TunerConstants.FrontLeft),
-        new ModuleIOTalonFX(TunerConstants.FrontRight),
-        new ModuleIOTalonFX(TunerConstants.BackLeft),
-        new ModuleIOTalonFX(TunerConstants.BackRight));
+    drive =
+        new Drive(
+            new GyroIOPigeon2(),
+            new ModuleIOTalonFX(TunerConstants.FrontLeft),
+            new ModuleIOTalonFX(TunerConstants.FrontRight),
+            new ModuleIOTalonFX(TunerConstants.BackLeft),
+            new ModuleIOTalonFX(TunerConstants.BackRight));
 
     NamedCommands.registerCommand("setSource", new SetWristAndElevator(this, 0).withTimeout(5));
     NamedCommands.registerCommand("setL1", new SetWristAndElevator(this, 1).withTimeout(5));
@@ -118,11 +114,9 @@ public class RobotContainer {
   }
 
   /**
-   * Use this method to define your button->command mappings. Buttons can be
-   * created by
+   * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
-   * it to a {@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
@@ -131,9 +125,10 @@ public class RobotContainer {
         .y()
         .onTrue(
             Commands.runOnce(
-                () -> drive.setPose(
-                    new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-                drive)
+                    () ->
+                        drive.setPose(
+                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+                    drive)
                 .ignoringDisable(true));
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
@@ -146,15 +141,17 @@ public class RobotContainer {
     // Intake coral/algae
     controller2.leftBumper().whileTrue(new IntakeCommand(this, true));
     // Eject coral/algae; coral go to source after ejection
-    controller2.rightBumper().whileTrue(new IntakeCommand(this, false)).whileFalse(new SetWristAndElevator(this, 0))
-        .and(() -> !intake.isCoralLoaded()).and(()->currentState.name.startsWith("Coral"));
+    controller2.rightBumper().whileTrue(new IntakeCommand(this, false));
+    // .whileFalse(new SetWristAndElevator(this, 0)).and(() ->
+    // !intake.isCoralLoaded()).and(()->currentState.name.startsWith("Coral"));
 
     // Source State
     controller2
         .a()
         .onTrue(
             new SetWristAndElevator(this, 0)
-                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
+        .and(() -> currentState != SuperStructureState.STATE_SOURCE);
     // level 1 state, depend on is coral loaded
     controller2
         .povDown()
@@ -187,10 +184,8 @@ public class RobotContainer {
     // .b()
     // .onTrue(new RunCommand(() ->
     // wrist.setWristAngle(SuperStructureState.SOURCE_ANGLE)));
-    elevator.setDefaultCommand(Commands.run(() -> {
-    }, elevator));
-    wrist.setDefaultCommand(Commands.run(() -> {
-    }, wrist));
+    elevator.setDefaultCommand(Commands.run(() -> {}, elevator));
+    wrist.setDefaultCommand(Commands.run(() -> {}, wrist));
 
     setCameraCommand();
   }
@@ -227,11 +222,10 @@ public class RobotContainer {
     Command autoCommand = null;
     switch (autoName) {
       case "left_auto":
-        autoCommand = autoChooser
-            .get()
-            .andThen(new SetWristAndElevator(this, 4))
-            .andThen(new IntakeCommand(this, false))
-            .andThen(new SetWristAndElevator(this, 0));
+        autoCommand = autoChooser.get();
+        // .andThen(new SetWristAndElevator(this, 4))
+        // .andThen(new IntakeCommand(this, false))
+        // .andThen(new SetWristAndElevator(this, 0));
         break;
 
       default:

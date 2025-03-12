@@ -103,31 +103,49 @@ public class SetWristAndElevator extends Command {
   public void execute() {
 
     if (robot.targetState == SuperStructureState.STATE_SOURCE) {
-      // set safety
-      // set elevator
-      // set wrist
-      if (!isSafe) {
-        // no coral to source, eject algae
-        if (isNoCoralToSource) {
-          robot.intake.intake(IntakeCommand.Eject_Algae);
-        }
-        // calculate safty angle
-        robot.wrist.setWristAngle(SuperStructureState.STATE_SAFTY.angle);
-        if (robot.wrist.isDone().getAsBoolean()) {
-          isSafe = true;
-        }
-      } else {
+      if (robot.currentState == SuperStructureState.STATE_SOURCE) {
+        isFinished = true;
+      } else if (robot.currentState.name.startsWith("Coral")) {
+        // set elevator
+        // set wrist
         robot.elevator.setElevatorHeight(robot.targetState.height);
         if (robot.elevator.isDone().getAsBoolean()) {
-          // no coral to source, eject algae, end
-          if (isNoCoralToSource) {
-            robot.intake.intake(0);
-          }
           robot.wrist.setWristAngle(robot.targetState.angle);
           if (robot.wrist.isDone().getAsBoolean()) {
             robot.currentState = robot.targetState;
-            System.out.println("current state=" + robot.targetState.name);
             isFinished = true;
+          }
+        }
+      } else {
+        // set safety
+        // set elevator
+        // set wrist
+        // if (robot.currentState==SuperStructureState.STATE_L2){
+        //   isSafe = true;
+        // }
+        if (!isSafe) {
+          // no coral to source, eject algae
+          if (isNoCoralToSource) {
+            robot.intake.intake(IntakeCommand.Eject_Algae);
+          }
+          // calculate safty angle
+          robot.wrist.setWristAngle(SuperStructureState.STATE_SAFTY.angle);
+          if (robot.wrist.isDone().getAsBoolean()) {
+            isSafe = true;
+          }
+        } else {
+          robot.elevator.setElevatorHeight(robot.targetState.height);
+          if (robot.elevator.isDone().getAsBoolean()) {
+            // no coral to source, eject algae, end
+            if (isNoCoralToSource) {
+              robot.intake.intake(0);
+            }
+            robot.wrist.setWristAngle(robot.targetState.angle);
+            if (robot.wrist.isDone().getAsBoolean()) {
+              robot.currentState = robot.targetState;
+              System.out.println("current state=" + robot.targetState.name);
+              isFinished = true;
+            }
           }
         }
       }
@@ -138,14 +156,14 @@ public class SetWristAndElevator extends Command {
       // set wrist
       // set elevator
       robot.wrist.setWristAngle(robot.targetState.angle);
-      if (robot.wrist.isDone().getAsBoolean()) {
-        robot.elevator.setElevatorHeight(robot.targetState.height);
-        if (robot.elevator.isDone().getAsBoolean()) {
-          robot.currentState = robot.targetState;
-          System.out.println("current state=" + robot.targetState.name);
-          isFinished = true;
-        }
+      // if (robot.wrist.isDone().getAsBoolean()) {
+      robot.elevator.setElevatorHeight(robot.targetState.height);
+      if (robot.elevator.isDone().getAsBoolean()) {
+        robot.currentState = robot.targetState;
+        System.out.println("current state=" + robot.targetState.name);
+        isFinished = true;
       }
+      // }
     } else if (robot.targetState == SuperStructureState.STATE_PROCESSOR
         || robot.targetState == SuperStructureState.STATE_ALGAE_LOW
         || robot.targetState == SuperStructureState.STATE_ALGAE_MID
@@ -153,14 +171,14 @@ public class SetWristAndElevator extends Command {
       // set wrist
       // set elevator
       robot.wrist.setWristAngle(robot.targetState.angle);
-      if (robot.wrist.isDone().getAsBoolean()) {
-        robot.elevator.setElevatorHeight(robot.targetState.height);
-        if (robot.elevator.isDone().getAsBoolean()) {
-          robot.currentState = robot.targetState;
-          System.out.println("current state=" + robot.targetState.name);
-          isFinished = true;
-        }
+      // if (robot.wrist.isDone().getAsBoolean()) {
+      robot.elevator.setElevatorHeight(robot.targetState.height);
+      if (robot.elevator.isDone().getAsBoolean()) {
+        robot.currentState = robot.targetState;
+        System.out.println("current state=" + robot.targetState.name);
+        isFinished = true;
       }
+      // }
     }
   }
 
