@@ -92,39 +92,35 @@ public class SetWristAndElevator extends Command {
             isFinished = true;
           }
         }
-      } else {
-        if (robot.currentState == SuperStructureState.STATE_ALGAE_TOP
-            || robot.currentState == SuperStructureState.STATE_ALGAE_MID
-            || robot.currentState == SuperStructureState.STATE_ALGAE_LOW) {
-          // from top/mid/low algae to source, eject algae
-          robot.intake.intake(IntakeCommand.Eject_Algae);
-          // switch to safty angle
-          robot.wrist.setWristAngle(SuperStructureState.STATE_SAFTY.angle);
-          // along with set elevator height
-          robot.elevator.setElevatorHeight(robot.targetState.height);
-          if (robot.elevator.isDone().getAsBoolean()) {
-            // eject algae, end
-            robot.intake.intake(0);
-            // reset wrist angle
-            robot.wrist.setWristAngle(robot.targetState.angle);
-            if (robot.wrist.isDone().getAsBoolean()) {
-              robot.currentState = robot.targetState;
-              isFinished = true;
-            }
-
-          } else if (robot.currentState == SuperStructureState.STATE_PROCESSOR) {
-            // from processor to source
-            robot.elevator.setElevatorHeight(robot.targetState.height);
-            robot.wrist.setWristAngle(robot.targetState.angle);
-            if (robot.wrist.isDone().getAsBoolean()) {
-              robot.currentState = robot.targetState;
-              isFinished = true;
-            }
+      } else if (robot.currentState == SuperStructureState.STATE_ALGAE_TOP
+          || robot.currentState == SuperStructureState.STATE_ALGAE_MID
+          || robot.currentState == SuperStructureState.STATE_ALGAE_LOW) {
+        // from top/mid/low algae to source, eject algae
+        robot.intake.intake(IntakeCommand.Eject_Algae);
+        // switch to safty angle
+        robot.wrist.setWristAngle(SuperStructureState.STATE_SAFTY.angle);
+        // along with set elevator height
+        robot.elevator.setElevatorHeight(robot.targetState.height);
+        if (robot.elevator.isDone().getAsBoolean()) {
+          // eject algae, end
+          robot.intake.intake(0);
+          // reset wrist angle
+          robot.wrist.setWristAngle(robot.targetState.angle);
+          if (robot.wrist.isDone().getAsBoolean()) {
+            robot.currentState = robot.targetState;
+            isFinished = true;
           }
         }
+      } else if (robot.currentState == SuperStructureState.STATE_PROCESSOR) {
+        // from processor to source
+        robot.elevator.setElevatorHeight(robot.targetState.height);
+        robot.wrist.setWristAngle(robot.targetState.angle);
+        if (robot.wrist.isDone().getAsBoolean()) {
+          robot.currentState = robot.targetState;
+          isFinished = true;
+        }
       }
-    } else if (robot.targetState == SuperStructureState.STATE_L1
-        || robot.targetState == SuperStructureState.STATE_L2
+    } else if (robot.targetState == SuperStructureState.STATE_L2
         || robot.targetState == SuperStructureState.STATE_L3
         || robot.targetState == SuperStructureState.STATE_L4) {
       // set wrist
@@ -134,6 +130,17 @@ public class SetWristAndElevator extends Command {
       if (robot.elevator.isDone().getAsBoolean()) {
         robot.currentState = robot.targetState;
         isFinished = true;
+      }
+    } else if (robot.targetState == SuperStructureState.STATE_L1) {
+      // set wrist
+      // along with set elevator
+      robot.elevator.setElevatorHeight(robot.targetState.height);
+      if (robot.elevator.isDone().getAsBoolean()) {
+        robot.wrist.setWristAngle(robot.targetState.angle);
+        if (robot.wrist.isDone().getAsBoolean()) {
+          robot.currentState = robot.targetState;
+          isFinished = true;
+        }
       }
     } else if (robot.targetState == SuperStructureState.STATE_PROCESSOR
         || robot.targetState == SuperStructureState.STATE_ALGAE_LOW
@@ -183,7 +190,8 @@ public class SetWristAndElevator extends Command {
     } else if (robot.currentState.name.startsWith("Algae")
         && (robot.targetState.name.startsWith("Barge")
             || robot.targetState.name.startsWith("Processor")
-            || robot.targetState.name.startsWith("Source"))) {
+            || robot.targetState.name.startsWith("Source")
+            || robot.currentState.name.startsWith("Algae"))) {
       // algae level can swith to algae/barge/processor
       valid = true;
     } else if (robot.currentState.name.startsWith("Barge")

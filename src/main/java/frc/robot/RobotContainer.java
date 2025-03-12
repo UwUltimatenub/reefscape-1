@@ -94,7 +94,7 @@ public class RobotContainer {
     if (targetState == SuperStructureState.STATE_ALGAE_TOP
         || currentState == SuperStructureState.STATE_ALGAE_TOP
         || targetState == SuperStructureState.STATE_L4) {
-      output = output / 1.75;
+      output = output / 1.9;
     } else if (targetState == SuperStructureState.STATE_ALGAE_MID
         || targetState == SuperStructureState.STATE_ALGAE_LOW
         || targetState == SuperStructureState.STATE_L2

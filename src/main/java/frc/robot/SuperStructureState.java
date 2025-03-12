@@ -9,7 +9,7 @@ package frc.robot;
 
 public class SuperStructureState {
 
-  public static final double SOURCE_HEIGHT = 0.5;
+  public static final double SOURCE_HEIGHT = 0.15;
   public static final double SOURCE_ANGLE = 48;
 
   public static final double L1_HEIGHT = 5;
@@ -27,7 +27,7 @@ public class SuperStructureState {
   public static final double MID_ALGAE_HEIGHT = 45;
   public static final double TOP_ALGAE_HEIGHT = 81.5;
 
-  public static final double PROCESSOR_ANGLE = 225;
+  public static final double PROCESSOR_ANGLE = 220;
   public static final double LOW_ALGAE_ANGLE = 210;
   public static final double MID_ALGAE_ANGLE = 210;
   public static final double TOP_ALGAE_ANGLE = 105;

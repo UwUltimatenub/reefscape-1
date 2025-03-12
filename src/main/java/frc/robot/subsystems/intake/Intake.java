@@ -66,7 +66,7 @@ public class Intake extends SubsystemBase {
         volts = 5;
         break;
       case IntakeCommand.Eject_Coral:
-        volts = 4;
+        volts = 8;
         break;
       case IntakeCommand.Intake_Algae:
         volts = -6;
