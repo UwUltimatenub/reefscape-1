@@ -7,53 +7,93 @@
 
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.HashMap;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
 public class LimeLight extends SubsystemBase {
 
   private final String limelightName = "limelight"; // Default name
-  PIDController rotatePid = new PIDController(0.125, 0, 0);
-  PIDController xPid = new PIDController(1, 0, 0.005);
-  PIDController yPid = new PIDController(0.0605, 0, 0.0055);
 
   // private final AprilTagFieldLayout APRILTAGFIELDLAYOUT =
-  //     AprilTagFields.k2025Reefscape.loadAprilTagLayoutField();
+  // AprilTagFields.k2025Reefscape.loadAprilTagLayoutField();
 
-  //  AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+  // AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
   // meter up from center.
   @AutoLog
   public static class LimeLightIOInputs {
-    public double pitch = 0;
-    public double yaw = 0;
-    public double distance = 0;
-    public double xcorrection = 0;
-    public double ycorrection = 0;
+    public int tagId = 0;
+ 
+    public double current_r = 0;
+    public double current_x = 0;
+    public double current_y = 0;
+    public double target_r = 0;
+    public double target_x = 0;
+    public double target_y = 0;
   }
 
   private LimeLightIOInputsAutoLogged limeLightInputs = new LimeLightIOInputsAutoLogged();
 
-  private final double CAMERA_HEIGHT = 0.20;
-  private final double REEF_HEIGHT = 0.30;
-  private final double CAMERA_PITCH = 0;
+  private final HashMap<Integer, Aprilposition> APRILTAG_RADIAN =
+      new HashMap<Integer, Aprilposition>();
 
-  public LimeLight() {}
+  public static class Aprilposition {
+    public double rotation;
+    public double leftx;
+    public double lefty;
+    public double rightx;
+    public double righty;
+
+    public Aprilposition(
+        double rotation, double leftx, double lefty, double rightx, double righty) {
+      this.rotation = rotation;
+      this.leftx = leftx;
+      this.lefty = lefty;
+      this.rightx = rightx;
+      this.righty = righty;
+    }
+  }
+
+  public LimeLight() {
+    APRILTAG_RADIAN.put(Integer.valueOf(7), new Aprilposition(0, 2.757, 4.283, 2.757, 4.283));
+    APRILTAG_RADIAN.put(Integer.valueOf(8), new Aprilposition(0, 2.757, 4.283, 2.757, 4.283));
+    APRILTAG_RADIAN.put(Integer.valueOf(9), new Aprilposition(0, 2.757, 4.283, 2.757, 4.283));
+    APRILTAG_RADIAN.put(Integer.valueOf(10), new Aprilposition(0, 2.757, 4.283, 2.757, 4.283));
+    APRILTAG_RADIAN.put(Integer.valueOf(11), new Aprilposition(0, 2.757, 4.283, 2.757, 4.283));
+    APRILTAG_RADIAN.put(Integer.valueOf(6), new Aprilposition(0, 2.757, 4.283, 2.757, 4.283));
+
+    APRILTAG_RADIAN.put(
+        Integer.valueOf(18), new Aprilposition(Math.PI, 2.757, 4.283, 2.757, 4.283));
+    APRILTAG_RADIAN.put(Integer.valueOf(17), new Aprilposition(0, 2.757, 4.283, 2.757, 4.283));
+    APRILTAG_RADIAN.put(Integer.valueOf(22), new Aprilposition(0, 2.757, 4.283, 2.757, 4.283));
+    APRILTAG_RADIAN.put(Integer.valueOf(21), new Aprilposition(0, 2.757, 4.283, 2.757, 4.283));
+    APRILTAG_RADIAN.put(Integer.valueOf(20), new Aprilposition(0, 2.757, 4.283, 2.757, 4.283));
+    APRILTAG_RADIAN.put(Integer.valueOf(19), new Aprilposition(0, 2.757, 4.283, 2.757, 4.283));
+
+    LimelightHelpers.setCameraPose_RobotSpace(
+        "",
+        -0.33, // Forward offset (meters)
+        0, // Side offset (meters)
+        0.254, // Height offset (meters)
+        0.0, // Roll (degrees)
+        0.0, // Pitch (degrees)
+        180 // Yaw (degrees)
+        );
+  }
 
   public void periodic() {
-    limeLightInputs.pitch = getTy();
-    limeLightInputs.yaw = getTx();
-    limeLightInputs.distance = getDistance();
+
     Logger.processInputs("LimeLight", limeLightInputs);
   }
 
   /** Check if an AprilTag is detected */
   public boolean hasTarget() {
-    return LimelightHelpers.getTV(limelightName);
+    return LimelightHelpers.getTV(limelightName)
+        && APRILTAG_RADIAN.containsKey(Integer.valueOf(getTagID()));
   }
 
   /** Get horizontal offset (tx) from the crosshair */
@@ -73,47 +113,38 @@ public class LimeLight extends SubsystemBase {
 
   /** Get the AprilTag ID */
   public int getTagID() {
-    return (int) LimelightHelpers.getFiducialID(limelightName);
+    int tagId = (int) LimelightHelpers.getFiducialID(limelightName);
+    if (!APRILTAG_RADIAN.containsKey(Integer.valueOf(tagId))) {
+      tagId = 0;
+    }
+    return tagId;
   }
 
   /** Get estimated robot pose from the Limelight */
-  public Pose3d getRobotPose() {
-    return LimelightHelpers.getBotPose3d_wpiBlue(limelightName);
+  public Pose2d getRobotPose() {
+    return LimelightHelpers.getBotPose2d_wpiBlue(limelightName);
   }
 
-  //
-  public double getDistance() {
-    double pitch = getTy();
-    double angleRadian = Units.degreesToRadians(CAMERA_PITCH + pitch);
-
-    if (Math.abs(angleRadian) < 2 * 3.14 / 360)
-      return Double.MAX_VALUE; // Prevent unreliable distances
-
-    return (REEF_HEIGHT - CAMERA_HEIGHT) / Math.tan(angleRadian);
-  }
-
-  public double autoRotate() {
-
-    return -getTx() * 3.5;
-  }
-
-  public double autoTranslateX() {
-    limeLightInputs.xcorrection =
-        xPid.calculate(getDistance() * Math.sin(Units.degreesToRadians(-getTx())), 0);
-    if (hasTarget()) {
-      return limeLightInputs.xcorrection;
-    } else {
-      return 0;
+  public Pose2d getTargetPose2D(boolean isLeft) {
+    Pose2d targetPose = null;
+    limeLightInputs.tagId = getTagID();
+    if (limeLightInputs.tagId != 0) {
+      Aprilposition position = APRILTAG_RADIAN.get(limeLightInputs.tagId);
+      if (isLeft) {
+        targetPose =
+            new Pose2d(position.leftx, position.lefty, Rotation2d.fromRadians(position.rotation));
+      } else {
+        targetPose =
+            new Pose2d(position.rightx, position.righty, Rotation2d.fromRadians(position.rotation));
+      }
+      limeLightInputs.target_r = targetPose.getRotation().getDegrees();
+      limeLightInputs.target_x = targetPose.getX();
+      limeLightInputs.target_y = targetPose.getY();
     }
-  }
+    limeLightInputs.current_r = getRobotPose().getRotation().getDegrees();
+    limeLightInputs.current_x = getRobotPose().getX();
+    limeLightInputs.current_y = getRobotPose().getY();
 
-  public double autoTranslateY() {
-    limeLightInputs.ycorrection =
-        yPid.calculate(-getDistance() * Math.abs(Math.cos(Units.degreesToRadians(getTx()))), 0);
-    if (hasTarget()) {
-      return limeLightInputs.ycorrection;
-    } else {
-      return 0;
-    }
+    return targetPose;
   }
 }
