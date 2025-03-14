@@ -45,7 +45,10 @@ public class LimeLight extends SubsystemBase {
 
   private LimeLightIOInputsAutoLogged limeLightInputs = new LimeLightIOInputsAutoLogged();
 
-  private final HashMap<String, Pose2d> APRILTAG_TARGET_POSE = new HashMap<String, Pose2d>();
+  public final HashMap<String, Pose2d> APRILTAG_TARGET_POSE = new HashMap<String, Pose2d>();
+
+  private static final Transform2d transform_source =
+      new Transform2d(0.42, 0, Rotation2d.fromDegrees(0));
 
   private static final Transform2d transform_left =
       new Transform2d(offset_forward, offset_side, Rotation2d.fromDegrees(0));
@@ -59,6 +62,17 @@ public class LimeLight extends SubsystemBase {
 
   public LimeLight() {
 
+    // source
+    APRILTAG_TARGET_POSE.put(
+        "1", TAG_LAYOUT.getTagPose(1).get().toPose2d().transformBy(transform_source));
+    APRILTAG_TARGET_POSE.put(
+        "2", TAG_LAYOUT.getTagPose(1).get().toPose2d().transformBy(transform_source));
+    APRILTAG_TARGET_POSE.put(
+        "12", TAG_LAYOUT.getTagPose(1).get().toPose2d().transformBy(transform_source));
+    APRILTAG_TARGET_POSE.put(
+        "13", TAG_LAYOUT.getTagPose(1).get().toPose2d().transformBy(transform_source));
+
+    // level 2,3
     APRILTAG_TARGET_POSE.put(
         "6L", TAG_LAYOUT.getTagPose(6).get().toPose2d().transformBy(transform_left));
     APRILTAG_TARGET_POSE.put(
@@ -111,7 +125,7 @@ public class LimeLight extends SubsystemBase {
     APRILTAG_TARGET_POSE.put(
         "22R", TAG_LAYOUT.getTagPose(22).get().toPose2d().transformBy(transform_right));
 
-    // Level 5
+    // Level 4
     APRILTAG_TARGET_POSE.put(
         "6L5", TAG_LAYOUT.getTagPose(6).get().toPose2d().transformBy(transform_left_level5));
     APRILTAG_TARGET_POSE.put(

@@ -102,8 +102,6 @@ public class Drive extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
-  private double counter = 0;
-
   public Drive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
@@ -159,13 +157,10 @@ public class Drive extends SubsystemBase {
   @Override
   public void periodic() {
 
-    counter++;
-    if (counter == 10) {
-      if (LimelightHelpers.getTV("limelight")) {
-        setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"));
-      }
-      counter = 0;
+    if (LimelightHelpers.getTV("limelight")) {
+      setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"));
     }
+
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);

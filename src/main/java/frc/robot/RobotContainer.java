@@ -37,6 +37,7 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.pivot.Wrist;
 import frc.robot.subsystems.vision.LimeLight;
+import frc.robot.subsystems.vision.LimelightHelpers;
 import java.util.Arrays;
 import java.util.List;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -200,7 +201,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  var cmd = AutoBuilder.followPath(GoTarget(true, true));
+                  var cmd = AutoBuilder.followPath(GoReefTarget(true, true));
                   cmd.schedule();
                 }));
 
@@ -210,7 +211,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  var cmd = AutoBuilder.followPath(GoTarget(false, true));
+                  var cmd = AutoBuilder.followPath(GoReefTarget(false, true));
                   cmd.schedule();
                 }));
 
@@ -220,7 +221,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  var cmd = AutoBuilder.followPath(GoTarget(true, false));
+                  var cmd = AutoBuilder.followPath(GoReefTarget(true, false));
                   cmd.schedule();
                 }));
 
@@ -230,7 +231,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  var cmd = AutoBuilder.followPath(GoTarget(false, false));
+                  var cmd = AutoBuilder.followPath(GoReefTarget(false, false));
                   cmd.schedule();
                 }));
   }
@@ -245,10 +246,26 @@ public class RobotContainer {
     Command autoCommand = null;
     switch (autoName) {
       case "left_auto":
-        autoCommand = autoChooser.get();
-        // .andThen(new SetWristAndElevator(this, 4))
-        // .andThen(new IntakeCommand(this, false))
-        // .andThen(new SetWristAndElevator(this, 0));
+        autoCommand =
+            AutoBuilder.followPath(GoReefTarget(true, true))
+                .alongWith(new SetWristAndElevator(this, 4))
+                .andThen(new IntakeCommand(this, false))
+                .alongWith(new SetWristAndElevator(this, 0))
+                .alongWith(AutoBuilder.followPath(GoSource()))
+                .andThen(new IntakeCommand(this, true))
+                .until(() -> intake.isCoralLoaded())
+                .andThen(AutoBuilder.followPath(GoReefTarget(true, true)))
+                .alongWith(new SetWristAndElevator(this, 4))
+                .andThen(new IntakeCommand(this, false))
+                .alongWith(new SetWristAndElevator(this, 0))
+                .alongWith(AutoBuilder.followPath(GoSource()))
+                .andThen(new IntakeCommand(this, true))
+                .until(() -> intake.isCoralLoaded())
+                .andThen(AutoBuilder.followPath(GoReefTarget(false, true)))
+                .alongWith(new SetWristAndElevator(this, 4))
+                .andThen(new IntakeCommand(this, false))
+                .alongWith(new SetWristAndElevator(this, 0));
+
         break;
 
       default:
@@ -257,19 +274,56 @@ public class RobotContainer {
     return autoCommand;
   }
 
-  public PathPlannerPath GoTarget(boolean isLeft, boolean isLevel5) {
-    Pose2d updatedPose = vision.getRobotPose();
-    drive.setPose(updatedPose);
-    Pose2d targetPose2d = vision.getTargetPose2D(isLeft, isLevel5);
+  private PathPlannerPath GoSource() {
 
-    List<Waypoint> waypoints =
-        PathPlannerPath.waypointsFromPoses(
-            new Pose2d(
-                drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation()),
-            targetPose2d);
+    Pose2d currentPose2d = drive.getPose();
+    Pose2d targetPose2d = null;
+    if (currentPose2d.getX() < 8.7) {
+      // blue
+      if (currentPose2d.getY() < 4) {
+        // lower id=12
+        targetPose2d = vision.APRILTAG_TARGET_POSE.get("12");
+      } else {
+        // upper id=13
+        targetPose2d = vision.APRILTAG_TARGET_POSE.get("13");
+      }
+
+    } else {
+      // red
+      if (currentPose2d.getY() < 4) {
+        // lower id=1
+        targetPose2d = vision.APRILTAG_TARGET_POSE.get("1");
+      } else {
+        // upper id=2
+        targetPose2d = vision.APRILTAG_TARGET_POSE.get("2");
+      }
+    }
+    return GoToPoint(drive.getPose(), targetPose2d);
+  }
+
+  public PathPlannerPath GoReefTarget(boolean isLeft, boolean isLevel5) {
+
+    if (LimelightHelpers.getTV("limelight")) {
+      drive.setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"));
+    }
+
+    Pose2d targetPose2d = vision.getTargetPose2D(isLeft, isLevel5);
+    if (targetPose2d == null) {
+      targetPose2d = drive.getPose();
+    }
+
+    Pose2d fromPose2d =
+        new Pose2d(drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation());
+    return GoToPoint(fromPose2d, targetPose2d);
+  }
+
+  public PathPlannerPath GoToPoint(Pose2d fromPose2d, Pose2d targetPose2d) {
+
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(fromPose2d, targetPose2d);
 
     PathConstraints constraints =
-        new PathConstraints(3, 2.2, 2 * Math.PI, 4 * Math.PI); // The constraints for this path.
+        new PathConstraints(3, 2.2, 2 * Math.PI, 4 * Math.PI); // The constraints for this
+    // path.
     // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); //
     // You can also use unlimited constraints, only limited by motor torque and
     // nominal battery voltage
