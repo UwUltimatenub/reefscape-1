@@ -44,67 +44,65 @@ public class LimeLight extends SubsystemBase {
 
   private LimeLightIOInputsAutoLogged limeLightInputs = new LimeLightIOInputsAutoLogged();
 
-  private final HashMap<String, Pose2d> APRILTAG_RADIAN = new HashMap<String, Pose2d>();
-
+  private final HashMap<String, Pose2d> APRILTAG_TARGET_POSE = new HashMap<String, Pose2d>();
 
   private static final Transform2d transform_left =
-      new Transform2d(offset_forward ,offset_side,  Rotation2d.fromDegrees(0));
+      new Transform2d(offset_forward, offset_side, Rotation2d.fromDegrees(0));
   private static final Transform2d transform_right =
       new Transform2d(offset_forward, -offset_side, Rotation2d.fromDegrees(0));
 
-
   public LimeLight() {
 
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "6L", TAG_LAYOUT.getTagPose(6).get().toPose2d().transformBy(transform_left));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "7L", TAG_LAYOUT.getTagPose(7).get().toPose2d().transformBy(transform_left));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "8L", TAG_LAYOUT.getTagPose(8).get().toPose2d().transformBy(transform_left));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "9L", TAG_LAYOUT.getTagPose(9).get().toPose2d().transformBy(transform_left));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "10L", TAG_LAYOUT.getTagPose(10).get().toPose2d().transformBy(transform_left));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "11L", TAG_LAYOUT.getTagPose(11).get().toPose2d().transformBy(transform_left));
 
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "17L", TAG_LAYOUT.getTagPose(17).get().toPose2d().transformBy(transform_left));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "18L", TAG_LAYOUT.getTagPose(18).get().toPose2d().transformBy(transform_left));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "19L", TAG_LAYOUT.getTagPose(19).get().toPose2d().transformBy(transform_left));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "20L", TAG_LAYOUT.getTagPose(20).get().toPose2d().transformBy(transform_left));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "21L", TAG_LAYOUT.getTagPose(21).get().toPose2d().transformBy(transform_left));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "22L", TAG_LAYOUT.getTagPose(22).get().toPose2d().transformBy(transform_left));
 
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "6R", TAG_LAYOUT.getTagPose(6).get().toPose2d().transformBy(transform_right));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "7R", TAG_LAYOUT.getTagPose(7).get().toPose2d().transformBy(transform_right));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "8R", TAG_LAYOUT.getTagPose(8).get().toPose2d().transformBy(transform_right));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "9R", TAG_LAYOUT.getTagPose(9).get().toPose2d().transformBy(transform_right));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "10R", TAG_LAYOUT.getTagPose(10).get().toPose2d().transformBy(transform_right));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "11R", TAG_LAYOUT.getTagPose(11).get().toPose2d().transformBy(transform_right));
 
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "17R", TAG_LAYOUT.getTagPose(17).get().toPose2d().transformBy(transform_right));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "18R", TAG_LAYOUT.getTagPose(18).get().toPose2d().transformBy(transform_right));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "19R", TAG_LAYOUT.getTagPose(19).get().toPose2d().transformBy(transform_right));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "20R", TAG_LAYOUT.getTagPose(20).get().toPose2d().transformBy(transform_right));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "21R", TAG_LAYOUT.getTagPose(21).get().toPose2d().transformBy(transform_right));
-    APRILTAG_RADIAN.put(
+    APRILTAG_TARGET_POSE.put(
         "22R", TAG_LAYOUT.getTagPose(22).get().toPose2d().transformBy(transform_right));
 
     LimelightHelpers.setCameraPose_RobotSpace(
@@ -146,7 +144,7 @@ public class LimeLight extends SubsystemBase {
   /** Get the AprilTag ID */
   public int getTagID() {
     int tagId = (int) LimelightHelpers.getFiducialID(limelightName);
-    if (!APRILTAG_RADIAN.containsKey(tagId + "L")) {
+    if (!APRILTAG_TARGET_POSE.containsKey(tagId + "L")) {
       tagId = 0;
     }
     return tagId;
@@ -161,7 +159,7 @@ public class LimeLight extends SubsystemBase {
     Pose2d targetPose = null;
     limeLightInputs.tagId = getTagID();
     if (limeLightInputs.tagId != 0) {
-      targetPose = APRILTAG_RADIAN.get(limeLightInputs.tagId + (isLeft ? "L" : "R"));
+      targetPose = APRILTAG_TARGET_POSE.get(limeLightInputs.tagId + (isLeft ? "L" : "R"));
 
       limeLightInputs.target_r = targetPose.getRotation().getDegrees();
       limeLightInputs.target_x = targetPose.getX();
