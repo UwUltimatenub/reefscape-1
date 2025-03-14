@@ -51,6 +51,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
+
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY =
       new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
@@ -100,6 +101,8 @@ public class Drive extends SubsystemBase {
       };
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+
+  private double counter = 0;
 
   public Drive(
       GyroIO gyroIO,
@@ -155,8 +158,13 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (LimelightHelpers.getTV("limelight")) {
-      setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"));
+
+    counter++;
+    if (counter == 10) {
+      if (LimelightHelpers.getTV("limelight")) {
+        setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"));
+      }
+      counter = 0;
     }
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);

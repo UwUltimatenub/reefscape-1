@@ -186,13 +186,6 @@ public class RobotContainer {
             new SetWristAndElevator(this, 4)
                 .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
 
-    // testing
-    // controller2.x().onTrue(new RunCommand(() ->
-    // wrist.setWristAngle(SuperStructureState.L2_ANGLE)));
-    // controller2
-    // .b()
-    // .onTrue(new RunCommand(() ->
-    // wrist.setWristAngle(SuperStructureState.SOURCE_ANGLE)));
     elevator.setDefaultCommand(Commands.run(() -> {}, elevator));
     wrist.setDefaultCommand(Commands.run(() -> {}, wrist));
 
@@ -207,7 +200,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  var cmd = AutoBuilder.followPath(GoTarget(true));
+                  var cmd = AutoBuilder.followPath(GoTarget(true, true));
                   cmd.schedule();
                 }));
 
@@ -217,7 +210,27 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  var cmd = AutoBuilder.followPath(GoTarget(false));
+                  var cmd = AutoBuilder.followPath(GoTarget(false, true));
+                  cmd.schedule();
+                }));
+
+    // Align robot to april tag
+    controller
+        .x()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  var cmd = AutoBuilder.followPath(GoTarget(true, false));
+                  cmd.schedule();
+                }));
+
+    // Align robot to april tag
+    controller
+        .b()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  var cmd = AutoBuilder.followPath(GoTarget(false, false));
                   cmd.schedule();
                 }));
   }
@@ -244,10 +257,10 @@ public class RobotContainer {
     return autoCommand;
   }
 
-  public PathPlannerPath GoTarget(boolean isLeft) {
+  public PathPlannerPath GoTarget(boolean isLeft, boolean isLevel5) {
     Pose2d updatedPose = vision.getRobotPose();
     drive.setPose(updatedPose);
-    Pose2d targetPose2d = vision.getTargetPose2D(isLeft);
+    Pose2d targetPose2d = vision.getTargetPose2D(isLeft, isLevel5);
 
     List<Waypoint> waypoints =
         PathPlannerPath.waypointsFromPoses(
@@ -256,7 +269,7 @@ public class RobotContainer {
             targetPose2d);
 
     PathConstraints constraints =
-        new PathConstraints(3, 3, 2 * Math.PI, 4 * Math.PI); // The constraints for this path.
+        new PathConstraints(3, 2.2, 2 * Math.PI, 4 * Math.PI); // The constraints for this path.
     // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); //
     // You can also use unlimited constraints, only limited by motor torque and
     // nominal battery voltage
