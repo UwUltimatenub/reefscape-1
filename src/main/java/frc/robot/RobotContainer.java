@@ -200,40 +200,80 @@ public class RobotContainer {
         .leftTrigger()
         .onTrue(
             new InstantCommand(
-                () -> {
-                  var cmd = AutoBuilder.followPath(GoReefTarget(true, true));
-                  cmd.schedule();
-                }));
+                    () -> {
+                      var path = GoReefTarget(true, true);
+                      if (path != null) {
+                        var cmd = AutoBuilder.followPath(path);
+                        drive.isTracking = true;
+                        cmd.schedule();
+                      }
+                    })
+                .andThen(
+                    Commands.run(
+                        () -> {
+                          drive.isTracking = false;
+                        },
+                        drive)));
 
     // Align robot to april tag
     controller
         .rightTrigger()
         .onTrue(
             new InstantCommand(
-                () -> {
-                  var cmd = AutoBuilder.followPath(GoReefTarget(false, true));
-                  cmd.schedule();
-                }));
+                    () -> {
+                      var path = GoReefTarget(false, true);
+                      if (path != null) {
+                        var cmd = AutoBuilder.followPath(path);
+                        drive.isTracking = true;
+                        cmd.schedule();
+                      }
+                    })
+                .andThen(
+                    Commands.run(
+                        () -> {
+                          drive.isTracking = false;
+                        },
+                        drive)));
 
     // Align robot to april tag
     controller
         .x()
         .onTrue(
             new InstantCommand(
-                () -> {
-                  var cmd = AutoBuilder.followPath(GoReefTarget(true, false));
-                  cmd.schedule();
-                }));
+                    () -> {
+                      var path = GoReefTarget(true, false);
+                      if (path != null) {
+                        var cmd = AutoBuilder.followPath(path);
+                        drive.isTracking = true;
+                        cmd.schedule();
+                      }
+                    })
+                .andThen(
+                    Commands.run(
+                        () -> {
+                          drive.isTracking = false;
+                        },
+                        drive)));
 
     // Align robot to april tag
     controller
         .b()
         .onTrue(
             new InstantCommand(
-                () -> {
-                  var cmd = AutoBuilder.followPath(GoReefTarget(false, false));
-                  cmd.schedule();
-                }));
+                    () -> {
+                      var path = GoReefTarget(false, false);
+                      if (path != null) {
+                        var cmd = AutoBuilder.followPath(path);
+                        drive.isTracking = true;
+                        cmd.schedule();
+                      }
+                    })
+                .andThen(
+                    Commands.run(
+                        () -> {
+                          drive.isTracking = false;
+                        },
+                        drive)));
   }
 
   /**
@@ -309,7 +349,7 @@ public class RobotContainer {
 
     Pose2d targetPose2d = vision.getTargetPose2D(isLeft, isLevel5);
     if (targetPose2d == null) {
-      targetPose2d = drive.getPose();
+      return null;
     }
 
     Pose2d fromPose2d =

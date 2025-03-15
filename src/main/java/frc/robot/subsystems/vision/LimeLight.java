@@ -217,9 +217,6 @@ public class LimeLight extends SubsystemBase {
   /** Get the AprilTag ID */
   public int getTagID() {
     int tagId = (int) LimelightHelpers.getFiducialID(limelightName);
-    if (!APRILTAG_TARGET_POSE.containsKey(tagId + "L")) {
-      tagId = 0;
-    }
     return tagId;
   }
 
@@ -236,13 +233,14 @@ public class LimeLight extends SubsystemBase {
           APRILTAG_TARGET_POSE.get(
               limeLightInputs.tagId + (isLeft ? "L" : "R") + (isLevel5 ? "5" : ""));
 
+      if (targetPose == null) return null;
       limeLightInputs.target_r = targetPose.getRotation().getDegrees();
       limeLightInputs.target_x = targetPose.getX();
       limeLightInputs.target_y = targetPose.getY();
+      limeLightInputs.current_r = getRobotPose().getRotation().getDegrees();
+      limeLightInputs.current_x = getRobotPose().getX();
+      limeLightInputs.current_y = getRobotPose().getY();
     }
-    limeLightInputs.current_r = getRobotPose().getRotation().getDegrees();
-    limeLightInputs.current_x = getRobotPose().getX();
-    limeLightInputs.current_y = getRobotPose().getY();
 
     return targetPose;
   }

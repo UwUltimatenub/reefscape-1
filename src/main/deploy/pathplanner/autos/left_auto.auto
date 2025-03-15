@@ -27,6 +27,12 @@
           "data": {
             "name": "setSource"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": null
+          }
         }
       ]
     }
