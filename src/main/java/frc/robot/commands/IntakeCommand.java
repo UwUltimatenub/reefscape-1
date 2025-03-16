@@ -82,7 +82,8 @@ public class IntakeCommand extends Command {
   @Override
   public boolean isFinished() {
 
-    return isCoral && isIntake && robot.intake.isCoralLoaded();
+    return isCoral && isIntake && robot.intake.isCoralLoaded()
+        || isCoral && !isIntake && !robot.intake.isCoralLoaded();
     // return isFinished;
 
   }

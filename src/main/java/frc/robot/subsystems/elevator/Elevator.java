@@ -101,6 +101,8 @@ public class Elevator extends SubsystemBase {
     // Set up armTalonConfig
     tryUntilOk(5, () -> talon.getConfigurator().apply(armTalonConfig, 0.25));
 
+    talon.setPosition(0);
+    followerTalon.setPosition(0);
     // ParentDevice.optimizeBusUtilizationForAll(talon);
   }
 

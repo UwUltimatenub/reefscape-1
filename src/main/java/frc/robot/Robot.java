@@ -126,6 +126,7 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    robotContainer.drive.isTracking = true;
     autonomousCommand = robotContainer.getAutonomousCommand();
     robotContainer.drive.setPose(
         new Pose2d(robotContainer.drive.getPose().getTranslation(), new Rotation2d()));
@@ -143,6 +144,8 @@ public class Robot extends LoggedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
+    robotContainer.drive.isTracking = false;
+
     // robotContainer.elevator.currentState = SuperStructureState.STATE_SOURCE;
     // robotContainer.wrist.currentState = SuperStructureState.STATE_SOURCE;
     // This makes sure that the autonomous stops running when

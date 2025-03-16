@@ -133,7 +133,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Reset gyro
     controller
-        .y()
+        .start()
         .onTrue(
             Commands.runOnce(
                     () ->
@@ -208,12 +208,14 @@ public class RobotContainer {
                         cmd.schedule();
                       }
                     })
+                .alongWith(
+                    new SetWristAndElevator(this, 4)
+                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
                 .andThen(
-                    Commands.run(
+                    new InstantCommand(
                         () -> {
                           drive.isTracking = false;
-                        },
-                        drive)));
+                        })));
 
     // Align robot to april tag
     controller
@@ -228,12 +230,14 @@ public class RobotContainer {
                         cmd.schedule();
                       }
                     })
-                .andThen(
-                    Commands.run(
+                    .alongWith(
+                      new SetWristAndElevator(this, 4)
+                          .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
+                  .andThen(
+                    new InstantCommand(
                         () -> {
                           drive.isTracking = false;
-                        },
-                        drive)));
+                        })));
 
     // Align robot to april tag
     controller
@@ -249,11 +253,10 @@ public class RobotContainer {
                       }
                     })
                 .andThen(
-                    Commands.run(
+                    new InstantCommand(
                         () -> {
                           drive.isTracking = false;
-                        },
-                        drive)));
+                        })));
 
     // Align robot to april tag
     controller
@@ -269,11 +272,28 @@ public class RobotContainer {
                       }
                     })
                 .andThen(
-                    Commands.run(
+                    new InstantCommand(
                         () -> {
                           drive.isTracking = false;
-                        },
-                        drive)));
+                        })));
+    // Align robot to april tag
+    // controller
+    //     .y()
+    //     .onTrue(
+    //         new InstantCommand(
+    //                 () -> {
+    //                   var path = GoReefTarget(false, false);
+    //                   if (path != null) {
+    //                     var cmd = AutoBuilder.followPath(path);
+    //                     drive.isTracking = true;
+    //                     cmd.schedule();
+    //                   }
+    //                 })
+    //             .andThen(
+    //                 new InstantCommand(
+    //                     () -> {
+    //                       drive.isTracking = false;
+    //                     })));
   }
 
   /**
@@ -282,29 +302,30 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    String autoName = autoChooser.get().getName();
+    String autoName = "middle1";
+    // autoChooser.get().getName();
     Command autoCommand = null;
     switch (autoName) {
-      case "left_auto":
+      case "middle1":
         autoCommand =
-            AutoBuilder.followPath(GoReefTarget(true, true))
-                .alongWith(new SetWristAndElevator(this, 4))
+            AutoBuilder.followPath(GoTarget1())
+                .andThen(new SetWristAndElevator(this, 4))
                 .andThen(new IntakeCommand(this, false))
-                .alongWith(new SetWristAndElevator(this, 0))
-                .alongWith(AutoBuilder.followPath(GoSource()))
+                .andThen(new SetWristAndElevator(this, 0))
+                .andThen(AutoBuilder.followPath(GoSource()))
                 .andThen(new IntakeCommand(this, true))
-                .until(() -> intake.isCoralLoaded())
+                // .until(() -> intake.isCoralLoaded())
                 .andThen(AutoBuilder.followPath(GoReefTarget(true, true)))
-                .alongWith(new SetWristAndElevator(this, 4))
-                .andThen(new IntakeCommand(this, false))
-                .alongWith(new SetWristAndElevator(this, 0))
-                .alongWith(AutoBuilder.followPath(GoSource()))
-                .andThen(new IntakeCommand(this, true))
-                .until(() -> intake.isCoralLoaded())
-                .andThen(AutoBuilder.followPath(GoReefTarget(false, true)))
-                .alongWith(new SetWristAndElevator(this, 4))
-                .andThen(new IntakeCommand(this, false))
-                .alongWith(new SetWristAndElevator(this, 0));
+                .andThen(new SetWristAndElevator(this, 4))
+                .andThen(new IntakeCommand(this, false));
+        // .alongWith(new SetWristAndElevator(this, 0))
+        // .alongWith(AutoBuilder.followPath(GoSource()))
+        // .andThen(new IntakeCommand(this, true))
+        // .until(() -> intake.isCoralLoaded())
+        // .andThen(AutoBuilder.followPath(GoReefTarget(false, true)))
+        // .alongWith(new SetWristAndElevator(this, 4))
+        // .andThen(new IntakeCommand(this, false))
+        // .alongWith(new SetWristAndElevator(this, 0));
 
         break;
 
@@ -314,6 +335,61 @@ public class RobotContainer {
     return autoCommand;
   }
 
+  private PathPlannerPath GoTarget1() {
+
+    Pose2d currentPose2d = drive.getPose();
+    Pose2d targetPose2d = null;
+    if (currentPose2d.getX() < 8.7) {
+      // blue
+      if (currentPose2d.getY() < 4) {
+        // lower id=12
+        targetPose2d = vision.APRILTAG_TARGET_POSE.get("22R5");
+      } else {
+        // upper id=13
+        targetPose2d = vision.APRILTAG_TARGET_POSE.get("20L5");
+      }
+
+    } else {
+      // red
+      if (currentPose2d.getY() < 4) {
+        // lower id=1
+        targetPose2d = vision.APRILTAG_TARGET_POSE.get("11R5");
+      } else {
+        // upper id=2
+        targetPose2d = vision.APRILTAG_TARGET_POSE.get("9L5");
+      }
+    }
+    return GoToPoint(drive.getPose(), targetPose2d);
+  }
+
+  private PathPlannerPath GoTarget2() {
+
+    Pose2d currentPose2d = drive.getPose();
+    Pose2d targetPose2d = null;
+    if (currentPose2d.getX() < 8.7) {
+      // blue
+      if (currentPose2d.getY() < 4) {
+        // lower id=12
+        targetPose2d = vision.APRILTAG_TARGET_POSE.get("17L5");
+      } else {
+        // upper id=13
+        targetPose2d = vision.APRILTAG_TARGET_POSE.get("19R5");
+      }
+
+    } else {
+      // red
+      if (currentPose2d.getY() < 4) {
+        // lower id=1
+        targetPose2d = vision.APRILTAG_TARGET_POSE.get("6L5");
+      } else {
+        // upper id=2
+        targetPose2d = vision.APRILTAG_TARGET_POSE.get("8R5");
+      }
+    }
+    return GoToPoint(drive.getPose(), targetPose2d);
+  }
+
+  // 7m 1.9m -30
   private PathPlannerPath GoSource() {
 
     Pose2d currentPose2d = drive.getPose();
@@ -362,7 +438,7 @@ public class RobotContainer {
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(fromPose2d, targetPose2d);
 
     PathConstraints constraints =
-        new PathConstraints(3, 2.2, 2 * Math.PI, 4 * Math.PI); // The constraints for this
+        new PathConstraints(1.5, 2.2, 2 * Math.PI, 4 * Math.PI); // The constraints for this
     // path.
     // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); //
     // You can also use unlimited constraints, only limited by motor torque and
