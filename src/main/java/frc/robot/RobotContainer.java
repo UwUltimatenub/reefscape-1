@@ -133,7 +133,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Reset gyro
     controller
-        .start()
+        .y()
         .onTrue(
             Commands.runOnce(
                     () ->
@@ -162,29 +162,12 @@ public class RobotContainer {
         .onTrue(
             new SetWristAndElevator(this, 0)
                 .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+
     // level 1 state, depend on is coral loaded
     controller2
-        .povDown()
+        .b()
         .onTrue(
             new SetWristAndElevator(this, 1)
-                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
-    // level 2 state, depend on is coral loaded
-    controller2
-        .povLeft()
-        .onTrue(
-            new SetWristAndElevator(this, 2)
-                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
-    // level 3 state, depend on is coral loaded
-    controller2
-        .povUp()
-        .onTrue(
-            new SetWristAndElevator(this, 3)
-                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
-    // level 4 state, depend on is coral loaded
-    controller2
-        .povRight()
-        .onTrue(
-            new SetWristAndElevator(this, 4)
                 .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
 
     elevator.setDefaultCommand(Commands.run(() -> {}, elevator));
@@ -195,7 +178,7 @@ public class RobotContainer {
 
   private void setCameraCommand() {
 
-    // Align robot to april tag
+    // 1. Align robot to Level 4 left
     controller
         .leftTrigger()
         .onTrue(
@@ -217,7 +200,7 @@ public class RobotContainer {
                           drive.isTracking = false;
                         })));
 
-    // Align robot to april tag
+    // 2. Align robot to Level 4 Right
     controller
         .rightTrigger()
         .onTrue(
@@ -230,18 +213,18 @@ public class RobotContainer {
                         cmd.schedule();
                       }
                     })
-                    .alongWith(
-                      new SetWristAndElevator(this, 4)
-                          .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
-                  .andThen(
+                .alongWith(
+                    new SetWristAndElevator(this, 4)
+                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
+                .andThen(
                     new InstantCommand(
                         () -> {
                           drive.isTracking = false;
                         })));
 
-    // Align robot to april tag
+    // 3. Align robot to Level 3 left
     controller
-        .x()
+        .povLeft()
         .onTrue(
             new InstantCommand(
                     () -> {
@@ -252,15 +235,18 @@ public class RobotContainer {
                         cmd.schedule();
                       }
                     })
+                .alongWith(
+                    new SetWristAndElevator(this, 3)
+                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
                 .andThen(
                     new InstantCommand(
                         () -> {
                           drive.isTracking = false;
                         })));
 
-    // Align robot to april tag
+    // 4. Align robot to Level 3 Right
     controller
-        .b()
+        .povUp()
         .onTrue(
             new InstantCommand(
                     () -> {
@@ -271,29 +257,57 @@ public class RobotContainer {
                         cmd.schedule();
                       }
                     })
+                .alongWith(
+                    new SetWristAndElevator(this, 3)
+                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
                 .andThen(
                     new InstantCommand(
                         () -> {
                           drive.isTracking = false;
                         })));
-    // Align robot to april tag
-    // controller
-    //     .y()
-    //     .onTrue(
-    //         new InstantCommand(
-    //                 () -> {
-    //                   var path = GoReefTarget(false, false);
-    //                   if (path != null) {
-    //                     var cmd = AutoBuilder.followPath(path);
-    //                     drive.isTracking = true;
-    //                     cmd.schedule();
-    //                   }
-    //                 })
-    //             .andThen(
-    //                 new InstantCommand(
-    //                     () -> {
-    //                       drive.isTracking = false;
-    //                     })));
+    // 5. Align robot to Level 2 left
+    controller
+        .povDown()
+        .onTrue(
+            new InstantCommand(
+                    () -> {
+                      var path = GoReefTarget(true, false);
+                      if (path != null) {
+                        var cmd = AutoBuilder.followPath(path);
+                        drive.isTracking = true;
+                        cmd.schedule();
+                      }
+                    })
+                .alongWith(
+                    new SetWristAndElevator(this, 2)
+                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
+                .andThen(
+                    new InstantCommand(
+                        () -> {
+                          drive.isTracking = false;
+                        })));
+
+    // 6. Align robot to Level 2 Right
+    controller
+        .povRight()
+        .onTrue(
+            new InstantCommand(
+                    () -> {
+                      var path = GoReefTarget(false, false);
+                      if (path != null) {
+                        var cmd = AutoBuilder.followPath(path);
+                        drive.isTracking = true;
+                        cmd.schedule();
+                      }
+                    })
+                .alongWith(
+                    new SetWristAndElevator(this, 2)
+                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
+                .andThen(
+                    new InstantCommand(
+                        () -> {
+                          drive.isTracking = false;
+                        })));
   }
 
   /**
@@ -302,42 +316,58 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    String autoName = "middle1";
-    // autoChooser.get().getName();
-    Command autoCommand = null;
-    switch (autoName) {
-      case "middle1":
-        autoCommand =
-            AutoBuilder.followPath(GoTarget1())
-                .andThen(new SetWristAndElevator(this, 4))
-                .andThen(new IntakeCommand(this, false))
-                .andThen(new SetWristAndElevator(this, 0))
-                .andThen(AutoBuilder.followPath(GoSource()))
-                .andThen(new IntakeCommand(this, true))
-                // .until(() -> intake.isCoralLoaded())
-                .andThen(AutoBuilder.followPath(GoReefTarget(true, true)))
-                .andThen(new SetWristAndElevator(this, 4))
-                .andThen(new IntakeCommand(this, false));
-        // .alongWith(new SetWristAndElevator(this, 0))
-        // .alongWith(AutoBuilder.followPath(GoSource()))
-        // .andThen(new IntakeCommand(this, true))
-        // .until(() -> intake.isCoralLoaded())
-        // .andThen(AutoBuilder.followPath(GoReefTarget(false, true)))
-        // .alongWith(new SetWristAndElevator(this, 4))
-        // .andThen(new IntakeCommand(this, false))
-        // .alongWith(new SetWristAndElevator(this, 0));
+    String autoName = autoChooser.get().getName();
+    Command autoCommand =
+        AutoBuilder.followPath(GoTarget1(autoName)) // go to reef 1
+            .alongWith(new SetWristAndElevator(this, 4))
+            .andThen(new IntakeCommand(this, false))
+            .withTimeout(1)
+            .andThen(new SetWristAndElevator(this, 0))
+            .andThen(AutoBuilder.followPath(GoSource())) // go to source
+            .andThen(new IntakeCommand(this, true))
+            .andThen(AutoBuilder.followPath(GoTarget2())) // go to reef 2
+            .alongWith(new SetWristAndElevator(this, 4))
+            .andThen(new IntakeCommand(this, false))
+            .withTimeout(1)
+            .andThen(new SetWristAndElevator(this, 0))
+            .andThen(AutoBuilder.followPath(GoSource())) // go to rsource
+            .andThen(new IntakeCommand(this, true))
+            .andThen(AutoBuilder.followPath(GoTarget2())) // go to reef 3
+            .alongWith(new SetWristAndElevator(this, 4))
+            .andThen(new IntakeCommand(this, false))
+            .withTimeout(1)
+            .andThen(new SetWristAndElevator(this, 0));
 
+    return autoCommand;
+  }
+
+  private Pose2d getInitialPose(String autoName) {
+    Pose2d startPose2d = null;
+
+    switch (autoName) {
+      case "blue_left":
+        startPose2d = new Pose2d(7, 6, Rotation2d.fromDegrees(-150));
+        break;
+      case "blue_right":
+        startPose2d = new Pose2d(7, 2, Rotation2d.fromDegrees(150));
+        break;
+      case "red_left":
+        startPose2d = new Pose2d(10.5, 2, Rotation2d.fromDegrees(30));
+        break;
+      case "red_right":
+        startPose2d = new Pose2d(10.5, 6, Rotation2d.fromDegrees(-30));
         break;
 
       default:
         break;
     }
-    return autoCommand;
+
+    return startPose2d;
   }
 
-  private PathPlannerPath GoTarget1() {
+  private PathPlannerPath GoTarget1(String autoName) {
 
-    Pose2d currentPose2d = drive.getPose();
+    Pose2d currentPose2d = getInitialPose(autoName);
     Pose2d targetPose2d = null;
     if (currentPose2d.getX() < 8.7) {
       // blue
@@ -417,13 +447,13 @@ public class RobotContainer {
     return GoToPoint(drive.getPose(), targetPose2d);
   }
 
-  public PathPlannerPath GoReefTarget(boolean isLeft, boolean isLevel5) {
+  public PathPlannerPath GoReefTarget(boolean isLeft, boolean isLevel4) {
 
     if (LimelightHelpers.getTV("limelight")) {
       drive.setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"));
     }
 
-    Pose2d targetPose2d = vision.getTargetPose2D(isLeft, isLevel5);
+    Pose2d targetPose2d = vision.getTargetPose2D(isLeft, isLevel4, intake.isCoralLoaded());
     if (targetPose2d == null) {
       return null;
     }

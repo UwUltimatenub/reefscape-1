@@ -48,7 +48,9 @@ public class LimeLight extends SubsystemBase {
   public final HashMap<String, Pose2d> APRILTAG_TARGET_POSE = new HashMap<String, Pose2d>();
 
   private static final Transform2d transform_source =
-      new Transform2d(0.62, 0, Rotation2d.fromDegrees(180));
+      new Transform2d(0.22, 0, Rotation2d.fromDegrees(180));
+  private static final Transform2d transform_algae =
+      new Transform2d(0.62, 0, Rotation2d.fromDegrees(0));
 
   private static final Transform2d transform_left =
       new Transform2d(offset_forward, offset_side, Rotation2d.fromDegrees(0));
@@ -71,6 +73,33 @@ public class LimeLight extends SubsystemBase {
         "12", TAG_LAYOUT.getTagPose(12).get().toPose2d().transformBy(transform_source));
     APRILTAG_TARGET_POSE.put(
         "13", TAG_LAYOUT.getTagPose(13).get().toPose2d().transformBy(transform_source));
+
+    // algae level 2 3
+    APRILTAG_TARGET_POSE.put(
+        "6L", TAG_LAYOUT.getTagPose(6).get().toPose2d().transformBy(transform_algae));
+    APRILTAG_TARGET_POSE.put(
+        "7L", TAG_LAYOUT.getTagPose(7).get().toPose2d().transformBy(transform_algae));
+    APRILTAG_TARGET_POSE.put(
+        "8L", TAG_LAYOUT.getTagPose(8).get().toPose2d().transformBy(transform_algae));
+    APRILTAG_TARGET_POSE.put(
+        "9L", TAG_LAYOUT.getTagPose(9).get().toPose2d().transformBy(transform_algae));
+    APRILTAG_TARGET_POSE.put(
+        "10L", TAG_LAYOUT.getTagPose(10).get().toPose2d().transformBy(transform_algae));
+    APRILTAG_TARGET_POSE.put(
+        "11L", TAG_LAYOUT.getTagPose(11).get().toPose2d().transformBy(transform_algae));
+
+    APRILTAG_TARGET_POSE.put(
+        "17L", TAG_LAYOUT.getTagPose(17).get().toPose2d().transformBy(transform_algae));
+    APRILTAG_TARGET_POSE.put(
+        "18L", TAG_LAYOUT.getTagPose(18).get().toPose2d().transformBy(transform_algae));
+    APRILTAG_TARGET_POSE.put(
+        "19L", TAG_LAYOUT.getTagPose(19).get().toPose2d().transformBy(transform_algae));
+    APRILTAG_TARGET_POSE.put(
+        "20L", TAG_LAYOUT.getTagPose(20).get().toPose2d().transformBy(transform_algae));
+    APRILTAG_TARGET_POSE.put(
+        "21L", TAG_LAYOUT.getTagPose(21).get().toPose2d().transformBy(transform_algae));
+    APRILTAG_TARGET_POSE.put(
+        "22L", TAG_LAYOUT.getTagPose(22).get().toPose2d().transformBy(transform_algae));
 
     // level 2,3
     APRILTAG_TARGET_POSE.put(
@@ -225,13 +254,17 @@ public class LimeLight extends SubsystemBase {
     return LimelightHelpers.getBotPose2d_wpiBlue(limelightName);
   }
 
-  public Pose2d getTargetPose2D(boolean isLeft, boolean isLevel5) {
+  public Pose2d getTargetPose2D(boolean isLeft, boolean isLevel5, boolean isCoral) {
     Pose2d targetPose = null;
     limeLightInputs.tagId = getTagID();
     if (limeLightInputs.tagId != 0) {
-      targetPose =
-          APRILTAG_TARGET_POSE.get(
-              limeLightInputs.tagId + (isLeft ? "L" : "R") + (isLevel5 ? "5" : ""));
+      if (isCoral) {
+        targetPose =
+            APRILTAG_TARGET_POSE.get(
+                limeLightInputs.tagId + (isLeft ? "L" : "R") + (isLevel5 ? "5" : ""));
+      } else {
+        targetPose = APRILTAG_TARGET_POSE.get(String.valueOf(limeLightInputs.tagId));
+      }
 
       if (targetPose == null) return null;
       limeLightInputs.target_r = targetPose.getRotation().getDegrees();
