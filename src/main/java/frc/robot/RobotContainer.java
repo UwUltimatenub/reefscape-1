@@ -101,7 +101,7 @@ public class RobotContainer {
   // map joystick input to curved output
   // less sensitive at the low range, very sensentive at high range
   private double regulate(double input) {
-    double output = Math.signum(input) * input * input;
+    double output = input; // Math.signum(input) * input * input;
     if (targetState == SuperStructureState.STATE_ALGAE_TOP
         || currentState == SuperStructureState.STATE_ALGAE_TOP
         || targetState == SuperStructureState.STATE_L4) {
@@ -382,7 +382,7 @@ public class RobotContainer {
     String autoName = autoChooser.get().getName();
     Command autoCommand =
         AutoBuilder.followPath(getPath(autoName, 1)) // path1: go to reef 1
-            .alongWith(new SetWristAndElevator(this, 4))
+            .andThen(new SetWristAndElevator(this, 4))
             .andThen(new IntakeCommand(this, false))
             .withTimeout(1)
             .andThen(new SetWristAndElevator(this, 0))
@@ -390,7 +390,7 @@ public class RobotContainer {
                 AutoBuilder.followPath(getPath(autoName, 2))) // path2:  go to source from target 1
             .andThen(new IntakeCommand(this, true))
             .andThen(AutoBuilder.followPath(getPath(autoName, 3))) // path3: go to reef 2
-            .alongWith(new SetWristAndElevator(this, 4))
+            .andThen(new SetWristAndElevator(this, 4))
             .andThen(new IntakeCommand(this, false))
             .withTimeout(1)
             .andThen(new SetWristAndElevator(this, 0))
@@ -398,7 +398,7 @@ public class RobotContainer {
                 AutoBuilder.followPath(getPath(autoName, 4))) // path4: go to rsource from target 2
             .andThen(new IntakeCommand(this, true))
             .andThen(AutoBuilder.followPath(getPath(autoName, 5))) // path5: go to reef 3
-            .alongWith(new SetWristAndElevator(this, 4))
+            .andThen(new SetWristAndElevator(this, 4))
             .andThen(new IntakeCommand(this, false))
             .withTimeout(1)
             .andThen(new SetWristAndElevator(this, 0));
