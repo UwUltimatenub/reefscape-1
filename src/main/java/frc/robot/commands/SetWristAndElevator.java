@@ -21,7 +21,7 @@ public class SetWristAndElevator extends Command {
   boolean isFinished = false;
 
   public SetWristAndElevator(RobotContainer robot, int level) {
-    addRequirements(robot.wrist, robot.elevator, robot.intake);
+    addRequirements(robot.wrist, robot.elevator);
     this.robot = robot;
     this.level = level;
   }
@@ -96,14 +96,14 @@ public class SetWristAndElevator extends Command {
           || robot.currentState == SuperStructureState.STATE_ALGAE_MID
           || robot.currentState == SuperStructureState.STATE_ALGAE_LOW) {
         // from top/mid/low algae to source, eject algae
-        robot.intake.intake(IntakeCommand.Eject_Algae);
+        // robot.intake.intake(IntakeCommand.Eject_Algae);
         // switch to safty angle
         robot.wrist.setWristAngle(SuperStructureState.STATE_SAFTY.angle);
         // along with set elevator height
         robot.elevator.setElevatorHeight(robot.targetState.height);
         if (robot.elevator.isDone().getAsBoolean()) {
           // eject algae, end
-          robot.intake.intake(0);
+          // robot.intake.intake(0);
           // reset wrist angle
           robot.wrist.setWristAngle(robot.targetState.angle);
           if (robot.wrist.isDone().getAsBoolean()) {

@@ -359,6 +359,9 @@ public class RobotContainer {
 
   public PathPlannerPath GoReefTarget(boolean isLeft, boolean isLevel4) {
 
+    if (isLevel4 && !intake.isCoralLoaded()) {
+      return null;
+    }
     if (LimelightHelpers.getTV("limelight")) {
       drive.setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"));
     }
@@ -380,52 +383,58 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     String autoName = autoChooser.get().getName();
-    Command autoCommand =
-        AutoBuilder.followPath(getPath(autoName, 1)) // path1: go to reef 1
-            .andThen(new SetWristAndElevator(this, 4))
-            .andThen(new IntakeCommand(this, false))
-            .withTimeout(1)
-            .andThen(new SetWristAndElevator(this, 0))
-            .andThen(
-                AutoBuilder.followPath(getPath(autoName, 2))) // path2:  go to source from target 1
-            .andThen(new IntakeCommand(this, true))
-            .andThen(AutoBuilder.followPath(getPath(autoName, 3))) // path3: go to reef 2
-            .andThen(new SetWristAndElevator(this, 4))
-            .andThen(new IntakeCommand(this, false))
-            .withTimeout(1)
-            .andThen(new SetWristAndElevator(this, 0))
-            .andThen(
-                AutoBuilder.followPath(getPath(autoName, 4))) // path4: go to rsource from target 2
-            .andThen(new IntakeCommand(this, true))
-            .andThen(AutoBuilder.followPath(getPath(autoName, 5))) // path5: go to reef 3
-            .andThen(new SetWristAndElevator(this, 4))
-            .andThen(new IntakeCommand(this, false))
-            .withTimeout(1)
-            .andThen(new SetWristAndElevator(this, 0));
+    Command autoCommand = null;
+    if (autoName == "forward") {
+      autoCommand = autoChooser.get();
+    } else {
 
+      autoCommand =
+          AutoBuilder.followPath(getPath(autoName, 1)) // path1: go to reef 1
+              .andThen(new SetWristAndElevator(this, 4))
+              .andThen(new IntakeCommand(this, false))
+              .withTimeout(1)
+              .andThen(new SetWristAndElevator(this, 0))
+              .andThen(
+                  AutoBuilder.followPath(getPath(autoName, 2))) // path2: go to source from target 1
+              .andThen(new IntakeCommand(this, true))
+              .andThen(AutoBuilder.followPath(getPath(autoName, 3))) // path3: go to reef 2
+              .andThen(new SetWristAndElevator(this, 4))
+              .andThen(new IntakeCommand(this, false))
+              .withTimeout(1)
+              .andThen(new SetWristAndElevator(this, 0))
+              .andThen(
+                  AutoBuilder.followPath(
+                      getPath(autoName, 4))) // path4: go to rsource from target 2
+              .andThen(new IntakeCommand(this, true))
+              .andThen(AutoBuilder.followPath(getPath(autoName, 5))) // path5: go to reef 3
+              .andThen(new SetWristAndElevator(this, 4))
+              .andThen(new IntakeCommand(this, false))
+              .withTimeout(1)
+              .andThen(new SetWristAndElevator(this, 0));
+    }
     return autoCommand;
   }
 
   private Pose2d getInitialPose(String autoName) {
-    Pose2d startPose2d = null;
+    Pose2d startPose2d = drive.getPose();
 
-    switch (autoName) {
-      case "blue_left":
-        startPose2d = new Pose2d(7, 6, Rotation2d.fromDegrees(-150));
-        break;
-      case "blue_right":
-        startPose2d = new Pose2d(7, 2, Rotation2d.fromDegrees(150));
-        break;
-      case "red_left":
-        startPose2d = new Pose2d(10.5, 2, Rotation2d.fromDegrees(30));
-        break;
-      case "red_right":
-        startPose2d = new Pose2d(10.5, 6, Rotation2d.fromDegrees(-30));
-        break;
+    // switch (autoName) {
+    // case "blue_left":
+    // startPose2d = new Pose2d(7, 6, Rotation2d.fromDegrees(30));
+    // break;
+    // case "blue_right":
+    // startPose2d = new Pose2d(7, 2, Rotation2d.fromDegrees(-30));
+    // break;
+    // case "red_left":
+    // startPose2d = new Pose2d(10.5, 2, Rotation2d.fromDegrees(-150));
+    // break;
+    // case "red_right":
+    // startPose2d = new Pose2d(10.5, 6, Rotation2d.fromDegrees(150));
+    // break;
 
-      default:
-        break;
-    }
+    // default:
+    // break;
+    // }
 
     return startPose2d;
   }
@@ -530,6 +539,8 @@ public class RobotContainer {
         to = getPosition(autoName, 3);
         break;
     }
+    System.out.println("from=" + from);
+    System.out.println("to=" + to);
     return createPath(from, to);
   }
 }
