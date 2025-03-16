@@ -310,160 +310,13 @@ public class RobotContainer {
                         })));
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    String autoName = autoChooser.get().getName();
-    Command autoCommand =
-        AutoBuilder.followPath(GoTarget1(autoName)) // go to reef 1
-            .alongWith(new SetWristAndElevator(this, 4))
-            .andThen(new IntakeCommand(this, false))
-            .withTimeout(1)
-            .andThen(new SetWristAndElevator(this, 0))
-            .andThen(AutoBuilder.followPath(GoSource())) // go to source
-            .andThen(new IntakeCommand(this, true))
-            .andThen(AutoBuilder.followPath(GoTarget2())) // go to reef 2
-            .alongWith(new SetWristAndElevator(this, 4))
-            .andThen(new IntakeCommand(this, false))
-            .withTimeout(1)
-            .andThen(new SetWristAndElevator(this, 0))
-            .andThen(AutoBuilder.followPath(GoSource())) // go to rsource
-            .andThen(new IntakeCommand(this, true))
-            .andThen(AutoBuilder.followPath(GoTarget2())) // go to reef 3
-            .alongWith(new SetWristAndElevator(this, 4))
-            .andThen(new IntakeCommand(this, false))
-            .withTimeout(1)
-            .andThen(new SetWristAndElevator(this, 0));
-
-    return autoCommand;
-  }
-
-  private Pose2d getInitialPose(String autoName) {
-    Pose2d startPose2d = null;
-
-    switch (autoName) {
-      case "blue_left":
-        startPose2d = new Pose2d(7, 6, Rotation2d.fromDegrees(-150));
-        break;
-      case "blue_right":
-        startPose2d = new Pose2d(7, 2, Rotation2d.fromDegrees(150));
-        break;
-      case "red_left":
-        startPose2d = new Pose2d(10.5, 2, Rotation2d.fromDegrees(30));
-        break;
-      case "red_right":
-        startPose2d = new Pose2d(10.5, 6, Rotation2d.fromDegrees(-30));
-        break;
-
-      default:
-        break;
-    }
-
-    return startPose2d;
-  }
-
-  private PathPlannerPath GoTarget1(String autoName) {
-
-    Pose2d currentPose2d = getInitialPose(autoName);
-    Pose2d targetPose2d = null;
-    if (currentPose2d.getX() < 8.7) {
-      // blue
-      if (currentPose2d.getY() < 4) {
-        // lower id=12
-        targetPose2d = vision.APRILTAG_TARGET_POSE.get("22R5");
-      } else {
-        // upper id=13
-        targetPose2d = vision.APRILTAG_TARGET_POSE.get("20L5");
-      }
-
-    } else {
-      // red
-      if (currentPose2d.getY() < 4) {
-        // lower id=1
-        targetPose2d = vision.APRILTAG_TARGET_POSE.get("11R5");
-      } else {
-        // upper id=2
-        targetPose2d = vision.APRILTAG_TARGET_POSE.get("9L5");
-      }
-    }
-    return GoToPoint(drive.getPose(), targetPose2d);
-  }
-
-  private PathPlannerPath GoTarget2() {
-
-    Pose2d currentPose2d = drive.getPose();
-    Pose2d targetPose2d = null;
-    if (currentPose2d.getX() < 8.7) {
-      // blue
-      if (currentPose2d.getY() < 4) {
-        // lower id=12
-        targetPose2d = vision.APRILTAG_TARGET_POSE.get("17L5");
-      } else {
-        // upper id=13
-        targetPose2d = vision.APRILTAG_TARGET_POSE.get("19R5");
-      }
-
-    } else {
-      // red
-      if (currentPose2d.getY() < 4) {
-        // lower id=1
-        targetPose2d = vision.APRILTAG_TARGET_POSE.get("6L5");
-      } else {
-        // upper id=2
-        targetPose2d = vision.APRILTAG_TARGET_POSE.get("8R5");
-      }
-    }
-    return GoToPoint(drive.getPose(), targetPose2d);
-  }
-
-  // 7m 1.9m -30
-  private PathPlannerPath GoSource() {
-
-    Pose2d currentPose2d = drive.getPose();
-    Pose2d targetPose2d = null;
-    if (currentPose2d.getX() < 8.7) {
-      // blue
-      if (currentPose2d.getY() < 4) {
-        // lower id=12
-        targetPose2d = vision.APRILTAG_TARGET_POSE.get("12");
-      } else {
-        // upper id=13
-        targetPose2d = vision.APRILTAG_TARGET_POSE.get("13");
-      }
-
-    } else {
-      // red
-      if (currentPose2d.getY() < 4) {
-        // lower id=1
-        targetPose2d = vision.APRILTAG_TARGET_POSE.get("1");
-      } else {
-        // upper id=2
-        targetPose2d = vision.APRILTAG_TARGET_POSE.get("2");
-      }
-    }
-    return GoToPoint(drive.getPose(), targetPose2d);
-  }
-
-  public PathPlannerPath GoReefTarget(boolean isLeft, boolean isLevel4) {
-
-    if (LimelightHelpers.getTV("limelight")) {
-      drive.setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"));
-    }
-
-    Pose2d targetPose2d = vision.getTargetPose2D(isLeft, isLevel4, intake.isCoralLoaded());
-    if (targetPose2d == null) {
-      return null;
-    }
-
-    Pose2d fromPose2d =
-        new Pose2d(drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation());
-    return GoToPoint(fromPose2d, targetPose2d);
-  }
-
-  public PathPlannerPath GoToPoint(Pose2d fromPose2d, Pose2d targetPose2d) {
+  /////
+  ///
+  ///
+  ///
+  ///
+  ///
+  public PathPlannerPath createPath(Pose2d fromPose2d, Pose2d targetPose2d) {
 
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(fromPose2d, targetPose2d);
 
@@ -502,5 +355,181 @@ public class RobotContainer {
     path.preventFlipping = true;
 
     return path;
+  }
+
+  public PathPlannerPath GoReefTarget(boolean isLeft, boolean isLevel4) {
+
+    if (LimelightHelpers.getTV("limelight")) {
+      drive.setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"));
+    }
+
+    Pose2d targetPose2d = vision.getTargetPose2D(isLeft, isLevel4, intake.isCoralLoaded());
+    if (targetPose2d == null) {
+      return null;
+    }
+
+    Pose2d fromPose2d =
+        new Pose2d(drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation());
+    return createPath(fromPose2d, targetPose2d);
+  }
+
+  /**
+   * Use this to pass the autonomous command to the main {@link Robot} class.
+   *
+   * @return the command to run in autonomous
+   */
+  public Command getAutonomousCommand() {
+    String autoName = autoChooser.get().getName();
+    Command autoCommand =
+        AutoBuilder.followPath(getPath(autoName, 1)) // path1: go to reef 1
+            .alongWith(new SetWristAndElevator(this, 4))
+            .andThen(new IntakeCommand(this, false))
+            .withTimeout(1)
+            .andThen(new SetWristAndElevator(this, 0))
+            .andThen(
+                AutoBuilder.followPath(getPath(autoName, 2))) // path2:  go to source from target 1
+            .andThen(new IntakeCommand(this, true))
+            .andThen(AutoBuilder.followPath(getPath(autoName, 3))) // path3: go to reef 2
+            .alongWith(new SetWristAndElevator(this, 4))
+            .andThen(new IntakeCommand(this, false))
+            .withTimeout(1)
+            .andThen(new SetWristAndElevator(this, 0))
+            .andThen(
+                AutoBuilder.followPath(getPath(autoName, 4))) // path4: go to rsource from target 2
+            .andThen(new IntakeCommand(this, true))
+            .andThen(AutoBuilder.followPath(getPath(autoName, 5))) // path5: go to reef 3
+            .alongWith(new SetWristAndElevator(this, 4))
+            .andThen(new IntakeCommand(this, false))
+            .withTimeout(1)
+            .andThen(new SetWristAndElevator(this, 0));
+
+    return autoCommand;
+  }
+
+  private Pose2d getInitialPose(String autoName) {
+    Pose2d startPose2d = null;
+
+    switch (autoName) {
+      case "blue_left":
+        startPose2d = new Pose2d(7, 6, Rotation2d.fromDegrees(-150));
+        break;
+      case "blue_right":
+        startPose2d = new Pose2d(7, 2, Rotation2d.fromDegrees(150));
+        break;
+      case "red_left":
+        startPose2d = new Pose2d(10.5, 2, Rotation2d.fromDegrees(30));
+        break;
+      case "red_right":
+        startPose2d = new Pose2d(10.5, 6, Rotation2d.fromDegrees(-30));
+        break;
+
+      default:
+        break;
+    }
+
+    return startPose2d;
+  }
+
+  private Pose2d getPosition(String autoName, int position) {
+
+    Pose2d targetPose2d = null;
+    switch (position) {
+      case 0: // source
+        switch (autoName) {
+          case "blue_left":
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("13");
+            break;
+          case "blue_right":
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("12");
+            break;
+          case "red_left":
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("1");
+            break;
+          case "red_right":
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("2");
+            break;
+        }
+        break;
+      case 1: // first target
+        switch (autoName) {
+          case "blue_left":
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("20L5");
+            break;
+          case "blue_right":
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("22R5");
+            break;
+          case "red_left":
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("11L5");
+            break;
+          case "red_right":
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("9R5");
+            break;
+        }
+        break;
+      case 2:
+        // second target
+        switch (autoName) {
+          case "blue_left":
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("19R5");
+            break;
+          case "blue_right":
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("17L5");
+            break;
+          case "red_left":
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("6R5");
+            break;
+          case "red_right":
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("8L5");
+            break;
+        }
+        break;
+      case 3:
+        // third target
+        switch (autoName) {
+          case "blue_left":
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("19L5");
+            break;
+          case "blue_right":
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("17R5");
+            break;
+          case "red_left":
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("6L5");
+            break;
+          case "red_right":
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("8R5");
+            break;
+        }
+        break;
+    }
+    return targetPose2d;
+  }
+
+  private PathPlannerPath getPath(String autoName, int number) {
+
+    Pose2d from = null;
+    Pose2d to = null;
+    switch (number) {
+      case 1: // to first reef
+        from = getInitialPose(autoName);
+        to = getPosition(autoName, 1);
+        break;
+      case 2: // to first source
+        from = getPosition(autoName, 1);
+        to = getPosition(autoName, 0);
+        break;
+      case 3: // to second reef
+        from = getPosition(autoName, 0);
+        to = getPosition(autoName, 2);
+        break;
+      case 4: // to second source
+        from = getPosition(autoName, 2);
+        to = getPosition(autoName, 0);
+        break;
+      case 5: // to third reff
+        from = getPosition(autoName, 0);
+        to = getPosition(autoName, 3);
+        break;
+    }
+    return createPath(from, to);
   }
 }
