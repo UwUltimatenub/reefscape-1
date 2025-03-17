@@ -17,8 +17,6 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PointTowardsZone;
 import com.pathplanner.lib.path.RotationTarget;
 import com.pathplanner.lib.path.Waypoint;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -46,12 +44,9 @@ import java.util.List;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in
- * the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of
- * the robot (including
+ * This class is where the bulk of the robot should be declared. Since Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
@@ -72,9 +67,7 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
+  /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
     // Real robot, instantiate hardware IO implementations
@@ -82,12 +75,13 @@ public class RobotContainer {
     wrist = new Wrist();
     elevator = new Elevator();
     intake = new Intake();
-    drive = new Drive(
-        new GyroIOPigeon2(),
-        new ModuleIOTalonFX(TunerConstants.FrontLeft),
-        new ModuleIOTalonFX(TunerConstants.FrontRight),
-        new ModuleIOTalonFX(TunerConstants.BackLeft),
-        new ModuleIOTalonFX(TunerConstants.BackRight));
+    drive =
+        new Drive(
+            new GyroIOPigeon2(),
+            new ModuleIOTalonFX(TunerConstants.FrontLeft),
+            new ModuleIOTalonFX(TunerConstants.FrontRight),
+            new ModuleIOTalonFX(TunerConstants.BackLeft),
+            new ModuleIOTalonFX(TunerConstants.BackRight));
 
     NamedCommands.registerCommand("setSource", new SetWristAndElevator(this, 0).withTimeout(5));
     NamedCommands.registerCommand("setL1", new SetWristAndElevator(this, 1).withTimeout(5));
@@ -132,11 +126,9 @@ public class RobotContainer {
   }
 
   /**
-   * Use this method to define your button->command mappings. Buttons can be
-   * created by
+   * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
-   * it to a {@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
@@ -145,9 +137,10 @@ public class RobotContainer {
         .y()
         .onTrue(
             Commands.runOnce(
-                () -> drive.setPose(
-                    new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-                drive)
+                    () ->
+                        drive.setPose(
+                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+                    drive)
                 .ignoringDisable(true));
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
@@ -178,10 +171,8 @@ public class RobotContainer {
             new SetWristAndElevator(this, 1)
                 .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
 
-    elevator.setDefaultCommand(Commands.run(() -> {
-    }, elevator));
-    wrist.setDefaultCommand(Commands.run(() -> {
-    }, wrist));
+    elevator.setDefaultCommand(Commands.run(() -> {}, elevator));
+    wrist.setDefaultCommand(Commands.run(() -> {}, wrist));
 
     setCameraCommand();
   }
@@ -193,14 +184,14 @@ public class RobotContainer {
         .leftTrigger()
         .onTrue(
             new InstantCommand(
-                () -> {
-                  var path = GoReefTarget(true, true);
-                  if (path != null) {
-                    var cmd = AutoBuilder.followPath(path);
-                    drive.isTracking = true;
-                    cmd.schedule();
-                  }
-                })
+                    () -> {
+                      var path = GoReefTarget(true, true);
+                      if (path != null) {
+                        var cmd = AutoBuilder.followPath(path);
+                        drive.isTracking = true;
+                        cmd.schedule();
+                      }
+                    })
                 .alongWith(
                     new SetWristAndElevator(this, 4)
                         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
@@ -215,14 +206,14 @@ public class RobotContainer {
         .rightTrigger()
         .onTrue(
             new InstantCommand(
-                () -> {
-                  var path = GoReefTarget(false, true);
-                  if (path != null) {
-                    var cmd = AutoBuilder.followPath(path);
-                    drive.isTracking = true;
-                    cmd.schedule();
-                  }
-                })
+                    () -> {
+                      var path = GoReefTarget(false, true);
+                      if (path != null) {
+                        var cmd = AutoBuilder.followPath(path);
+                        drive.isTracking = true;
+                        cmd.schedule();
+                      }
+                    })
                 .alongWith(
                     new SetWristAndElevator(this, 4)
                         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
@@ -237,14 +228,14 @@ public class RobotContainer {
         .povLeft()
         .onTrue(
             new InstantCommand(
-                () -> {
-                  var path = GoReefTarget(true, false);
-                  if (path != null) {
-                    var cmd = AutoBuilder.followPath(path);
-                    drive.isTracking = true;
-                    cmd.schedule();
-                  }
-                })
+                    () -> {
+                      var path = GoReefTarget(true, false);
+                      if (path != null) {
+                        var cmd = AutoBuilder.followPath(path);
+                        drive.isTracking = true;
+                        cmd.schedule();
+                      }
+                    })
                 .alongWith(
                     new SetWristAndElevator(this, 3)
                         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
@@ -259,14 +250,14 @@ public class RobotContainer {
         .povUp()
         .onTrue(
             new InstantCommand(
-                () -> {
-                  var path = GoReefTarget(false, false);
-                  if (path != null) {
-                    var cmd = AutoBuilder.followPath(path);
-                    drive.isTracking = true;
-                    cmd.schedule();
-                  }
-                })
+                    () -> {
+                      var path = GoReefTarget(false, false);
+                      if (path != null) {
+                        var cmd = AutoBuilder.followPath(path);
+                        drive.isTracking = true;
+                        cmd.schedule();
+                      }
+                    })
                 .alongWith(
                     new SetWristAndElevator(this, 3)
                         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
@@ -280,14 +271,14 @@ public class RobotContainer {
         .povDown()
         .onTrue(
             new InstantCommand(
-                () -> {
-                  var path = GoReefTarget(true, false);
-                  if (path != null) {
-                    var cmd = AutoBuilder.followPath(path);
-                    drive.isTracking = true;
-                    cmd.schedule();
-                  }
-                })
+                    () -> {
+                      var path = GoReefTarget(true, false);
+                      if (path != null) {
+                        var cmd = AutoBuilder.followPath(path);
+                        drive.isTracking = true;
+                        cmd.schedule();
+                      }
+                    })
                 .alongWith(
                     new SetWristAndElevator(this, 2)
                         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
@@ -302,14 +293,14 @@ public class RobotContainer {
         .povRight()
         .onTrue(
             new InstantCommand(
-                () -> {
-                  var path = GoReefTarget(false, false);
-                  if (path != null) {
-                    var cmd = AutoBuilder.followPath(path);
-                    drive.isTracking = true;
-                    cmd.schedule();
-                  }
-                })
+                    () -> {
+                      var path = GoReefTarget(false, false);
+                      if (path != null) {
+                        var cmd = AutoBuilder.followPath(path);
+                        drive.isTracking = true;
+                        cmd.schedule();
+                      }
+                    })
                 .alongWith(
                     new SetWristAndElevator(this, 2)
                         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
@@ -330,7 +321,8 @@ public class RobotContainer {
 
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(fromPose2d, targetPose2d);
 
-    PathConstraints constraints = new PathConstraints(1.5, 2.2, 2 * Math.PI, 4 * Math.PI); // The constraints for this
+    PathConstraints constraints =
+        new PathConstraints(1.3, 2.2, 2 * Math.PI, 4 * Math.PI); // The constraints for this
     // path.
     // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); //
     // You can also use unlimited constraints, only limited by motor torque and
@@ -342,22 +334,23 @@ public class RobotContainer {
     List<PointTowardsZone> ListPTZ = Arrays.asList();
 
     // Create the path using the waypoints created above
-    PathPlannerPath path = new PathPlannerPath(
-        waypoints,
-        ListRT,
-        ListPTZ,
-        ListCZ,
-        ListEM,
-        constraints,
-        null, // The ideal starting state, this is only relevant for pre-planned paths, so can
-        // be null for on-the-fly paths.
-        new GoalEndState(
-            0.0,
-            targetPose2d
-                .getRotation()), // Goal end state. You can set a holonomic rotation here. If
-        // using a differential drivetrain, the rotation will have no
-        // effect.
-        false);
+    PathPlannerPath path =
+        new PathPlannerPath(
+            waypoints,
+            ListRT,
+            ListPTZ,
+            ListCZ,
+            ListEM,
+            constraints,
+            null, // The ideal starting state, this is only relevant for pre-planned paths, so can
+            // be null for on-the-fly paths.
+            new GoalEndState(
+                0.0,
+                targetPose2d
+                    .getRotation()), // Goal end state. You can set a holonomic rotation here. If
+            // using a differential drivetrain, the rotation will have no
+            // effect.
+            false);
 
     // Prevent the path from being flipped if the coordinates are already correct
     path.preventFlipping = true;
@@ -379,7 +372,8 @@ public class RobotContainer {
       return null;
     }
 
-    Pose2d fromPose2d = new Pose2d(drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation());
+    Pose2d fromPose2d =
+        new Pose2d(drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation());
     return createPath(fromPose2d, targetPose2d);
   }
 
@@ -434,10 +428,11 @@ public class RobotContainer {
       autoCommand = autoChooser.get();
     } else {
 
-      autoCommand = AutoBuilder.followPath(AUTO_PATH.get(autoName + 1)) // path1: go to reef 1
-          .andThen(new SetWristAndElevator(this, 4))
-          .andThen(new IntakeCommand(this, false).withTimeout(1))
-          .andThen(new SetWristAndElevator(this, 0));
+      autoCommand =
+          AutoBuilder.followPath(AUTO_PATH.get(autoName + 1)) // path1: go to reef 1
+              .andThen(new SetWristAndElevator(this, 4))
+              .andThen(new IntakeCommand(this, false).withTimeout(1));
+      // .andThen(new SetWristAndElevator(this, 0))
       // .andThen(
       // AutoBuilder.followPath(
       // AUTO_PATH.get(autoName + 2))) // path2: go to source from target 1
@@ -513,10 +508,10 @@ public class RobotContainer {
       case 1: // first target
         switch (autoName) {
           case "blue_middle":
-            targetPose2d = vision.APRILTAG_TARGET_POSE.get("21L5");
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("21R5");
             break;
           case "blue_left":
-            targetPose2d = vision.APRILTAG_TARGET_POSE.get("20L5");
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("20R5");
             break;
           case "blue_right":
             targetPose2d = vision.APRILTAG_TARGET_POSE.get("22R5");
