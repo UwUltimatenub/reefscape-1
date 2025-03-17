@@ -17,6 +17,8 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PointTowardsZone;
 import com.pathplanner.lib.path.RotationTarget;
 import com.pathplanner.lib.path.Waypoint;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -39,6 +41,7 @@ import frc.robot.subsystems.pivot.Wrist;
 import frc.robot.subsystems.vision.LimeLight;
 import frc.robot.subsystems.vision.LimelightHelpers;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -321,7 +324,7 @@ public class RobotContainer {
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(fromPose2d, targetPose2d);
 
     PathConstraints constraints =
-        new PathConstraints(1.5, 2.2, 2 * Math.PI, 4 * Math.PI); // The constraints for this
+        new PathConstraints(2.0, 3.0, 2 * Math.PI, 6 * Math.PI); // The constraints for this
     // path.
     // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); //
     // You can also use unlimited constraints, only limited by motor torque and
@@ -376,12 +379,48 @@ public class RobotContainer {
     return createPath(fromPose2d, targetPose2d);
   }
 
+  public final HashMap<String, PathPlannerPath> AUTO_PATH = new HashMap<String, PathPlannerPath>();
+
+  void setAutoPath() {
+    // blue_left
+    AUTO_PATH.put("blue_left1", getPath("blue_left", 1));
+    AUTO_PATH.put("blue_left2", getPath("blue_left", 2));
+    AUTO_PATH.put("blue_left3", getPath("blue_left", 3));
+    AUTO_PATH.put("blue_left4", getPath("blue_left", 4));
+    AUTO_PATH.put("blue_left5", getPath("blue_left", 5));
+
+    // blue_right
+    AUTO_PATH.put("blue_right1", getPath("blue_right", 1));
+    AUTO_PATH.put("blue_right2", getPath("blue_right", 2));
+    AUTO_PATH.put("blue_right3", getPath("blue_right", 3));
+    AUTO_PATH.put("blue_right4", getPath("blue_right", 4));
+    AUTO_PATH.put("blue_right5", getPath("blue_right", 5));
+
+    // red_left
+    AUTO_PATH.put("red_left1", getPath("red_left", 1));
+    AUTO_PATH.put("red_left2", getPath("red_left", 2));
+    AUTO_PATH.put("red_left3", getPath("red_left", 3));
+    AUTO_PATH.put("red_left4", getPath("red_left", 4));
+    AUTO_PATH.put("red_left5", getPath("red_left", 5));
+
+    // red_right
+    AUTO_PATH.put("red_right1", getPath("red_right", 1));
+    AUTO_PATH.put("red_right2", getPath("red_right", 2));
+    AUTO_PATH.put("red_right3", getPath("red_right", 3));
+    AUTO_PATH.put("red_right4", getPath("red_right", 4));
+    AUTO_PATH.put("red_right5", getPath("red_right", 5));
+  }
+
+  public static final AprilTagFieldLayout TAG_LAYOUT =
+      AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    setAutoPath();
     String autoName = autoChooser.get().getName();
     Command autoCommand = null;
     if (autoName == "forward") {
@@ -389,52 +428,50 @@ public class RobotContainer {
     } else {
 
       autoCommand =
-          AutoBuilder.followPath(getPath(autoName, 1)) // path1: go to reef 1
+          AutoBuilder.followPath(AUTO_PATH.get(autoName + 1)) // path1: go to reef 1
               .andThen(new SetWristAndElevator(this, 4))
-              .andThen(new IntakeCommand(this, false))
-              .withTimeout(1)
-              .andThen(new SetWristAndElevator(this, 0))
-              .andThen(
-                  AutoBuilder.followPath(getPath(autoName, 2))) // path2: go to source from target 1
-              .andThen(new IntakeCommand(this, true))
-              .andThen(AutoBuilder.followPath(getPath(autoName, 3))) // path3: go to reef 2
-              .andThen(new SetWristAndElevator(this, 4))
-              .andThen(new IntakeCommand(this, false))
-              .withTimeout(1)
+              .andThen(new IntakeCommand(this, false).withTimeout(1))
               .andThen(new SetWristAndElevator(this, 0))
               .andThen(
                   AutoBuilder.followPath(
-                      getPath(autoName, 4))) // path4: go to rsource from target 2
+                      AUTO_PATH.get(autoName + 2))) // path2: go to source from target 1
               .andThen(new IntakeCommand(this, true))
-              .andThen(AutoBuilder.followPath(getPath(autoName, 5))) // path5: go to reef 3
+              .andThen(AutoBuilder.followPath(AUTO_PATH.get(autoName + 3))) // path3: go to reef 2
               .andThen(new SetWristAndElevator(this, 4))
-              .andThen(new IntakeCommand(this, false))
-              .withTimeout(1)
+              .andThen(new IntakeCommand(this, false).withTimeout(1))
               .andThen(new SetWristAndElevator(this, 0));
+      // .andThen(
+      //     AutoBuilder.followPath(
+      //         AUTO_PATH.get(autoName + 4))) // path4: go to rsource from target 2
+      // .andThen(new IntakeCommand(this, true))
+      // .andThen(AutoBuilder.followPath(AUTO_PATH.get(autoName + 5))) // path5: go to reef 3
+      // .andThen(new SetWristAndElevator(this, 4))
+      // .andThen(new IntakeCommand(this, false).withTimeout(1))
+      // .andThen(new SetWristAndElevator(this, 0));
     }
     return autoCommand;
   }
 
   private Pose2d getInitialPose(String autoName) {
-    Pose2d startPose2d = drive.getPose();
+    Pose2d startPose2d = null;
 
-    // switch (autoName) {
-    // case "blue_left":
-    // startPose2d = new Pose2d(7, 6, Rotation2d.fromDegrees(30));
-    // break;
-    // case "blue_right":
-    // startPose2d = new Pose2d(7, 2, Rotation2d.fromDegrees(-30));
-    // break;
-    // case "red_left":
-    // startPose2d = new Pose2d(10.5, 2, Rotation2d.fromDegrees(-150));
-    // break;
-    // case "red_right":
-    // startPose2d = new Pose2d(10.5, 6, Rotation2d.fromDegrees(150));
-    // break;
+    switch (autoName) {
+      case "blue_left":
+        startPose2d = new Pose2d(7, 6, Rotation2d.fromDegrees(30));
+        break;
+      case "blue_right":
+        startPose2d = new Pose2d(7, 2, Rotation2d.fromDegrees(-30));
+        break;
+      case "red_left":
+        startPose2d = new Pose2d(10.5, 2, Rotation2d.fromDegrees(-150));
+        break;
+      case "red_right":
+        startPose2d = new Pose2d(10.5, 6, Rotation2d.fromDegrees(150));
+        break;
 
-    // default:
-    // break;
-    // }
+      default:
+        break;
+    }
 
     return startPose2d;
   }
@@ -539,8 +576,6 @@ public class RobotContainer {
         to = getPosition(autoName, 3);
         break;
     }
-    System.out.println("from=" + from);
-    System.out.println("to=" + to);
     return createPath(from, to);
   }
 }
