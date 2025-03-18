@@ -514,16 +514,16 @@ public class RobotContainer {
             targetPose2d = vision.APRILTAG_TARGET_POSE.get("20R5");
             break;
           case "blue_right":
-            targetPose2d = vision.APRILTAG_TARGET_POSE.get("22R5");
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("22L5");
             break;
           case "red_middle":
             targetPose2d = vision.APRILTAG_TARGET_POSE.get("10R5");
             break;
           case "red_left":
-            targetPose2d = vision.APRILTAG_TARGET_POSE.get("11L5");
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("11R5");
             break;
           case "red_right":
-            targetPose2d = vision.APRILTAG_TARGET_POSE.get("9R5");
+            targetPose2d = vision.APRILTAG_TARGET_POSE.get("9L5");
             break;
         }
         break;
