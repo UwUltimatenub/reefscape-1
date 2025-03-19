@@ -131,7 +131,9 @@ public class Robot extends LoggedRobot {
             .andThen(
                 robotContainer
                     .getAutonomousCommand(2)
-                    .andThen(robotContainer.getAutonomousCommand(3)));
+                    .andThen(robotContainer.getAutonomousCommand(3))
+                    .andThen(robotContainer.getAutonomousCommand(4))
+                    .andThen(robotContainer.getAutonomousCommand(5)));
     autonomousCommand.schedule();
 
     // schedule the autonomous command (example)

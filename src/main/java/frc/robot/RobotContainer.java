@@ -198,7 +198,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                     () -> {
-                      var path = GoReefTarget(true, true);
+                      var path = GoReefTarget(true, true, 1);
                       if (path != null) {
                         cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
@@ -220,7 +220,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                     () -> {
-                      var path = GoReefTarget(false, true);
+                      var path = GoReefTarget(false, true, 1);
                       if (path != null) {
                         cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
@@ -242,7 +242,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                     () -> {
-                      var path = GoReefTarget(true, false);
+                      var path = GoReefTarget(true, false, 1);
                       if (path != null) {
                         cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
@@ -264,7 +264,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                     () -> {
-                      var path = GoReefTarget(false, false);
+                      var path = GoReefTarget(false, false, 1);
                       if (path != null) {
                         cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
@@ -285,7 +285,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                     () -> {
-                      var path = GoReefTarget(true, false);
+                      var path = GoReefTarget(true, false, 1);
                       if (path != null) {
                         cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
@@ -307,7 +307,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                     () -> {
-                      var path = GoReefTarget(false, false);
+                      var path = GoReefTarget(false, false, 1);
                       if (path != null) {
                         cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
@@ -330,12 +330,16 @@ public class RobotContainer {
   ///
   ///
   ///
-  public PathPlannerPath createPath(Pose2d fromPose2d, Pose2d targetPose2d) {
+  public PathPlannerPath createPath(Pose2d fromPose2d, Pose2d targetPose2d, int route) {
 
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(fromPose2d, targetPose2d);
 
     PathConstraints constraints =
-        new PathConstraints(1.3, 2.2, 2 * Math.PI, 4 * Math.PI); // The constraints for this
+        new PathConstraints(
+            route == 1 || route == 3 || route == 5 ? 2 : 4.5,
+            route == 1 || route == 3 || route == 5 ? 2.2 : 4,
+            2 * Math.PI,
+            4 * Math.PI); // The constraints for this
     // path.
     // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); //
     // You can also use unlimited constraints, only limited by motor torque and
@@ -371,7 +375,7 @@ public class RobotContainer {
     return path;
   }
 
-  public PathPlannerPath GoReefTarget(boolean isLeft, boolean isLevel4) {
+  public PathPlannerPath GoReefTarget(boolean isLeft, boolean isLevel4, int route) {
 
     if (isLevel4 && !intake.isCoralLoaded()) {
       return null;
@@ -387,7 +391,7 @@ public class RobotContainer {
 
     Pose2d fromPose2d =
         new Pose2d(drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation());
-    return createPath(fromPose2d, targetPose2d);
+    return createPath(fromPose2d, targetPose2d, route);
   }
 
   public final HashMap<String, PathPlannerPath> AUTO_PATH = new HashMap<String, PathPlannerPath>();
@@ -403,29 +407,29 @@ public class RobotContainer {
     AUTO_PATH.put("blue_left1", getPath("blue_left", 1));
     AUTO_PATH.put("blue_left2", getPath("blue_left", 2));
     AUTO_PATH.put("blue_left3", getPath("blue_left", 3));
-    // AUTO_PATH.put("blue_left4", getPath("blue_left", 4));
-    // AUTO_PATH.put("blue_left5", getPath("blue_left", 5));
+    AUTO_PATH.put("blue_left4", getPath("blue_left", 4));
+    AUTO_PATH.put("blue_left5", getPath("blue_left", 5));
 
     // blue_right
     AUTO_PATH.put("blue_right1", getPath("blue_right", 1));
     AUTO_PATH.put("blue_right2", getPath("blue_right", 2));
     AUTO_PATH.put("blue_right3", getPath("blue_right", 3));
-    // AUTO_PATH.put("blue_right4", getPath("blue_right", 4));
-    // AUTO_PATH.put("blue_right5", getPath("blue_right", 5));
+    AUTO_PATH.put("blue_right4", getPath("blue_right", 4));
+    AUTO_PATH.put("blue_right5", getPath("blue_right", 5));
 
     // red_left
     AUTO_PATH.put("red_left1", getPath("red_left", 1));
     AUTO_PATH.put("red_left2", getPath("red_left", 2));
     AUTO_PATH.put("red_left3", getPath("red_left", 3));
-    // AUTO_PATH.put("red_left4", getPath("red_left", 4));
-    // AUTO_PATH.put("red_left5", getPath("red_left", 5));
+    AUTO_PATH.put("red_left4", getPath("red_left", 4));
+    AUTO_PATH.put("red_left5", getPath("red_left", 5));
 
     // red_right
     AUTO_PATH.put("red_right1", getPath("red_right", 1));
     AUTO_PATH.put("red_right2", getPath("red_right", 2));
     AUTO_PATH.put("red_right3", getPath("red_right", 3));
-    // AUTO_PATH.put("red_right4", getPath("red_right", 4));
-    // AUTO_PATH.put("red_right5", getPath("red_right", 5));
+    AUTO_PATH.put("red_right4", getPath("red_right", 4));
+    AUTO_PATH.put("red_right5", getPath("red_right", 5));
   }
 
   /**
@@ -443,19 +447,44 @@ public class RobotContainer {
       autoCommand =
           AutoBuilder.followPath(AUTO_PATH.get(autoName + 1)) // path1: go to reef 1
               .alongWith((Commands.waitSeconds(1)).andThen(new SetWristAndElevator(this, 4)))
-              .andThen(new IntakeCommand(this, false).withTimeout(1))
-              .andThen(new SetWristAndElevator(this, 0));
+              .andThen(new IntakeCommand(this, false).withTimeout(0.25));
 
     } else if (path == 2) {
       autoCommand =
-          AutoBuilder.followPath(AUTO_PATH.get(autoName + 2)) // path2: go to source from target 1
-              .andThen(new IntakeCommand(this, true));
+          AutoBuilder.followPath(AUTO_PATH.get(autoName + 2))
+              .alongWith(
+                  Commands.waitSeconds(0.3)
+                      .andThen(
+                          new SetWristAndElevator(this, 0))); // path2: go to source from target 1
 
-    } else {
+    } else if (path == 3) {
       autoCommand =
-          AutoBuilder.followPath(AUTO_PATH.get(autoName + 3)) // path3: go to reef 2
-              .alongWith(Commands.waitSeconds(2).andThen(new SetWristAndElevator(this, 4)))
-              .andThen(new IntakeCommand(this, false).withTimeout(1))
+          new IntakeCommand(this, true)
+              .alongWith(
+                  Commands.waitSeconds(0.25)
+                      .andThen(
+                          AutoBuilder.followPath(
+                              AUTO_PATH.get(autoName + 3)))) // path3: go to reef 2
+              .alongWith(Commands.waitSeconds(1.5).andThen(new SetWristAndElevator(this, 4)))
+              .andThen(new IntakeCommand(this, false).withTimeout(0.25));
+    } else if (path == 4) {
+      autoCommand =
+          AutoBuilder.followPath(AUTO_PATH.get(autoName + 4))
+              .alongWith(
+                  Commands.waitSeconds(0.3)
+                      .andThen(
+                          new SetWristAndElevator(this, 0))); // path2: go to source from target 1
+
+    } else if (path == 5) {
+      autoCommand =
+          new IntakeCommand(this, true)
+              .alongWith(
+                  Commands.waitSeconds(0.25)
+                      .andThen(
+                          AutoBuilder.followPath(
+                              AUTO_PATH.get(autoName + 5)))) // path3: go to reef 2
+              .alongWith(Commands.waitSeconds(1.25).andThen(new SetWristAndElevator(this, 4)))
+              .andThen(new IntakeCommand(this, false).withTimeout(0.5))
               .andThen(new SetWristAndElevator(this, 0));
     }
 
@@ -608,6 +637,6 @@ public class RobotContainer {
         to = getPosition(autoName, 3);
         break;
     }
-    return createPath(from, to);
+    return createPath(from, to, number);
   }
 }
