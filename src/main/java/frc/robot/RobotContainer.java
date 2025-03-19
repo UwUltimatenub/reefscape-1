@@ -465,7 +465,7 @@ public class RobotContainer {
                       .andThen(
                           AutoBuilder.followPath(
                               AUTO_PATH.get(autoName + 3)))) // path3: go to reef 2
-              .alongWith(Commands.waitSeconds(1.5).andThen(new SetWristAndElevator(this, 4)))
+              .alongWith(Commands.waitSeconds(1.8).andThen(new SetWristAndElevator(this, 4)))
               .andThen(new IntakeCommand(this, false).withTimeout(0.25));
     } else if (path == 4) {
       autoCommand =
@@ -483,8 +483,8 @@ public class RobotContainer {
                       .andThen(
                           AutoBuilder.followPath(
                               AUTO_PATH.get(autoName + 5)))) // path3: go to reef 2
-              .alongWith(Commands.waitSeconds(1.25).andThen(new SetWristAndElevator(this, 4)))
-              .andThen(new IntakeCommand(this, false).withTimeout(0.5))
+              .alongWith(Commands.waitSeconds(1.8).andThen(new SetWristAndElevator(this, 4)))
+              .andThen(new IntakeCommand(this, false).withTimeout(0.25))
               .andThen(new SetWristAndElevator(this, 0));
     }
 
