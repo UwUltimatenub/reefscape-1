@@ -124,13 +124,19 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    autonomousCommand = robotContainer.getAutonomousCommand();
+    robotContainer.drive.isTracking = true;
+    autonomousCommand =
+        robotContainer
+            .getAutonomousCommand(1)
+            .andThen(
+                robotContainer
+                    .getAutonomousCommand(2)
+                    .andThen(robotContainer.getAutonomousCommand(3)));
+    autonomousCommand.schedule();
 
     // schedule the autonomous command (example)
-    if (autonomousCommand != null) {
-      robotContainer.drive.isTracking = true;
-      autonomousCommand.schedule();
-    }
+    // if (autonomousCommand != null) {
+    // }
   }
 
   /** This function is called periodically during autonomous. */

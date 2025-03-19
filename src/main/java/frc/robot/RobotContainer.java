@@ -192,7 +192,7 @@ public class RobotContainer {
                 },
                 drive));
 
-                // 1. Align robot to Level 4 left
+    // 1. Align robot to Level 4 left
     controller
         .leftTrigger()
         .onTrue(
@@ -401,29 +401,29 @@ public class RobotContainer {
 
     // blue_left
     AUTO_PATH.put("blue_left1", getPath("blue_left", 1));
-    // AUTO_PATH.put("blue_left2", getPath("blue_left", 2));
-    // AUTO_PATH.put("blue_left3", getPath("blue_left", 3));
+    AUTO_PATH.put("blue_left2", getPath("blue_left", 2));
+    AUTO_PATH.put("blue_left3", getPath("blue_left", 3));
     // AUTO_PATH.put("blue_left4", getPath("blue_left", 4));
     // AUTO_PATH.put("blue_left5", getPath("blue_left", 5));
 
     // blue_right
     AUTO_PATH.put("blue_right1", getPath("blue_right", 1));
-    // AUTO_PATH.put("blue_right2", getPath("blue_right", 2));
-    // AUTO_PATH.put("blue_right3", getPath("blue_right", 3));
+    AUTO_PATH.put("blue_right2", getPath("blue_right", 2));
+    AUTO_PATH.put("blue_right3", getPath("blue_right", 3));
     // AUTO_PATH.put("blue_right4", getPath("blue_right", 4));
     // AUTO_PATH.put("blue_right5", getPath("blue_right", 5));
 
     // red_left
     AUTO_PATH.put("red_left1", getPath("red_left", 1));
-    // AUTO_PATH.put("red_left2", getPath("red_left", 2));
-    // AUTO_PATH.put("red_left3", getPath("red_left", 3));
+    AUTO_PATH.put("red_left2", getPath("red_left", 2));
+    AUTO_PATH.put("red_left3", getPath("red_left", 3));
     // AUTO_PATH.put("red_left4", getPath("red_left", 4));
     // AUTO_PATH.put("red_left5", getPath("red_left", 5));
 
     // red_right
     AUTO_PATH.put("red_right1", getPath("red_right", 1));
-    // AUTO_PATH.put("red_right2", getPath("red_right", 2));
-    // AUTO_PATH.put("red_right3", getPath("red_right", 3));
+    AUTO_PATH.put("red_right2", getPath("red_right", 2));
+    AUTO_PATH.put("red_right3", getPath("red_right", 3));
     // AUTO_PATH.put("red_right4", getPath("red_right", 4));
     // AUTO_PATH.put("red_right5", getPath("red_right", 5));
   }
@@ -433,38 +433,42 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
+  public Command getAutonomousCommand(int path) {
     setAutoPath();
     String autoName = autoChooser.get().getName();
     Command autoCommand = null;
-    if (autoName == "forward") {
-      autoCommand = autoChooser.get();
-    } else {
 
+    if (path == 1) {
       drive.setPose(getInitialPose(autoName));
-      autoCommand = AutoBuilder.followPath(AUTO_PATH.get(autoName + 1)) // path1: go to reef 1
-      .andThen(new SetWristAndElevator(this, 4))
-      .andThen(new IntakeCommand(this, false).withTimeout(1));
-      // .andThen(new SetWristAndElevator(this, 0))
-      // .andThen(
-      // AutoBuilder.followPath(
-      // AUTO_PATH.get(autoName + 2))) // path2: go to source from target 1
-      // .andThen(new IntakeCommand(this, true))
-      // .andThen(AutoBuilder.followPath(AUTO_PATH.get(autoName + 3))) // path3: go to
-      // reef 2
-      // .andThen(new SetWristAndElevator(this, 4))
-      // .andThen(new IntakeCommand(this, false).withTimeout(1))
-      // .andThen(new SetWristAndElevator(this, 0))
-      // .andThen(
-      // AutoBuilder.followPath(
-      // AUTO_PATH.get(autoName + 4))) // path4: go to rsource from target 2
-      // .andThen(new IntakeCommand(this, true))
-      // .andThen(AutoBuilder.followPath(AUTO_PATH.get(autoName + 5))) // path5: go to
-      // reef 3
-      // .andThen(new SetWristAndElevator(this, 4))
-      // .andThen(new IntakeCommand(this, false).withTimeout(1))
-      // .andThen(new SetWristAndElevator(this, 0));
+      autoCommand =
+          AutoBuilder.followPath(AUTO_PATH.get(autoName + 1)) // path1: go to reef 1
+              .alongWith((Commands.waitSeconds(1)).andThen(new SetWristAndElevator(this, 4)))
+              .andThen(new IntakeCommand(this, false).withTimeout(1))
+              .andThen(new SetWristAndElevator(this, 0));
+
+    } else if (path == 2) {
+      autoCommand =
+          AutoBuilder.followPath(AUTO_PATH.get(autoName + 2)) // path2: go to source from target 1
+              .andThen(new IntakeCommand(this, true));
+
+    } else {
+      autoCommand =
+          AutoBuilder.followPath(AUTO_PATH.get(autoName + 3)) // path3: go to reef 2
+              .alongWith(Commands.waitSeconds(2).andThen(new SetWristAndElevator(this, 4)))
+              .andThen(new IntakeCommand(this, false).withTimeout(1))
+              .andThen(new SetWristAndElevator(this, 0));
     }
+
+    // .andThen(
+    // AutoBuilder.followPath(
+    // AUTO_PATH.get(autoName + 4))) // path4: go to rsource from target 2
+    // .andThen(new IntakeCommand(this, true))
+    // .andThen(AutoBuilder.followPath(AUTO_PATH.get(autoName + 5))) // path5: go to
+    // reef 3
+    // .andThen(new SetWristAndElevator(this, 4))
+    // .andThen(new IntakeCommand(this, false).withTimeout(1))
+    // .andThen(new SetWristAndElevator(this, 0));
+
     return autoCommand;
   }
 
