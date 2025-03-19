@@ -64,6 +64,8 @@ public class RobotContainer {
   public final CommandXboxController controller = new CommandXboxController(0);
   public final CommandXboxController controller2 = controller; // new CommandXboxController(1);
 
+  Command cmd = null;
+
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -162,7 +164,7 @@ public class RobotContainer {
         .a()
         .onTrue(
             new SetWristAndElevator(this, 0)
-                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+                .withInterruptBehavior(InterruptionBehavior.kCancelSelf));
 
     // level 1 state, depend on is coral loaded
     controller2
@@ -179,7 +181,18 @@ public class RobotContainer {
 
   private void setCameraCommand() {
 
-    // 1. Align robot to Level 4 left
+    controller
+        .x()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  if (cmd != null) {
+                    cmd.cancel();
+                  }
+                },
+                drive));
+
+                // 1. Align robot to Level 4 left
     controller
         .leftTrigger()
         .onTrue(
@@ -187,7 +200,7 @@ public class RobotContainer {
                     () -> {
                       var path = GoReefTarget(true, true);
                       if (path != null) {
-                        var cmd = AutoBuilder.followPath(path);
+                        cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
                         cmd.schedule();
                       }
@@ -209,7 +222,7 @@ public class RobotContainer {
                     () -> {
                       var path = GoReefTarget(false, true);
                       if (path != null) {
-                        var cmd = AutoBuilder.followPath(path);
+                        cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
                         cmd.schedule();
                       }
@@ -231,7 +244,7 @@ public class RobotContainer {
                     () -> {
                       var path = GoReefTarget(true, false);
                       if (path != null) {
-                        var cmd = AutoBuilder.followPath(path);
+                        cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
                         cmd.schedule();
                       }
@@ -253,7 +266,7 @@ public class RobotContainer {
                     () -> {
                       var path = GoReefTarget(false, false);
                       if (path != null) {
-                        var cmd = AutoBuilder.followPath(path);
+                        cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
                         cmd.schedule();
                       }
@@ -274,7 +287,7 @@ public class RobotContainer {
                     () -> {
                       var path = GoReefTarget(true, false);
                       if (path != null) {
-                        var cmd = AutoBuilder.followPath(path);
+                        cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
                         cmd.schedule();
                       }
@@ -296,7 +309,7 @@ public class RobotContainer {
                     () -> {
                       var path = GoReefTarget(false, false);
                       if (path != null) {
-                        var cmd = AutoBuilder.followPath(path);
+                        cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
                         cmd.schedule();
                       }
@@ -428,10 +441,10 @@ public class RobotContainer {
       autoCommand = autoChooser.get();
     } else {
 
-      autoCommand =
-          AutoBuilder.followPath(AUTO_PATH.get(autoName + 1)) // path1: go to reef 1
-              .andThen(new SetWristAndElevator(this, 4))
-              .andThen(new IntakeCommand(this, false).withTimeout(1));
+      drive.setPose(getInitialPose(autoName));
+      autoCommand = AutoBuilder.followPath(AUTO_PATH.get(autoName + 1)) // path1: go to reef 1
+      .andThen(new SetWristAndElevator(this, 4))
+      .andThen(new IntakeCommand(this, false).withTimeout(1));
       // .andThen(new SetWristAndElevator(this, 0))
       // .andThen(
       // AutoBuilder.followPath(
