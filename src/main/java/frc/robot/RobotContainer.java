@@ -444,60 +444,42 @@ public class RobotContainer {
 
     if (path == 1) {
       drive.setPose(getInitialPose(autoName));
-      autoCommand =
-          AutoBuilder.followPath(AUTO_PATH.get(autoName + 1)) // path1: go to reef 1
-              .alongWith((Commands.waitSeconds(1)).andThen(new SetWristAndElevator(this, 4)))
-              .andThen(new IntakeCommand(this, false).withTimeout(0.25));
+      autoCommand = AutoBuilder.followPath(AUTO_PATH.get(autoName + 1)) // path1: go to reef 1
+          .alongWith((Commands.waitSeconds(0.5)).andThen(new SetWristAndElevator(this, 4)))
+          .andThen(new IntakeCommand(this, false).withTimeout(0.25));
 
     } else if (path == 2) {
-      autoCommand =
-          AutoBuilder.followPath(AUTO_PATH.get(autoName + 2))
-              .alongWith(
-                  Commands.waitSeconds(0.3)
-                      .andThen(
-                          new SetWristAndElevator(this, 0))); // path2: go to source from target 1
+      autoCommand = AutoBuilder.followPath(AUTO_PATH.get(autoName + 2))
+          .alongWith(
+              Commands.waitSeconds(0.3)
+                  .andThen(
+                      new SetWristAndElevator(this, 0))); // path2: go to source from target 1
 
     } else if (path == 3) {
-      autoCommand =
-          new IntakeCommand(this, true)
-              .alongWith(
-                  Commands.waitSeconds(0.25)
-                      .andThen(
-                          AutoBuilder.followPath(
-                              AUTO_PATH.get(autoName + 3)))) // path3: go to reef 2
-              .alongWith(Commands.waitSeconds(1.8).andThen(new SetWristAndElevator(this, 4)))
-              .andThen(new IntakeCommand(this, false).withTimeout(0.25));
+      autoCommand = (Commands.waitSeconds(0.25)
+          .andThen(
+              AutoBuilder.followPath(
+                  AUTO_PATH.get(autoName + 3)))) // path3: go to reef 2
+          .alongWith((new IntakeCommand(this, true)
+              .andThen(Commands.waitSeconds(0.2).andThen(new SetWristAndElevator(this, 4)))))
+          .andThen(new IntakeCommand(this, false).withTimeout(0.25));
     } else if (path == 4) {
-      autoCommand =
-          AutoBuilder.followPath(AUTO_PATH.get(autoName + 4))
-              .alongWith(
-                  Commands.waitSeconds(0.3)
-                      .andThen(
-                          new SetWristAndElevator(this, 0))); // path2: go to source from target 1
+      autoCommand = AutoBuilder.followPath(AUTO_PATH.get(autoName + 4))
+          .alongWith(
+              Commands.waitSeconds(0.3)
+                  .andThen(
+                      new SetWristAndElevator(this, 0))); // path2: go to source from target 1
 
     } else if (path == 5) {
-      autoCommand =
-          new IntakeCommand(this, true)
-              .alongWith(
-                  Commands.waitSeconds(0.25)
-                      .andThen(
-                          AutoBuilder.followPath(
-                              AUTO_PATH.get(autoName + 5)))) // path3: go to reef 2
-              .alongWith(Commands.waitSeconds(1.8).andThen(new SetWristAndElevator(this, 4)))
-              .andThen(new IntakeCommand(this, false).withTimeout(0.25))
-              .andThen(new SetWristAndElevator(this, 0));
+      autoCommand = (Commands.waitSeconds(0.25)
+          .andThen(
+              AutoBuilder.followPath(
+                  AUTO_PATH.get(autoName + 5)))) // path3: go to reef 2
+          .alongWith((new IntakeCommand(this, true)
+              .andThen(Commands.waitSeconds(0.3).andThen(new SetWristAndElevator(this, 4)))))
+          .andThen(new IntakeCommand(this, false).withTimeout(0.25))
+          .andThen(new SetWristAndElevator(this, 0));
     }
-
-    // .andThen(
-    // AutoBuilder.followPath(
-    // AUTO_PATH.get(autoName + 4))) // path4: go to rsource from target 2
-    // .andThen(new IntakeCommand(this, true))
-    // .andThen(AutoBuilder.followPath(AUTO_PATH.get(autoName + 5))) // path5: go to
-    // reef 3
-    // .andThen(new SetWristAndElevator(this, 4))
-    // .andThen(new IntakeCommand(this, false).withTimeout(1))
-    // .andThen(new SetWristAndElevator(this, 0));
-
     return autoCommand;
   }
 
