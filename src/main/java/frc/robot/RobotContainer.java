@@ -19,6 +19,8 @@ import com.pathplanner.lib.path.RotationTarget;
 import com.pathplanner.lib.path.Waypoint;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -181,16 +183,16 @@ public class RobotContainer {
 
   private void setCameraCommand() {
 
-    controller
-        .x()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  if (cmd != null) {
-                    cmd.cancel();
-                  }
-                },
-                drive));
+    // controller
+    //     .x()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               if (cmd != null) {
+    //                 cmd.cancel();
+    //               }
+    //             },
+    //             drive));
 
     // 1. Align robot to Level 4 left
     controller
@@ -322,6 +324,27 @@ public class RobotContainer {
                         () -> {
                           drive.isTracking = false;
                         })));
+
+
+    // 9. Align robot to deep hang
+    controller
+        .x()
+        .onTrue(
+            new InstantCommand(
+                    () -> {
+                      var path = GoHang();
+                      if (path != null) {
+                        cmd = AutoBuilder.followPath(path);
+                        drive.isTracking = true;
+                        cmd.schedule();
+                      }
+                    })
+                 .andThen(
+                    new InstantCommand(
+                        () -> {
+                          drive.isTracking = false;
+                        })));
+
   }
 
   /////
@@ -333,11 +356,27 @@ public class RobotContainer {
   public PathPlannerPath createPath(Pose2d fromPose2d, Pose2d targetPose2d, int route) {
 
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(fromPose2d, targetPose2d);
-
+    double velocity = 0;
+    double accelaration = 0;
+    switch (route) {
+      case 1: case 3: case 5: //reef
+      velocity = 2;
+      accelaration = 2;
+        break;
+      case 2: case 4: //source
+      velocity = 4.5;
+      accelaration = 4;
+        break;    
+      case 9: //hang
+      velocity = 1;
+      accelaration = 2;
+        break;          
+      default:
+        break;
+    }
     PathConstraints constraints =
         new PathConstraints(
-            route == 1 || route == 3 || route == 5 ? 2 : 4.5,
-            route == 1 || route == 3 || route == 5 ? 2.2 : 4,
+          velocity, accelaration,
             2 * Math.PI,
             4 * Math.PI); // The constraints for this
     // path.
@@ -393,6 +432,19 @@ public class RobotContainer {
         new Pose2d(drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation());
     return createPath(fromPose2d, targetPose2d, route);
   }
+  public PathPlannerPath GoHang() {
+
+    if (LimelightHelpers.getTV("limelight")) {//set position based on limelight 
+      drive.setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"));
+    }
+    boolean isBlue = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue;
+    Pose2d targetPose2d =   new Pose2d(isBlue?8.8:8.8, isBlue?6.2:1.9, drive.getPose().getRotation());
+
+    Pose2d fromPose2d =
+        new Pose2d(drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation());
+    return createPath(fromPose2d, targetPose2d, 9);
+  }
+
 
   public final HashMap<String, PathPlannerPath> AUTO_PATH = new HashMap<String, PathPlannerPath>();
 

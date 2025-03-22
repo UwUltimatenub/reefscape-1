@@ -7,6 +7,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.SuperStructureState;
@@ -86,7 +87,9 @@ public class IntakeCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-
+    if(isCoral && isIntake && robot.intake.isCoralLoaded()){
+      robot.controller.setRumble(RumbleType.kLeftRumble, 0.5);
+    }
     return isCoral && isIntake && robot.intake.isCoralLoaded()
         || isCoral && !isIntake && !robot.intake.isCoralLoaded();
     // return isFinished;
