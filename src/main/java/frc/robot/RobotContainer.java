@@ -171,7 +171,7 @@ public class RobotContainer {
         .b()
         .onTrue(
             new SetWristAndElevator(this, 1)
-                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+                .withInterruptBehavior(InterruptionBehavior.kCancelSelf));
 
     elevator.setDefaultCommand(Commands.run(() -> {}, elevator));
     wrist.setDefaultCommand(Commands.run(() -> {}, wrist));
@@ -207,7 +207,7 @@ public class RobotContainer {
                     })
                 .alongWith(
                     new SetWristAndElevator(this, 4)
-                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
+                        .withInterruptBehavior(InterruptionBehavior.kCancelSelf))
                 .andThen(
                     new InstantCommand(
                         () -> {
@@ -229,7 +229,7 @@ public class RobotContainer {
                     })
                 .alongWith(
                     new SetWristAndElevator(this, 4)
-                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
+                        .withInterruptBehavior(InterruptionBehavior.kCancelSelf))
                 .andThen(
                     new InstantCommand(
                         () -> {
@@ -251,7 +251,7 @@ public class RobotContainer {
                     })
                 .alongWith(
                     new SetWristAndElevator(this, 3)
-                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
+                        .withInterruptBehavior(InterruptionBehavior.kCancelSelf))
                 .andThen(
                     new InstantCommand(
                         () -> {
@@ -273,7 +273,7 @@ public class RobotContainer {
                     })
                 .alongWith(
                     new SetWristAndElevator(this, 3)
-                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
+                        .withInterruptBehavior(InterruptionBehavior.kCancelSelf))
                 .andThen(
                     new InstantCommand(
                         () -> {
@@ -294,7 +294,7 @@ public class RobotContainer {
                     })
                 .alongWith(
                     new SetWristAndElevator(this, 2)
-                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
+                        .withInterruptBehavior(InterruptionBehavior.kCancelSelf))
                 .andThen(
                     new InstantCommand(
                         () -> {
@@ -316,7 +316,7 @@ public class RobotContainer {
                     })
                 .alongWith(
                     new SetWristAndElevator(this, 2)
-                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
+                        .withInterruptBehavior(InterruptionBehavior.kCancelSelf))
                 .andThen(
                     new InstantCommand(
                         () -> {
@@ -377,10 +377,10 @@ public class RobotContainer {
 
   public PathPlannerPath GoReefTarget(boolean isLeft, boolean isLevel4, int route) {
 
-    if (isLevel4 && !intake.isCoralLoaded()) {
+    if (isLevel4 && !intake.isCoralLoaded()) {//level4 only for coral
       return null;
     }
-    if (LimelightHelpers.getTV("limelight")) {
+    if (LimelightHelpers.getTV("limelight")) {//set position based on limelight 
       drive.setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"));
     }
 

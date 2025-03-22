@@ -208,7 +208,7 @@ public class LimeLight extends SubsystemBase {
         "22R5", TAG_LAYOUT.getTagPose(22).get().toPose2d().transformBy(transform_right_level5));
 
     LimelightHelpers.setCameraPose_RobotSpace(
-        "",
+        limelightName,
         -0.30, // Forward offset (meters)
         0, // Side offset (meters)
         0.254, // Height offset (meters)
@@ -254,14 +254,14 @@ public class LimeLight extends SubsystemBase {
     return LimelightHelpers.getBotPose2d_wpiBlue(limelightName);
   }
 
-  public Pose2d getTargetPose2D(boolean isLeft, boolean isLevel5, boolean isCoral) {
+  public Pose2d getTargetPose2D(boolean isLeft, boolean isLevel4, boolean isCoral) {
     Pose2d targetPose = null;
     limeLightInputs.tagId = getTagID();
     if (limeLightInputs.tagId != 0) {
       if (isCoral) {
         targetPose =
             APRILTAG_TARGET_POSE.get(
-                limeLightInputs.tagId + (isLeft ? "L" : "R") + (isLevel5 ? "5" : ""));
+                limeLightInputs.tagId + (isLeft ? "L" : "R") + (isLevel4 ? "5" : ""));
       } else {
         targetPose = APRILTAG_TARGET_POSE.get(String.valueOf(limeLightInputs.tagId));
       }
