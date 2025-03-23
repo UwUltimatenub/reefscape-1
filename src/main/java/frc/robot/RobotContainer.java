@@ -156,7 +156,10 @@ public class RobotContainer {
             () -> regulate(-controller.getRightX() / 1.1)));
 
     // Intake coral/algae
-    controller2.leftBumper().whileTrue(new IntakeCommand(this, true)).onFalse(new InstantCommand((()-> controller.setRumble(RumbleType.kLeftRumble,0))));
+    controller2
+        .leftBumper()
+        .whileTrue(new IntakeCommand(this, true))
+        .onFalse(new InstantCommand((() -> controller.setRumble(RumbleType.kLeftRumble, 0))));
     // Eject coral/algae; coral go to source after ejection
     controller2.rightBumper().whileTrue(new IntakeCommand(this, false));
     // .whileFalse(new SetWristAndElevator(this, 0)).and(() ->
@@ -174,7 +177,7 @@ public class RobotContainer {
         .b()
         .onTrue(
             new SetWristAndElevator(this, 1)
-                .withInterruptBehavior(InterruptionBehavior.kCancelSelf));
+                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
 
     elevator.setDefaultCommand(Commands.run(() -> {}, elevator));
     wrist.setDefaultCommand(Commands.run(() -> {}, wrist));
@@ -184,16 +187,16 @@ public class RobotContainer {
 
   private void setCameraCommand() {
 
-    // controller
-    //     .x()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //             () -> {
-    //               if (cmd != null) {
-    //                 cmd.cancel();
-    //               }
-    //             },
-    //             drive));
+    controller
+        .x()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  if (cmd != null) {
+                    cmd.cancel();
+                  }
+                },
+                drive));
 
     // 1. Align robot to Level 4 left
     controller
@@ -210,7 +213,7 @@ public class RobotContainer {
                     })
                 .alongWith(
                     new SetWristAndElevator(this, 4)
-                        .withInterruptBehavior(InterruptionBehavior.kCancelSelf))
+                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
                 .andThen(
                     new InstantCommand(
                         () -> {
@@ -232,7 +235,7 @@ public class RobotContainer {
                     })
                 .alongWith(
                     new SetWristAndElevator(this, 4)
-                        .withInterruptBehavior(InterruptionBehavior.kCancelSelf))
+                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
                 .andThen(
                     new InstantCommand(
                         () -> {
@@ -328,7 +331,7 @@ public class RobotContainer {
 
     // 9. Align robot to deep hang
     controller
-        .x()
+        .start()
         .onTrue(
             new InstantCommand(
                     () -> {
@@ -361,13 +364,13 @@ public class RobotContainer {
       case 1:
       case 3:
       case 5: // reef
-        velocity = 2;
-        accelaration = 2;
+        velocity = 3;
+        accelaration = 3;
         break;
       case 2:
       case 4: // source
-        velocity = 4.5;
-        accelaration = 4;
+        velocity = 3;
+        accelaration = 3;
         break;
       case 9: // hang
         velocity = 1;

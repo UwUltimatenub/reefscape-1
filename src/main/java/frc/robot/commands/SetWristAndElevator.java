@@ -7,6 +7,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.SuperStructureState;
@@ -102,12 +103,12 @@ public class SetWristAndElevator extends Command {
         // along with set elevator height
         robot.elevator.setElevatorHeight(robot.targetState.height);
         if (robot.elevator.isDone().getAsBoolean()) {
+          robot.currentState = robot.targetState;
           // eject algae, end
           // robot.intake.intake(0);
           // reset wrist angle
           robot.wrist.setWristAngle(robot.targetState.angle);
           if (robot.wrist.isDone().getAsBoolean()) {
-            robot.currentState = robot.targetState;
             isFinished = true;
           }
         }
@@ -157,7 +158,8 @@ public class SetWristAndElevator extends Command {
     } else {
       isFinished = true;
     }
-    System.out.println("current state=" + robot.currentState.name);
+    SmartDashboard.putString("state", robot.currentState.name);
+    SmartDashboard.putString("desired state", robot.targetState.name);
   }
 
   private boolean isValidTargetState() {

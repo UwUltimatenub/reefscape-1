@@ -18,6 +18,7 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants.*;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 
 // import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -157,7 +158,8 @@ public class TunerConstants {
   private static final int kFrontRightDriveMotorId = 2;
   private static final int kFrontRightSteerMotorId = 10;
   private static final int kFrontRightEncoderId = 14;
-  private static final Angle kFrontRightEncoderOffset = Rotations.of(0.313720703125);
+  private static final Angle kFrontRightEncoderOffset =
+      Rotations.of(0.313720703125 + Units.radiansToRotations(-0.2));
   private static final boolean kFrontRightSteerMotorInverted = true;
   private static final boolean kFrontRightEncoderInverted = false;
 
