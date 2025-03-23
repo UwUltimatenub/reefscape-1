@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
@@ -155,7 +156,7 @@ public class RobotContainer {
             () -> regulate(-controller.getRightX() / 1.1)));
 
     // Intake coral/algae
-    controller2.leftBumper().whileTrue(new IntakeCommand(this, true));
+    controller2.leftBumper().whileTrue(new IntakeCommand(this, true)).onFalse(new InstantCommand((()-> controller.setRumble(RumbleType.kLeftRumble,0))));
     // Eject coral/algae; coral go to source after ejection
     controller2.rightBumper().whileTrue(new IntakeCommand(this, false));
     // .whileFalse(new SetWristAndElevator(this, 0)).and(() ->
@@ -325,7 +326,6 @@ public class RobotContainer {
                           drive.isTracking = false;
                         })));
 
-
     // 9. Align robot to deep hang
     controller
         .x()
@@ -339,12 +339,11 @@ public class RobotContainer {
                         cmd.schedule();
                       }
                     })
-                 .andThen(
+                .andThen(
                     new InstantCommand(
                         () -> {
                           drive.isTracking = false;
                         })));
-
   }
 
   /////
@@ -359,26 +358,27 @@ public class RobotContainer {
     double velocity = 0;
     double accelaration = 0;
     switch (route) {
-      case 1: case 3: case 5: //reef
-      velocity = 2;
-      accelaration = 2;
+      case 1:
+      case 3:
+      case 5: // reef
+        velocity = 2;
+        accelaration = 2;
         break;
-      case 2: case 4: //source
-      velocity = 4.5;
-      accelaration = 4;
-        break;    
-      case 9: //hang
-      velocity = 1;
-      accelaration = 2;
-        break;          
+      case 2:
+      case 4: // source
+        velocity = 4.5;
+        accelaration = 4;
+        break;
+      case 9: // hang
+        velocity = 1;
+        accelaration = 2;
+        break;
       default:
         break;
     }
     PathConstraints constraints =
         new PathConstraints(
-          velocity, accelaration,
-            2 * Math.PI,
-            4 * Math.PI); // The constraints for this
+            velocity, accelaration, 2 * Math.PI, 4 * Math.PI); // The constraints for this
     // path.
     // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); //
     // You can also use unlimited constraints, only limited by motor torque and
@@ -416,10 +416,10 @@ public class RobotContainer {
 
   public PathPlannerPath GoReefTarget(boolean isLeft, boolean isLevel4, int route) {
 
-    if (isLevel4 && !intake.isCoralLoaded()) {//level4 only for coral
+    if (isLevel4 && !intake.isCoralLoaded()) { // level4 only for coral
       return null;
     }
-    if (LimelightHelpers.getTV("limelight")) {//set position based on limelight 
+    if (LimelightHelpers.getTV("limelight")) { // set position based on limelight
       drive.setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"));
     }
 
@@ -432,19 +432,20 @@ public class RobotContainer {
         new Pose2d(drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation());
     return createPath(fromPose2d, targetPose2d, route);
   }
+
   public PathPlannerPath GoHang() {
 
-    if (LimelightHelpers.getTV("limelight")) {//set position based on limelight 
+    if (LimelightHelpers.getTV("limelight")) { // set position based on limelight
       drive.setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"));
     }
     boolean isBlue = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue;
-    Pose2d targetPose2d =   new Pose2d(isBlue?8.8:8.8, isBlue?6.2:1.9, drive.getPose().getRotation());
+    Pose2d targetPose2d =
+        new Pose2d(isBlue ? 8.8 : 8.8, isBlue ? 6.2 : 1.9, drive.getPose().getRotation());
 
     Pose2d fromPose2d =
         new Pose2d(drive.getPose().getX(), drive.getPose().getY(), drive.getPose().getRotation());
     return createPath(fromPose2d, targetPose2d, 9);
   }
-
 
   public final HashMap<String, PathPlannerPath> AUTO_PATH = new HashMap<String, PathPlannerPath>();
 
@@ -496,41 +497,48 @@ public class RobotContainer {
 
     if (path == 1) {
       drive.setPose(getInitialPose(autoName));
-      autoCommand = AutoBuilder.followPath(AUTO_PATH.get(autoName + 1)) // path1: go to reef 1
-          .alongWith((Commands.waitSeconds(0.5)).andThen(new SetWristAndElevator(this, 4)))
-          .andThen(new IntakeCommand(this, false).withTimeout(0.25));
+      autoCommand =
+          AutoBuilder.followPath(AUTO_PATH.get(autoName + 1)) // path1: go to reef 1
+              .alongWith((Commands.waitSeconds(0.5)).andThen(new SetWristAndElevator(this, 4)))
+              .andThen(new IntakeCommand(this, false).withTimeout(0.25));
 
     } else if (path == 2) {
-      autoCommand = AutoBuilder.followPath(AUTO_PATH.get(autoName + 2))
-          .alongWith(
-              Commands.waitSeconds(0.3)
-                  .andThen(
-                      new SetWristAndElevator(this, 0))); // path2: go to source from target 1
+      autoCommand =
+          AutoBuilder.followPath(AUTO_PATH.get(autoName + 2))
+              .alongWith(
+                  Commands.waitSeconds(0.3)
+                      .andThen(
+                          new SetWristAndElevator(this, 0))); // path2: go to source from target 1
 
     } else if (path == 3) {
-      autoCommand = (Commands.waitSeconds(0.25)
-          .andThen(
-              AutoBuilder.followPath(
-                  AUTO_PATH.get(autoName + 3)))) // path3: go to reef 2
-          .alongWith((new IntakeCommand(this, true)
-              .andThen(Commands.waitSeconds(0.2).andThen(new SetWristAndElevator(this, 4)))))
-          .andThen(new IntakeCommand(this, false).withTimeout(0.25));
-    } else if (path == 4) {
-      autoCommand = AutoBuilder.followPath(AUTO_PATH.get(autoName + 4))
-          .alongWith(
-              Commands.waitSeconds(0.3)
+      autoCommand =
+          (Commands.waitSeconds(0.25)
                   .andThen(
-                      new SetWristAndElevator(this, 0))); // path2: go to source from target 1
+                      AutoBuilder.followPath(AUTO_PATH.get(autoName + 3)))) // path3: go to reef 2
+              .alongWith(
+                  (new IntakeCommand(this, true)
+                      .andThen(
+                          Commands.waitSeconds(0.2).andThen(new SetWristAndElevator(this, 4)))))
+              .andThen(new IntakeCommand(this, false).withTimeout(0.25));
+    } else if (path == 4) {
+      autoCommand =
+          AutoBuilder.followPath(AUTO_PATH.get(autoName + 4))
+              .alongWith(
+                  Commands.waitSeconds(0.3)
+                      .andThen(
+                          new SetWristAndElevator(this, 0))); // path2: go to source from target 1
 
     } else if (path == 5) {
-      autoCommand = (Commands.waitSeconds(0.25)
-          .andThen(
-              AutoBuilder.followPath(
-                  AUTO_PATH.get(autoName + 5)))) // path3: go to reef 2
-          .alongWith((new IntakeCommand(this, true)
-              .andThen(Commands.waitSeconds(0.3).andThen(new SetWristAndElevator(this, 4)))))
-          .andThen(new IntakeCommand(this, false).withTimeout(0.25))
-          .andThen(new SetWristAndElevator(this, 0));
+      autoCommand =
+          (Commands.waitSeconds(0.25)
+                  .andThen(
+                      AutoBuilder.followPath(AUTO_PATH.get(autoName + 5)))) // path3: go to reef 2
+              .alongWith(
+                  (new IntakeCommand(this, true)
+                      .andThen(
+                          Commands.waitSeconds(0.3).andThen(new SetWristAndElevator(this, 4)))))
+              .andThen(new IntakeCommand(this, false).withTimeout(0.25))
+              .andThen(new SetWristAndElevator(this, 0));
     }
     return autoCommand;
   }

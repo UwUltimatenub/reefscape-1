@@ -62,7 +62,7 @@ public class Elevator extends SubsystemBase {
 
     // Configure motor
     TalonFXConfiguration armTalonConfig = new TalonFXConfiguration();
-    armTalonConfig.CurrentLimits.SupplyCurrentLimit = 50.0;
+    armTalonConfig.CurrentLimits.SupplyCurrentLimit = 80.0;
     armTalonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     armTalonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     armTalonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;

@@ -51,9 +51,9 @@ public class IntakeCommand extends Command {
         intakeStatus = Intake_Coral;
 
       } else {
-        if(robot.currentState == SuperStructureState.STATE_L1){
+        if (robot.currentState == SuperStructureState.STATE_L1) {
           intakeStatus = Eject_Coral_Level1;
-        }else{
+        } else {
           intakeStatus = Eject_Coral;
         }
       }
@@ -87,7 +87,7 @@ public class IntakeCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if(isCoral && isIntake && robot.intake.isCoralLoaded()){
+    if (isCoral && isIntake && robot.intake.isCoralLoaded()) {
       robot.controller.setRumble(RumbleType.kLeftRumble, 0.5);
     }
     return isCoral && isIntake && robot.intake.isCoralLoaded()
