@@ -22,7 +22,7 @@ public class LimeLight extends SubsystemBase {
   private final String limelightName = "limelight"; // Default name
   private static final double offset_side = -0.185;
   private static final double offset_forward = 0.42;
-  private static final double offset_forward_level5 = 0.55;
+  private static final double offset_forward_level5 = 0.53;
 
   // private final AprilTagFieldLayout APRILTAGFIELDLAYOUT =
   public static final AprilTagFieldLayout TAG_LAYOUT =
@@ -214,7 +214,7 @@ public class LimeLight extends SubsystemBase {
         0.254, // Height offset (meters)
         0.0, // Roll (degrees)
         0.0, // Pitch (degrees)
-        180 // Yaw (degrees)
+        181 // Yaw (degrees)
         );
   }
 

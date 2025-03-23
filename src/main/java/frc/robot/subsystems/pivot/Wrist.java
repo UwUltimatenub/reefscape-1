@@ -43,7 +43,7 @@ public class Wrist extends SubsystemBase {
   public static final double reduction =
       50; // wrist gearbox gear ration 60.0 * 60.0 * 30.0 / (10.0 * 18.0 * 12.0)
   public static final double WRIST_OFFSET =
-      0.098; // -0.0325 default wrist angle; zero degree arm in
+      0.275777; // -0.0325 default wrist angle; zero degree arm in
   // horizontal
   private static final int encoderId = 13;
   public static final double minAngle = 45;

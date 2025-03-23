@@ -7,6 +7,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.SuperStructureState;
@@ -157,7 +158,8 @@ public class SetWristAndElevator extends Command {
     } else {
       isFinished = true;
     }
-    System.out.println("current state=" + robot.currentState.name);
+    SmartDashboard.putString("state", robot.currentState.name);
+    SmartDashboard.putString("desired state", robot.targetState.name);
   }
 
   private boolean isValidTargetState() {

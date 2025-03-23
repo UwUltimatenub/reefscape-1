@@ -150,7 +150,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public BooleanSupplier isDone() {
-    boolean flag = Math.abs(targetHeight - inputs.elevatorHeight) < 2;
+    boolean flag = Math.abs(targetHeight - inputs.elevatorHeight) < 5;
     return () -> flag;
   }
 }
