@@ -507,14 +507,14 @@ public class RobotContainer {
       autoCommand =
           AutoBuilder.followPath(AUTO_PATH.get(autoName + 2))
               .alongWith(
-                  Commands.waitSeconds(0.3)
+                  Commands.waitSeconds(0.2)
                       .andThen(
                           new SetWristAndElevator(this, 0))); // path2: go to source from target 1
 
     } else if (path == 3) {
       autoCommand =
           (new IntakeCommand(this, true)
-                  .andThen(Commands.waitSeconds(0.5).andThen(new SetWristAndElevator(this, 4))))
+                  .andThen(Commands.waitSeconds(0.25).andThen(new SetWristAndElevator(this, 4))))
               .alongWith(
                   Commands.waitSeconds(0.25)
                       .andThen(
@@ -525,32 +525,31 @@ public class RobotContainer {
       autoCommand =
           AutoBuilder.followPath(AUTO_PATH.get(autoName + 4))
               .alongWith(
-                  Commands.waitSeconds(0.3)
+                  Commands.waitSeconds(0.2)
                       .andThen(
-                          new SetWristAndElevator(this, 0))); // path2: go to source from target 1
+                          new SetWristAndElevator(this, 0))); // path4: go to source from target 2
 
     } else if (path == 5) {
       autoCommand =
           (new IntakeCommand(this, true)
-                  .andThen(Commands.waitSeconds(0.5).andThen(new SetWristAndElevator(this, 4))))
+                  .andThen(Commands.waitSeconds(0.25).andThen(new SetWristAndElevator(this, 4))))
               .alongWith(
                   Commands.waitSeconds(0.25)
                       .andThen(
                           AutoBuilder.followPath(
-                              AUTO_PATH.get(autoName + 5)))) // path3: go to reef 2
-              .andThen(new IntakeCommand(this, false).withTimeout(0.5))
-              .andThen(new SetWristAndElevator(this, 0));
-    }
+                              AUTO_PATH.get(autoName + 5)))) // path5: go to reef 2
+              .andThen(new IntakeCommand(this, false).withTimeout(0.25));
 
-    // .andThen(
-    // AutoBuilder.followPath(
-    // AUTO_PATH.get(autoName + 4))) // path4: go to rsource from target 2
-    // .andThen(new IntakeCommand(this, true))
-    // .andThen(AutoBuilder.followPath(AUTO_PATH.get(autoName + 5))) // path5: go to
-    // reef 3
-    // .andThen(new SetWristAndElevator(this, 4))
-    // .andThen(new IntakeCommand(this, false).withTimeout(1))
-    // .andThen(new SetWristAndElevator(this, 0));
+    } else if (path == 6) {
+      autoCommand =
+          AutoBuilder.followPath(AUTO_PATH.get(autoName + 6))
+              .alongWith(
+                  Commands.waitSeconds(0.2)
+                      .andThen(
+                          new SetWristAndElevator(this, 0)))
+                      .andThen( new IntakeCommand(this, true))   ; // path6: go to source from target 3
+       
+    }
 
     return autoCommand;
   }
