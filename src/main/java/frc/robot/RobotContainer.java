@@ -428,6 +428,7 @@ public class RobotContainer {
     return path;
   }
 
+  //auto Alignment for driver
   public PathPlannerPath GoReefTarget(boolean isLeft, int level, int route) {
 
     if ((level == 4 || level == 1) && !intake.isCoralLoaded()) {
@@ -562,19 +563,19 @@ public class RobotContainer {
         startPose2d = new Pose2d(6, 3.88, Rotation2d.fromDegrees(0));
         break;
       case "blue_left":
-        startPose2d = new Pose2d(7, 6, Rotation2d.fromDegrees(30));
+        startPose2d = new Pose2d(7, 7.4, Rotation2d.fromDegrees(60));
         break;
       case "blue_right":
-        startPose2d = new Pose2d(7, 2, Rotation2d.fromDegrees(-30));
+        startPose2d = new Pose2d(7, 0.65, Rotation2d.fromDegrees(-60));
         break;
       case "red_middle":
         startPose2d = new Pose2d(10.4, 3.88, Rotation2d.fromDegrees(180));
         break;
       case "red_left":
-        startPose2d = new Pose2d(10.5, 2, Rotation2d.fromDegrees(-150));
+        startPose2d = new Pose2d(10.55, 0.65, Rotation2d.fromDegrees(-120));
         break;
       case "red_right":
-        startPose2d = new Pose2d(10.5, 6, Rotation2d.fromDegrees(150));
+        startPose2d = new Pose2d(10.55, 7.4, Rotation2d.fromDegrees(120));
         break;
 
       default:
