@@ -159,7 +159,7 @@ public class Drive extends SubsystemBase {
   @Override
   public void periodic() {
 
-    if (isTracking && LimelightHelpers.getTV("limelight")) {
+    if ((isTracking ||  DriverStation.isAutonomous() || DriverStation.isDisabled()) && LimelightHelpers.getTV("limelight")) {
       setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"));
     }
 

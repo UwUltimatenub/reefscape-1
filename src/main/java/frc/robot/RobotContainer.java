@@ -369,14 +369,23 @@ public class RobotContainer {
   }
 
   /////
-  ///
-  ///
-  ///
-  ///
+  /// 
+  public static Rotation2d getForwardRotation(Pose2d pose1, Pose2d pose2) {
+    // Calculate the angle between the two positions (deltaY / deltaX)
+    double deltaX = pose2.getX() - pose1.getX();
+    double deltaY = pose2.getY() - pose1.getY();
+    double angleBetween = Math.atan2(deltaY, deltaX);
+
+    // Calculate the relative rotation by subtracting pose1's rotation from the angle between the two poses
+    Rotation2d forwardRotation = new Rotation2d(angleBetween);
+
+    return forwardRotation;
+}
   ///
   public PathPlannerPath createPath(Pose2d fromPose2d, Pose2d targetPose2d, int route) {
-
-    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(fromPose2d, targetPose2d);
+    
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(new Pose2d( fromPose2d.getTranslation(), getForwardRotation(fromPose2d, targetPose2d))
+    , new Pose2d( targetPose2d.getTranslation(), getForwardRotation(fromPose2d, targetPose2d)));
 
     PathConstraints constraints =
         new PathConstraints(
