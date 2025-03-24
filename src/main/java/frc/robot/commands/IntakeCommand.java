@@ -17,6 +17,7 @@ public class IntakeCommand extends Command {
   public static final int Intake_Stopped = 0;
   public static final int Intake_Coral = 1;
   public static final int Eject_Coral = 2;
+  public static final int Eject_Coral_L1 = 5;
   public static final int Intake_Algae = 3;
   public static final int Eject_Algae = 4;
   public int intakeStatus = Intake_Stopped;
@@ -49,7 +50,11 @@ public class IntakeCommand extends Command {
         intakeStatus = Intake_Coral;
 
       } else {
-        intakeStatus = Eject_Coral;
+        if (robot.currentState == SuperStructureState.STATE_L1) {
+          intakeStatus = Eject_Coral_L1;
+        } else {
+          intakeStatus = Eject_Coral;
+        }
       }
     } else {
       isCoral = false;

@@ -166,12 +166,12 @@ public class RobotContainer {
             new SetWristAndElevator(this, 0)
                 .withInterruptBehavior(InterruptionBehavior.kCancelSelf));
 
-    // level 1 state, depend on is coral loaded
-    controller2
-        .b()
-        .onTrue(
-            new SetWristAndElevator(this, 1)
-                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+    // // level 1 state, depend on is coral loaded
+    // controller2
+    //     .b()
+    //     .onTrue(
+    //         new SetWristAndElevator(this, 1)
+    //             .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
 
     elevator.setDefaultCommand(Commands.run(() -> {}, elevator));
     wrist.setDefaultCommand(Commands.run(() -> {}, wrist));
@@ -182,7 +182,7 @@ public class RobotContainer {
   private void setCameraCommand() {
 
     controller
-        .x()
+        .start()
         .onTrue(
             Commands.runOnce(
                 () -> {
@@ -198,7 +198,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                     () -> {
-                      var path = GoReefTarget(true, true, 1);
+                      var path = GoReefTarget(true, 4, 1);
                       if (path != null) {
                         cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
@@ -220,7 +220,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                     () -> {
-                      var path = GoReefTarget(false, true, 1);
+                      var path = GoReefTarget(false, 4, 1);
                       if (path != null) {
                         cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
@@ -242,7 +242,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                     () -> {
-                      var path = GoReefTarget(true, false, 1);
+                      var path = GoReefTarget(true, 3, 1);
                       if (path != null) {
                         cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
@@ -264,7 +264,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                     () -> {
-                      var path = GoReefTarget(false, false, 1);
+                      var path = GoReefTarget(false, 3, 1);
                       if (path != null) {
                         cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
@@ -285,7 +285,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                     () -> {
-                      var path = GoReefTarget(true, false, 1);
+                      var path = GoReefTarget(true, 2, 1);
                       if (path != null) {
                         cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
@@ -307,7 +307,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                     () -> {
-                      var path = GoReefTarget(false, false, 1);
+                      var path = GoReefTarget(false, 2, 1);
                       if (path != null) {
                         cmd = AutoBuilder.followPath(path);
                         drive.isTracking = true;
@@ -316,6 +316,50 @@ public class RobotContainer {
                     })
                 .alongWith(
                     new SetWristAndElevator(this, 2)
+                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
+                .andThen(
+                    new InstantCommand(
+                        () -> {
+                          drive.isTracking = false;
+                        })));
+
+    // 7. Align robot to Level 1 left
+    controller
+        .x()
+        .onTrue(
+            new InstantCommand(
+                    () -> {
+                      var path = GoReefTarget(true, 1, 1);
+                      if (path != null) {
+                        cmd = AutoBuilder.followPath(path);
+                        drive.isTracking = true;
+                        cmd.schedule();
+                      }
+                    })
+                .alongWith(
+                    new SetWristAndElevator(this, 1)
+                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
+                .andThen(
+                    new InstantCommand(
+                        () -> {
+                          drive.isTracking = false;
+                        })));
+
+    // 8. Align robot to Level 1 right
+    controller
+        .b()
+        .onTrue(
+            new InstantCommand(
+                    () -> {
+                      var path = GoReefTarget(false, 1, 1);
+                      if (path != null) {
+                        cmd = AutoBuilder.followPath(path);
+                        drive.isTracking = true;
+                        cmd.schedule();
+                      }
+                    })
+                .alongWith(
+                    new SetWristAndElevator(this, 1)
                         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
                 .andThen(
                     new InstantCommand(
@@ -375,16 +419,16 @@ public class RobotContainer {
     return path;
   }
 
-  public PathPlannerPath GoReefTarget(boolean isLeft, boolean isLevel4, int route) {
+  public PathPlannerPath GoReefTarget(boolean isLeft, int level, int route) {
 
-    if (isLevel4 && !intake.isCoralLoaded()) {
+    if ((level == 4 || level == 1) && !intake.isCoralLoaded()) {
       return null;
     }
     if (LimelightHelpers.getTV("limelight")) {
       drive.setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"));
     }
 
-    Pose2d targetPose2d = vision.getTargetPose2D(isLeft, isLevel4, intake.isCoralLoaded());
+    Pose2d targetPose2d = vision.getTargetPose2D(isLeft, level, intake.isCoralLoaded());
     if (targetPose2d == null) {
       return null;
     }

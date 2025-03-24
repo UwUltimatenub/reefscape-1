@@ -12,14 +12,14 @@ public class SuperStructureState {
   public static final double SOURCE_HEIGHT = 0.15;
   public static final double SOURCE_ANGLE = 48.5;
 
-  public static final double L1_HEIGHT = 5;
+  public static final double L1_HEIGHT = 0;
   public static final double L2_HEIGHT = 14;
   public static final double L3_HEIGHT = 34;
   public static final double L4_HEIGHT = 70;
 
-  public static final double L1_ANGLE = 55;
-  public static final double L2_ANGLE = 72;
-  public static final double L3_ANGLE = 75;
+  public static final double L1_ANGLE = 48.5;
+  public static final double L2_ANGLE = 70;
+  public static final double L3_ANGLE = 73;
   public static final double L4_ANGLE = 88;
 
   public static final double PROCESSOR_HEIGHT = 5;

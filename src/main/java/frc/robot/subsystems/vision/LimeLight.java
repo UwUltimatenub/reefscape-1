@@ -20,8 +20,10 @@ import org.littletonrobotics.junction.Logger;
 public class LimeLight extends SubsystemBase {
 
   private final String limelightName = "limelight"; // Default name
-  private static final double offset_side = -0.185;
+  private static final double offset_side = -0.165;
+  private static final double offset_side1 = -0.50;
   private static final double offset_forward = 0.42;
+  private static final double offset_forward_level1 = 0.39;
   private static final double offset_forward_level5 = 0.53;
 
   // private final AprilTagFieldLayout APRILTAGFIELDLAYOUT =
@@ -56,6 +58,11 @@ public class LimeLight extends SubsystemBase {
       new Transform2d(offset_forward, offset_side, Rotation2d.fromDegrees(0));
   private static final Transform2d transform_right =
       new Transform2d(offset_forward, -offset_side, Rotation2d.fromDegrees(0));
+
+  private static final Transform2d transform_left_level1 =
+      new Transform2d(offset_forward_level1, offset_side1, Rotation2d.fromDegrees(0));
+  private static final Transform2d transform_right_level1 =
+      new Transform2d(offset_forward_level1, -offset_side1, Rotation2d.fromDegrees(0));
 
   private static final Transform2d transform_left_level5 =
       new Transform2d(offset_forward_level5, offset_side, Rotation2d.fromDegrees(0));
@@ -207,6 +214,59 @@ public class LimeLight extends SubsystemBase {
     APRILTAG_TARGET_POSE.put(
         "22R5", TAG_LAYOUT.getTagPose(22).get().toPose2d().transformBy(transform_right_level5));
 
+    // Level 1
+    APRILTAG_TARGET_POSE.put(
+        "6L1", TAG_LAYOUT.getTagPose(6).get().toPose2d().transformBy(transform_left_level1));
+    APRILTAG_TARGET_POSE.put(
+        "7L1", TAG_LAYOUT.getTagPose(7).get().toPose2d().transformBy(transform_left_level1));
+    APRILTAG_TARGET_POSE.put(
+        "8L1", TAG_LAYOUT.getTagPose(8).get().toPose2d().transformBy(transform_left_level1));
+    APRILTAG_TARGET_POSE.put(
+        "9L1", TAG_LAYOUT.getTagPose(9).get().toPose2d().transformBy(transform_left_level1));
+    APRILTAG_TARGET_POSE.put(
+        "10L1", TAG_LAYOUT.getTagPose(10).get().toPose2d().transformBy(transform_left_level1));
+    APRILTAG_TARGET_POSE.put(
+        "11L1", TAG_LAYOUT.getTagPose(11).get().toPose2d().transformBy(transform_left_level1));
+
+    APRILTAG_TARGET_POSE.put(
+        "17L1", TAG_LAYOUT.getTagPose(17).get().toPose2d().transformBy(transform_left_level1));
+    APRILTAG_TARGET_POSE.put(
+        "18L1", TAG_LAYOUT.getTagPose(18).get().toPose2d().transformBy(transform_left_level1));
+    APRILTAG_TARGET_POSE.put(
+        "19L1", TAG_LAYOUT.getTagPose(19).get().toPose2d().transformBy(transform_left_level1));
+    APRILTAG_TARGET_POSE.put(
+        "20L1", TAG_LAYOUT.getTagPose(20).get().toPose2d().transformBy(transform_left_level1));
+    APRILTAG_TARGET_POSE.put(
+        "21L1", TAG_LAYOUT.getTagPose(21).get().toPose2d().transformBy(transform_left_level1));
+    APRILTAG_TARGET_POSE.put(
+        "22L1", TAG_LAYOUT.getTagPose(22).get().toPose2d().transformBy(transform_left_level1));
+
+    APRILTAG_TARGET_POSE.put(
+        "6R1", TAG_LAYOUT.getTagPose(6).get().toPose2d().transformBy(transform_right_level1));
+    APRILTAG_TARGET_POSE.put(
+        "7R1", TAG_LAYOUT.getTagPose(7).get().toPose2d().transformBy(transform_right_level1));
+    APRILTAG_TARGET_POSE.put(
+        "8R1", TAG_LAYOUT.getTagPose(8).get().toPose2d().transformBy(transform_right_level1));
+    APRILTAG_TARGET_POSE.put(
+        "9R1", TAG_LAYOUT.getTagPose(9).get().toPose2d().transformBy(transform_right_level1));
+    APRILTAG_TARGET_POSE.put(
+        "10R1", TAG_LAYOUT.getTagPose(10).get().toPose2d().transformBy(transform_right_level1));
+    APRILTAG_TARGET_POSE.put(
+        "11R1", TAG_LAYOUT.getTagPose(11).get().toPose2d().transformBy(transform_right_level1));
+
+    APRILTAG_TARGET_POSE.put(
+        "17R1", TAG_LAYOUT.getTagPose(17).get().toPose2d().transformBy(transform_right_level1));
+    APRILTAG_TARGET_POSE.put(
+        "18R1", TAG_LAYOUT.getTagPose(18).get().toPose2d().transformBy(transform_right_level1));
+    APRILTAG_TARGET_POSE.put(
+        "19R1", TAG_LAYOUT.getTagPose(19).get().toPose2d().transformBy(transform_right_level1));
+    APRILTAG_TARGET_POSE.put(
+        "20R1", TAG_LAYOUT.getTagPose(20).get().toPose2d().transformBy(transform_right_level1));
+    APRILTAG_TARGET_POSE.put(
+        "21R1", TAG_LAYOUT.getTagPose(21).get().toPose2d().transformBy(transform_right_level1));
+    APRILTAG_TARGET_POSE.put(
+        "22R1", TAG_LAYOUT.getTagPose(22).get().toPose2d().transformBy(transform_right_level1));
+
     LimelightHelpers.setCameraPose_RobotSpace(
         "",
         -0.30, // Forward offset (meters)
@@ -254,14 +314,16 @@ public class LimeLight extends SubsystemBase {
     return LimelightHelpers.getBotPose2d_wpiBlue(limelightName);
   }
 
-  public Pose2d getTargetPose2D(boolean isLeft, boolean isLevel5, boolean isCoral) {
+  public Pose2d getTargetPose2D(boolean isLeft, int level, boolean isCoral) {
     Pose2d targetPose = null;
     limeLightInputs.tagId = getTagID();
     if (limeLightInputs.tagId != 0) {
       if (isCoral) {
         targetPose =
             APRILTAG_TARGET_POSE.get(
-                limeLightInputs.tagId + (isLeft ? "L" : "R") + (isLevel5 ? "5" : ""));
+                limeLightInputs.tagId
+                    + (isLeft ? "L" : "R")
+                    + (level == 4 ? "5" : (level == 1 ? "1" : "")));
       } else {
         targetPose = APRILTAG_TARGET_POSE.get(String.valueOf(limeLightInputs.tagId));
       }
