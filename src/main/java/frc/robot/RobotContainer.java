@@ -383,9 +383,17 @@ public class RobotContainer {
 }
   ///
   public PathPlannerPath createPath(Pose2d fromPose2d, Pose2d targetPose2d, int route) {
-    
-    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(new Pose2d( fromPose2d.getTranslation(), getForwardRotation(fromPose2d, targetPose2d))
-    , new Pose2d( targetPose2d.getTranslation(), getForwardRotation(fromPose2d, targetPose2d)));
+    Pose2d startWayPoint = fromPose2d;
+    Pose2d endWayPoint = targetPose2d;
+    if(route !=2 ){//make all route starighter, except route 2
+      startWayPoint = new Pose2d( fromPose2d.getTranslation(), getForwardRotation(fromPose2d, targetPose2d));
+      endWayPoint = new Pose2d( targetPose2d.getTranslation(), getForwardRotation(fromPose2d, targetPose2d));
+    }else{
+      startWayPoint = new Pose2d( fromPose2d.getTranslation(), //smoother curve to the source
+      Rotation2d.fromDegrees((getForwardRotation(fromPose2d, targetPose2d).getDegrees()+ targetPose2d.getRotation().getDegrees())/2));
+      endWayPoint = targetPose2d;      
+    }
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(startWayPoint, endWayPoint);
 
     PathConstraints constraints =
         new PathConstraints(
