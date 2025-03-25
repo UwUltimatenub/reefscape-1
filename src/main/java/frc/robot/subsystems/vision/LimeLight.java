@@ -22,9 +22,9 @@ public class LimeLight extends SubsystemBase {
   private final String limelightName = "limelight"; // Default name
   private static final double offset_side = -0.165;
   private static final double offset_side1 = -0.50;
-  private static final double offset_forward = 0.42;
-  private static final double offset_forward_level1 = 0.39;
-  private static final double offset_forward_level5 = 0.53;
+  private static final double offset_forward = 0.36;
+  private static final double offset_forward_level1 = 0.38;
+  private static final double offset_forward_level5 = 0.48;
 
   // private final AprilTagFieldLayout APRILTAGFIELDLAYOUT =
   public static final AprilTagFieldLayout TAG_LAYOUT =
@@ -50,7 +50,7 @@ public class LimeLight extends SubsystemBase {
   public final HashMap<String, Pose2d> APRILTAG_TARGET_POSE = new HashMap<String, Pose2d>();
 
   private static final Transform2d transform_source =
-      new Transform2d(0, 0, Rotation2d.fromDegrees(180));
+      new Transform2d(0.35, 0, Rotation2d.fromDegrees(180));
   private static final Transform2d transform_algae =
       new Transform2d(0.55, 0, Rotation2d.fromDegrees(0));
 
@@ -270,7 +270,7 @@ public class LimeLight extends SubsystemBase {
     LimelightHelpers.setCameraPose_RobotSpace(
         "",
         -0.30, // Forward offset (meters)
-        0, // Side offset (meters)
+        0.015, // Side offset (meters)
         0.254, // Height offset (meters)
         0.0, // Roll (degrees)
         0.0, // Pitch (degrees)

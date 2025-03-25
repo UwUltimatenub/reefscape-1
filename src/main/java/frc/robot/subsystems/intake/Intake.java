@@ -24,7 +24,7 @@ public class Intake extends SubsystemBase {
   CANrange canRange;
   public int intakeStatus = 0;
 
-  Debouncer db = new Debouncer(0.01, DebounceType.kRising);
+  Debouncer db = new Debouncer(0.008, DebounceType.kRising);
 
   @AutoLog
   public static class IntakeIOInputs {
@@ -63,7 +63,7 @@ public class Intake extends SubsystemBase {
         volts = 0;
         break;
       case IntakeCommand.Intake_Coral:
-        volts = 5;
+        volts = 5.5;
         break;
       case IntakeCommand.Eject_Coral:
         volts = 8;
@@ -72,7 +72,7 @@ public class Intake extends SubsystemBase {
         volts = 6.3;
         break;
       case IntakeCommand.Intake_Algae:
-        volts = -6;
+        volts = -5;
         break;
       case IntakeCommand.Eject_Algae:
         volts = 12;

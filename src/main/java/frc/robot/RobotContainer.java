@@ -369,29 +369,38 @@ public class RobotContainer {
   }
 
   /////
-  /// 
+  ///
   public static Rotation2d getForwardRotation(Pose2d pose1, Pose2d pose2) {
     // Calculate the angle between the two positions (deltaY / deltaX)
     double deltaX = pose2.getX() - pose1.getX();
     double deltaY = pose2.getY() - pose1.getY();
     double angleBetween = Math.atan2(deltaY, deltaX);
 
-    // Calculate the relative rotation by subtracting pose1's rotation from the angle between the two poses
+    // Calculate the relative rotation by subtracting pose1's rotation from the angle between the
+    // two poses
     Rotation2d forwardRotation = new Rotation2d(angleBetween);
 
     return forwardRotation;
-}
+  }
+
   ///
   public PathPlannerPath createPath(Pose2d fromPose2d, Pose2d targetPose2d, int route) {
     Pose2d startWayPoint = fromPose2d;
     Pose2d endWayPoint = targetPose2d;
-    if(route !=2 ){//make all route starighter, except route 2
-      startWayPoint = new Pose2d( fromPose2d.getTranslation(), getForwardRotation(fromPose2d, targetPose2d));
-      endWayPoint = new Pose2d( targetPose2d.getTranslation(), getForwardRotation(fromPose2d, targetPose2d));
-    }else{
-      startWayPoint = new Pose2d( fromPose2d.getTranslation(), //smoother curve to the source
-      Rotation2d.fromDegrees((getForwardRotation(fromPose2d, targetPose2d).getDegrees()+ targetPose2d.getRotation().getDegrees())/2));
-      endWayPoint = targetPose2d;      
+    if (route != 2) { // make all route starighter, except route 2
+      startWayPoint =
+          new Pose2d(fromPose2d.getTranslation(), getForwardRotation(fromPose2d, targetPose2d));
+      endWayPoint =
+          new Pose2d(targetPose2d.getTranslation(), getForwardRotation(fromPose2d, targetPose2d));
+    } else {
+      startWayPoint =
+          new Pose2d(
+              fromPose2d.getTranslation(), // smoother curve to the source
+              Rotation2d.fromDegrees(
+                  (getForwardRotation(fromPose2d, targetPose2d).getDegrees()
+                          + targetPose2d.getRotation().getDegrees())
+                      / 2));
+      endWayPoint = targetPose2d;
     }
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(startWayPoint, endWayPoint);
 
@@ -436,7 +445,7 @@ public class RobotContainer {
     return path;
   }
 
-  //auto Alignment for driver
+  // auto Alignment for driver
   public PathPlannerPath GoReefTarget(boolean isLeft, int level, int route) {
 
     if ((level == 4 || level == 1) && !intake.isCoralLoaded()) {
@@ -471,6 +480,7 @@ public class RobotContainer {
     AUTO_PATH.put("blue_left3", getPath("blue_left", 3));
     AUTO_PATH.put("blue_left4", getPath("blue_left", 4));
     AUTO_PATH.put("blue_left5", getPath("blue_left", 5));
+    AUTO_PATH.put("blue_left6", getPath("blue_left", 6));
 
     // blue_right
     AUTO_PATH.put("blue_right1", getPath("blue_right", 1));
@@ -478,6 +488,7 @@ public class RobotContainer {
     AUTO_PATH.put("blue_right3", getPath("blue_right", 3));
     AUTO_PATH.put("blue_right4", getPath("blue_right", 4));
     AUTO_PATH.put("blue_right5", getPath("blue_right", 5));
+    AUTO_PATH.put("blue_right6", getPath("blue_right", 6));
 
     // red_left
     AUTO_PATH.put("red_left1", getPath("red_left", 1));
@@ -485,6 +496,7 @@ public class RobotContainer {
     AUTO_PATH.put("red_left3", getPath("red_left", 3));
     AUTO_PATH.put("red_left4", getPath("red_left", 4));
     AUTO_PATH.put("red_left5", getPath("red_left", 5));
+    AUTO_PATH.put("red_left6", getPath("red_left", 6));
 
     // red_right
     AUTO_PATH.put("red_right1", getPath("red_right", 1));
@@ -492,6 +504,7 @@ public class RobotContainer {
     AUTO_PATH.put("red_right3", getPath("red_right", 3));
     AUTO_PATH.put("red_right4", getPath("red_right", 4));
     AUTO_PATH.put("red_right5", getPath("red_right", 5));
+    AUTO_PATH.put("red_right6", getPath("red_right", 6));
   }
 
   /**
@@ -551,12 +564,8 @@ public class RobotContainer {
     } else if (path == 6) {
       autoCommand =
           AutoBuilder.followPath(AUTO_PATH.get(autoName + 6))
-              .alongWith(
-                  Commands.waitSeconds(0.2)
-                      .andThen(
-                          new SetWristAndElevator(this, 0)))
-                      .andThen( new IntakeCommand(this, true))   ; // path6: go to source from target 3
-       
+              .alongWith(Commands.waitSeconds(0.2).andThen(new SetWristAndElevator(this, 0)))
+              .andThen(new IntakeCommand(this, true)); // path6: go to source from target 3
     }
 
     return autoCommand;
@@ -696,6 +705,10 @@ public class RobotContainer {
       case 5: // to third reff
         from = getPosition(autoName, 0);
         to = getPosition(autoName, 3);
+        break;
+      case 6: // to third source
+        from = getPosition(autoName, 3);
+        to = getPosition(autoName, 0);
         break;
     }
     return createPath(from, to, number);

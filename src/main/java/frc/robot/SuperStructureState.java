@@ -18,9 +18,9 @@ public class SuperStructureState {
   public static final double L4_HEIGHT = 70;
 
   public static final double L1_ANGLE = 48.5;
-  public static final double L2_ANGLE = 70;
-  public static final double L3_ANGLE = 73;
-  public static final double L4_ANGLE = 88;
+  public static final double L2_ANGLE = 68;
+  public static final double L3_ANGLE = 71;
+  public static final double L4_ANGLE = 86;
 
   public static final double PROCESSOR_HEIGHT = 5;
   public static final double LOW_ALGAE_HEIGHT = 25;

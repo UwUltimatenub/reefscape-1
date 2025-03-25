@@ -79,6 +79,7 @@ public class SetWristAndElevator extends Command {
     if (!isValidTargetState()) {
       // if not valid target state, do nothing;
       isFinished = true;
+      return;
 
     } else if (robot.targetState == SuperStructureState.STATE_SOURCE) {
       if (robot.currentState.name.startsWith("Coral")) {
