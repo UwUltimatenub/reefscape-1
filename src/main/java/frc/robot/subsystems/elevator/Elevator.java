@@ -149,8 +149,9 @@ public class Elevator extends SubsystemBase {
     targetHeight = MathUtil.clamp(setPointHeight, minHeight, maxHeight);
   }
 
-  public BooleanSupplier isDone() {
-    boolean flag = Math.abs(targetHeight - inputs.elevatorHeight) < 5;
+  //check if elevator gets into safety zone, so wrist can be put down
+  public BooleanSupplier isDone(double distanceCM) {
+    boolean flag = Math.abs(targetHeight - inputs.elevatorHeight) < distanceCM;
     return () -> flag;
   }
 }

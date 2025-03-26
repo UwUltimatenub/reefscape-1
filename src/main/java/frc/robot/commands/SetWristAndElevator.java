@@ -87,7 +87,7 @@ public class SetWristAndElevator extends Command {
         // set elevator
         // then set wrist
         robot.elevator.setElevatorHeight(robot.targetState.height);
-        if (robot.elevator.isDone().getAsBoolean()) {
+        if (robot.elevator.isDone(10).getAsBoolean()) {
           robot.wrist.setWristAngle(robot.targetState.angle);
           if (robot.wrist.isDone().getAsBoolean()) {
             robot.currentState = robot.targetState;
@@ -103,7 +103,7 @@ public class SetWristAndElevator extends Command {
         robot.wrist.setWristAngle(SuperStructureState.STATE_SAFTY.angle);
         // along with set elevator height
         robot.elevator.setElevatorHeight(robot.targetState.height);
-        if (robot.elevator.isDone().getAsBoolean()) {
+        if (robot.elevator.isDone(10).getAsBoolean()) {
           // eject algae, end
           // robot.intake.intake(0);
           // reset wrist angle
@@ -129,15 +129,15 @@ public class SetWristAndElevator extends Command {
       // along with set elevator
       robot.wrist.setWristAngle(robot.targetState.angle);
       robot.elevator.setElevatorHeight(robot.targetState.height);
-      if (robot.elevator.isDone().getAsBoolean()) {
+      if (robot.elevator.isDone(10).getAsBoolean()) {
         robot.currentState = robot.targetState;
         isFinished = true;
       }
     } else if (robot.targetState == SuperStructureState.STATE_L1) {
-      // set wrist
-      // along with set elevator
+      // set elevator
+      // andThen with set wrist
       robot.elevator.setElevatorHeight(robot.targetState.height);
-      if (robot.elevator.isDone().getAsBoolean()) {
+      if (robot.elevator.isDone(10).getAsBoolean()) {
         robot.wrist.setWristAngle(robot.targetState.angle);
         if (robot.wrist.isDone().getAsBoolean()) {
           robot.currentState = robot.targetState;
@@ -146,15 +146,25 @@ public class SetWristAndElevator extends Command {
       }
     } else if (robot.targetState == SuperStructureState.STATE_PROCESSOR
         || robot.targetState == SuperStructureState.STATE_ALGAE_LOW
-        || robot.targetState == SuperStructureState.STATE_ALGAE_MID
-        || robot.targetState == SuperStructureState.STATE_ALGAE_TOP) {
+        || robot.targetState == SuperStructureState.STATE_ALGAE_MID) {
       // set wrist
       // along with set elevator
       robot.wrist.setWristAngle(robot.targetState.angle);
       robot.elevator.setElevatorHeight(robot.targetState.height);
-      if (robot.elevator.isDone().getAsBoolean()) {
+      if (robot.elevator.isDone(10).getAsBoolean()) {
         robot.currentState = robot.targetState;
         isFinished = true;
+      }
+    } else if (robot.targetState == SuperStructureState.STATE_ALGAE_TOP) {
+      // set elevator
+      // andThen with set wrist
+      robot.elevator.setElevatorHeight(robot.targetState.height);
+      if (robot.elevator.isDone(10).getAsBoolean()) {
+        robot.wrist.setWristAngle(robot.targetState.angle);
+        if (robot.wrist.isDone().getAsBoolean()) {
+          robot.currentState = robot.targetState;
+          isFinished = true;
+        }
       }
     } else {
       isFinished = true;
