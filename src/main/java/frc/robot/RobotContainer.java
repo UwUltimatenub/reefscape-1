@@ -513,7 +513,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand(int path) {
-    setAutoPath();
+
     String autoName = autoChooser.get().getName();
     Command autoCommand = null;
 

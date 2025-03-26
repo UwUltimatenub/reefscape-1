@@ -93,6 +93,18 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
+    robotContainer.drive.isTracking = true;
+    robotContainer.setAutoPath();
+    autonomousCommand =
+        robotContainer
+            .getAutonomousCommand(1)
+            .andThen(
+                robotContainer
+                    .getAutonomousCommand(2)
+                    .andThen(robotContainer.getAutonomousCommand(3))
+                    .andThen(robotContainer.getAutonomousCommand(4))
+                    .andThen(robotContainer.getAutonomousCommand(5))
+                    .andThen(robotContainer.getAutonomousCommand(6)));
   }
 
   /** This function is called periodically during all modes. */
@@ -124,17 +136,7 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    robotContainer.drive.isTracking = true;
-    autonomousCommand =
-        robotContainer
-            .getAutonomousCommand(1)
-            .andThen(
-                robotContainer
-                    .getAutonomousCommand(2)
-                    .andThen(robotContainer.getAutonomousCommand(3))
-                    .andThen(robotContainer.getAutonomousCommand(4))
-                    .andThen(robotContainer.getAutonomousCommand(5))
-                    .andThen(robotContainer.getAutonomousCommand(6)));
+ 
     autonomousCommand.schedule();
 
     // schedule the autonomous command (example)
