@@ -88,9 +88,9 @@ public class SetWristAndElevator extends Command {
         // then set wrist
         robot.elevator.setElevatorHeight(robot.targetState.height);
         if (robot.elevator.isDone(10).getAsBoolean()) {
+          robot.currentState = robot.targetState;
           robot.wrist.setWristAngle(robot.targetState.angle);
           if (robot.wrist.isDone().getAsBoolean()) {
-            robot.currentState = robot.targetState;
             isFinished = true;
           }
         }
@@ -107,18 +107,18 @@ public class SetWristAndElevator extends Command {
           // eject algae, end
           // robot.intake.intake(0);
           // reset wrist angle
+          robot.currentState = robot.targetState;
           robot.wrist.setWristAngle(robot.targetState.angle);
           if (robot.wrist.isDone().getAsBoolean()) {
-            robot.currentState = robot.targetState;
             isFinished = true;
           }
         }
       } else if (robot.currentState == SuperStructureState.STATE_PROCESSOR) {
         // from processor to source
         robot.elevator.setElevatorHeight(robot.targetState.height);
+        robot.currentState = robot.targetState;
         robot.wrist.setWristAngle(robot.targetState.angle);
         if (robot.wrist.isDone().getAsBoolean()) {
-          robot.currentState = robot.targetState;
           isFinished = true;
         }
       }
@@ -138,9 +138,9 @@ public class SetWristAndElevator extends Command {
       // andThen with set wrist
       robot.elevator.setElevatorHeight(robot.targetState.height);
       if (robot.elevator.isDone(10).getAsBoolean()) {
+        robot.currentState = robot.targetState;
         robot.wrist.setWristAngle(robot.targetState.angle);
         if (robot.wrist.isDone().getAsBoolean()) {
-          robot.currentState = robot.targetState;
           isFinished = true;
         }
       }
@@ -160,9 +160,9 @@ public class SetWristAndElevator extends Command {
       // andThen with set wrist
       robot.elevator.setElevatorHeight(robot.targetState.height);
       if (robot.elevator.isDone(10).getAsBoolean()) {
+        robot.currentState = robot.targetState;
         robot.wrist.setWristAngle(robot.targetState.angle);
         if (robot.wrist.isDone().getAsBoolean()) {
-          robot.currentState = robot.targetState;
           isFinished = true;
         }
       }

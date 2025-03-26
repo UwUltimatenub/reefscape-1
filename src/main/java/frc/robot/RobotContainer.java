@@ -537,7 +537,7 @@ public class RobotContainer {
           (new IntakeCommand(this, true)
                   .andThen(Commands.waitSeconds(0.25).andThen(new SetWristAndElevator(this, 4))))
               .alongWith(
-                  Commands.waitSeconds(0.25)
+                  Commands.waitSeconds(0.35)
                       .andThen(
                           AutoBuilder.followPath(
                               AUTO_PATH.get(autoName + 3)))) // path3: go to reef 2
@@ -555,7 +555,7 @@ public class RobotContainer {
           (new IntakeCommand(this, true)
                   .andThen(Commands.waitSeconds(0.25).andThen(new SetWristAndElevator(this, 4))))
               .alongWith(
-                  Commands.waitSeconds(0.25)
+                  Commands.waitSeconds(0.35)
                       .andThen(
                           AutoBuilder.followPath(
                               AUTO_PATH.get(autoName + 5)))) // path5: go to reef 2

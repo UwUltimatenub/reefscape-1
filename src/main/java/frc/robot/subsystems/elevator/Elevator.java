@@ -149,7 +149,7 @@ public class Elevator extends SubsystemBase {
     targetHeight = MathUtil.clamp(setPointHeight, minHeight, maxHeight);
   }
 
-  //check if elevator gets into safety zone, so wrist can be put down
+  // check if elevator gets into safety zone, so wrist can be put down
   public BooleanSupplier isDone(double distanceCM) {
     boolean flag = Math.abs(targetHeight - inputs.elevatorHeight) < distanceCM;
     return () -> flag;
