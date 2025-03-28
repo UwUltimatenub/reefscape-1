@@ -62,23 +62,14 @@ public class Elevator extends SubsystemBase {
 
     // Configure motor
     TalonFXConfiguration armTalonConfig = new TalonFXConfiguration();
-    armTalonConfig.CurrentLimits.SupplyCurrentLimit = 50.0;
+    armTalonConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
     armTalonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    armTalonConfig.CurrentLimits.StatorCurrentLimit = 80;
+    armTalonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     armTalonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     armTalonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     armTalonConfig.Feedback.RotorToSensorRatio = 1; // ELEVATOR_GEAR_REDUCTION
     armTalonConfig.Feedback.SensorToMechanismRatio = ELEVATOR_GEAR_REDUCTION;
-
-    armTalonConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.2;
-    // Hold the ARM
-    armTalonConfig.Slot1.GravityType = GravityTypeValue.Elevator_Static;
-    armTalonConfig.Slot1.kG = 0.3; // 0.35; // 0.35; // to hold the arm weight
-    armTalonConfig.Slot1.kP = 10; // 40; // 60; // 60; // 100; // adjust PID
-    armTalonConfig.Slot1.kI = 0;
-    armTalonConfig.Slot1.kD = 0; // 0.02;
-    armTalonConfig.Slot1.kS = 0;
-    armTalonConfig.Slot1.kV = 0;
-    armTalonConfig.Slot1.kA = 0;
 
     // Move the arm
     armTalonConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;

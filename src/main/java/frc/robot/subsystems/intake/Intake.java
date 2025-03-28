@@ -42,6 +42,8 @@ public class Intake extends SubsystemBase {
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake; // or NeutralModeValue.Coast
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // or CounterClockwise_Positive
+    config.CurrentLimits.StatorCurrentLimit = 40;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
     intake.getConfigurator().apply(config);
 
     canRange = new CANrange(19, "*");
@@ -63,7 +65,7 @@ public class Intake extends SubsystemBase {
         volts = 0;
         break;
       case IntakeCommand.Intake_Coral:
-        volts = 5.5;
+        volts = 5.2;
         break;
       case IntakeCommand.Eject_Coral:
         volts = 8;

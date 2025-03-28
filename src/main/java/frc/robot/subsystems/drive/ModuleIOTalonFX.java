@@ -101,6 +101,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     driveConfig.Slot0 = constants.DriveMotorGains;
     driveConfig.Feedback.SensorToMechanismRatio = constants.DriveMotorGearRatio;
+    driveConfig.CurrentLimits.StatorCurrentLimit = 120;
+    driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     driveConfig.TorqueCurrent.PeakForwardTorqueCurrent = constants.SlipCurrent;
     driveConfig.TorqueCurrent.PeakReverseTorqueCurrent = -constants.SlipCurrent;
     driveConfig.CurrentLimits.StatorCurrentLimit = constants.SlipCurrent;
@@ -115,6 +117,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     // Configure turn motor
     var turnConfig = new TalonFXConfiguration();
     turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    turnConfig.CurrentLimits.StatorCurrentLimit = 60;
+    turnConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     turnConfig.Slot0 = constants.SteerMotorGains;
     turnConfig.Feedback.FeedbackRemoteSensorID = constants.EncoderId;
     turnConfig.Feedback.FeedbackSensorSource =

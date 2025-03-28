@@ -579,19 +579,19 @@ public class RobotContainer {
         startPose2d = new Pose2d(6, 3.88, Rotation2d.fromDegrees(0));
         break;
       case "blue_left":
-        startPose2d = new Pose2d(7, 7.4, Rotation2d.fromDegrees(60));
+        startPose2d = new Pose2d(7, 6.17, Rotation2d.fromDegrees(45));
         break;
       case "blue_right":
-        startPose2d = new Pose2d(7, 0.65, Rotation2d.fromDegrees(-60));
+        startPose2d = new Pose2d(7, 1.87, Rotation2d.fromDegrees(-45));
         break;
       case "red_middle":
         startPose2d = new Pose2d(10.4, 3.88, Rotation2d.fromDegrees(180));
         break;
       case "red_left":
-        startPose2d = new Pose2d(10.55, 0.65, Rotation2d.fromDegrees(-120));
+        startPose2d = new Pose2d(10.55, 1.87, Rotation2d.fromDegrees(-135));
         break;
       case "red_right":
-        startPose2d = new Pose2d(10.55, 7.4, Rotation2d.fromDegrees(120));
+        startPose2d = new Pose2d(10.55, 6.17, Rotation2d.fromDegrees(135));
         break;
 
       default:

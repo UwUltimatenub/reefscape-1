@@ -75,7 +75,9 @@ public class Wrist extends SubsystemBase {
 
     // Configure motor
     TalonFXConfiguration armTalonConfig = new TalonFXConfiguration();
-    armTalonConfig.CurrentLimits.SupplyCurrentLimit = 50.0;
+    armTalonConfig.CurrentLimits.StatorCurrentLimit = 80;
+    armTalonConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    armTalonConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
     armTalonConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     armTalonConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     armTalonConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
