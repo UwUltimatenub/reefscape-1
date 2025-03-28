@@ -19,7 +19,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class LimeLight extends SubsystemBase {
 
-  private final String limelightName = "limelight"; // Default name
+  public static final String limelightName = "limelight"; // Default name
   private static final double offset_side = -0.165;
   private static final double offset_side1 = -0.50;
   private static final double offset_forward = 0.36;
@@ -309,11 +309,6 @@ public class LimeLight extends SubsystemBase {
     return tagId;
   }
 
-  /** Get estimated robot pose from the Limelight */
-  public Pose2d getRobotPose() {
-    return LimelightHelpers.getBotPose2d_wpiBlue(limelightName);
-  }
-
   public Pose2d getTargetPose2D(boolean isLeft, int level, boolean isCoral) {
     Pose2d targetPose = null;
     limeLightInputs.tagId = getTagID();
@@ -329,12 +324,7 @@ public class LimeLight extends SubsystemBase {
       }
 
       if (targetPose == null) return null;
-      limeLightInputs.target_r = targetPose.getRotation().getDegrees();
-      limeLightInputs.target_x = targetPose.getX();
-      limeLightInputs.target_y = targetPose.getY();
-      limeLightInputs.current_r = getRobotPose().getRotation().getDegrees();
-      limeLightInputs.current_x = getRobotPose().getX();
-      limeLightInputs.current_y = getRobotPose().getY();
+
     }
 
     return targetPose;

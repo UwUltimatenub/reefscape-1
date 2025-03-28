@@ -191,7 +191,8 @@ public class SetWristAndElevator extends Command {
       valid = true;
     } else if (robot.currentState.name.startsWith("Coral")
         && robot.intake.isCoralLoaded()
-        && (robot.targetState.name.startsWith("Coral") || robot.targetState.name.startsWith("Source"))) {
+        && (robot.targetState.name.startsWith("Coral")
+            || robot.targetState.name.startsWith("Source"))) {
       // with coral, coral level can swith to another coral level or source
       valid = true;
     } else if (robot.currentState.name.startsWith("Coral")
