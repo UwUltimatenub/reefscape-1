@@ -324,7 +324,6 @@ public class LimeLight extends SubsystemBase {
       }
 
       if (targetPose == null) return null;
-
     }
 
     return targetPose;

@@ -41,8 +41,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
 import frc.robot.Constants.Mode;
+import frc.robot.RobotContainer;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.vision.LimeLight;
 import frc.robot.subsystems.vision.LimelightHelpers;
@@ -162,14 +162,13 @@ public class Drive extends SubsystemBase {
   public void periodic() {
 
     if (DriverStation.isDisabled() && LimelightHelpers.getTV("limelight")) {
-      //use magtag I for initial pose
+      // use magtag I for initial pose
       setPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"));
-    }else if ((isTracking || DriverStation.isAutonomous())
-    && LimelightHelpers.getTV("limelight")) {
+    } else if ((isTracking || DriverStation.isAutonomous())
+        && LimelightHelpers.getTV("limelight")) {
       // use magtagII for auton & auto alignment
       setPose(estimatePose(this, RobotContainer.USE_MAGTAG_II));
     }
-
 
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
@@ -415,11 +414,11 @@ public class Drive extends SubsystemBase {
   // }
   public Pose2d estimatePose(Drive drive, boolean useMagtagIi) {
 
-    Pose2d estimatePose = null ;
-    if(!useMagtagIi){
-      //use magtag I 
-        estimatePose = LimelightHelpers.getBotPose2d_wpiBlue("limelight");
-    }else{
+    Pose2d estimatePose = null;
+    if (!useMagtagIi) {
+      // use magtag I
+      estimatePose = LimelightHelpers.getBotPose2d_wpiBlue("limelight");
+    } else {
       ChassisSpeeds speeds = drive.getChassisSpeeds();
 
       Rotation2d robotYaw = drive.getRotation();
@@ -430,20 +429,22 @@ public class Drive extends SubsystemBase {
             && Math.abs(speeds.omegaRadiansPerSecond) < 0.1) {
           LimelightHelpers.SetIMUMode(LimeLight.limelightName, 1);
           robotYaw =
-              LimelightHelpers.getBotPoseEstimate_wpiBlue(LimeLight.limelightName).pose.getRotation();
+              LimelightHelpers.getBotPoseEstimate_wpiBlue(LimeLight.limelightName)
+                  .pose
+                  .getRotation();
           // logMode("FUSED");
         } else {
           LimelightHelpers.SetIMUMode(LimeLight.limelightName, 1);
           // logMode("INTERNAL");
         }
       }
-  
+
       LimelightHelpers.SetRobotOrientation(
           LimeLight.limelightName, robotYaw.getDegrees(), 0, 0, 0, 0, 0);
-      estimatePose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimeLight.limelightName).pose;
+      estimatePose =
+          LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimeLight.limelightName).pose;
     }
- 
 
-    return estimatePose ;
+    return estimatePose;
   }
 }
