@@ -160,14 +160,15 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if ((DriverStation.isDisabled() || DriverStation.isAutonomous())
-        && LimelightHelpers.getTV("limelight")) {
-      // use magtag I for initial pose
-      estimatePose(this, false);
-    }
-    if (LimelightHelpers.getTV("limelight")) {
+    if (DriverStation.isDisabled() && LimelightHelpers.getTV("limelight")) {
+      estimatePose(this, 1);
+    } else if (LimelightHelpers.getTV("limelight")) {
       // use magtagII for auton & auto alignment
-      estimatePose(this, true);
+      estimatePose(this, 2);
+    }
+    if (DriverStation.isAutonomous() && LimelightHelpers.getTV("limelight")) {
+      // use magtag I for initial pose
+      estimatePose(this, 0);
     }
 
     odometryLock.lock(); // Prevents odometry updates while reading data
@@ -412,14 +413,18 @@ public class Drive extends SubsystemBase {
   //       return Commands.none();
   //   }
   // }
-  public void estimatePose(Drive drive, boolean useMagtagIi) {
+  public void estimatePose(Drive drive, int selection) {
 
-    if (!useMagtagIi) {
+    if (selection == 0) {
       // use magtag I
       LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
       this.addVisionMeasurement(
           mt1.pose, mt1.timestampSeconds, VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, 0.7));
 
+    } else if (selection == 1) {
+      LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+      this.addVisionMeasurement(
+          mt1.pose, mt1.timestampSeconds, VecBuilder.fill(0.5, 0.5, Double.MAX_VALUE));
     } else {
       ChassisSpeeds speeds = drive.getChassisSpeeds();
       Rotation2d robotYaw = drive.getRotation();
