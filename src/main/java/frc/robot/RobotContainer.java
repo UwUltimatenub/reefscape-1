@@ -50,7 +50,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  public static final boolean USE_MAGTAG_II = false;
+  public static final boolean USE_MAGTAG_II = true;
   // Subsystems
   public final Drive drive;
   private final LimeLight vision;
@@ -454,7 +454,7 @@ public class RobotContainer {
     }
     if (LimelightHelpers.getTV("limelight")) {
 
-      drive.setPose(drive.estimatePose(drive, USE_MAGTAG_II));
+      drive.estimatePose(drive, USE_MAGTAG_II);
     }
 
     Pose2d targetPose2d = vision.getTargetPose2D(isLeft, level, intake.isCoralLoaded());
