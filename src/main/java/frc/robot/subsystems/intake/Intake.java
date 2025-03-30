@@ -12,8 +12,6 @@ import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.IntakeCommand;
 import org.littletonrobotics.junction.AutoLog;
@@ -24,7 +22,7 @@ public class Intake extends SubsystemBase {
   CANrange canRange;
   public int intakeStatus = 0;
 
-  Debouncer db = new Debouncer(0.008, DebounceType.kRising);
+  // Debouncer db = new Debouncer(0.008, DebounceType.kRising);
 
   @AutoLog
   public static class IntakeIOInputs {
@@ -88,6 +86,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean isCoralLoaded() {
-    return db.calculate(canRange.getIsDetected().getValue());
+    return canRange.getIsDetected().getValue();
+    // return db.calculate(canRange.getIsDetected().getValue());
   }
 }
